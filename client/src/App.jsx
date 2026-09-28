@@ -1,0 +1,23 @@
+import { useState } from 'react'
+import './App.css'
+
+const prices = [18, 17, 15, 13, 11, 10, 12, 19, 24, 28, 30, 29, 27, 25, 23, 22, 24, 31, 36, 39, 35, 29, 24, 20]
+const hours = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a', '10a', '11a', '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p']
+const Bolt = ({ size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" /></svg>
+
+export default function App() {
+  const [address, setAddress] = useState('1428 Cedar Lane, Austin, TX')
+  const [carOpen, setCarOpen] = useState(false)
+  const [selectedDay, setSelectedDay] = useState('Today')
+  const [saved, setSaved] = useState(false)
+  const high = Math.max(...prices)
+  return <main className="app-shell">
+    <nav className="topbar"><a className="brand" href="#top"><span className="brand-mark"><Bolt size={17} /></span>chargewise</a><div className="nav-links"><a className="active" href="#plan">Plan</a><a href="#history">History</a></div><button className="profile" aria-label="Open profile">JM</button></nav>
+    <section className="hero" id="top"><div className="eyebrow"><span className="live-dot" />LIVE ENERGY PRICING</div><h1>Charge smarter.<br /><em>Spend less.</em></h1><p>Find the cheapest time to charge your EV, based on<br className="desktop-break" /> real-time energy prices in your neighborhood.</p></section>
+    <section className="planner" id="plan"><div className="planner-search"><label htmlFor="address">YOUR CHARGING LOCATION</label><div className="search-row"><span className="pin">⌖</span><input id="address" value={address} onChange={(e) => setAddress(e.target.value)} /><button className="check-button" onClick={() => setSaved(false)}>Check prices <span>→</span></button></div></div><div className="planner-car"><label>YOUR EV</label><button className="car-select" onClick={() => setCarOpen(!carOpen)}><span><span className="car-icon">▱</span> 2024 Tesla Model 3</span><span>⌄</span></button>{carOpen && <div className="car-menu"><button onClick={() => setCarOpen(false)}>2024 Tesla Model 3</button><button onClick={() => setCarOpen(false)}>2023 Ford Mustang Mach-E</button></div>}</div></section>
+    <section className="recommendation"><div className="rec-icon"><Bolt size={23} /></div><div className="rec-copy"><span className="label">YOUR BEST WINDOW</span><h2>Tonight, 1:00 – 5:00 AM</h2><p>Prices are expected to be at their lowest while you sleep.</p></div><div className="rec-price"><span>EST. PRICE</span><strong>10.2<span>¢/kWh</span></strong><small>↓ 58% below peak</small></div><button className={saved ? 'save-button saved' : 'save-button'} onClick={() => setSaved(!saved)}>{saved ? '✓ Plan saved' : 'Save charging plan'}</button></section>
+    <section className="chart-card"><div className="chart-header"><div><div className="section-title">ENERGY PRICE FORECAST</div><h2>When should you plug in?</h2></div><div className="day-tabs">{['Yesterday', 'Today', 'Tomorrow'].map((day) => <button key={day} onClick={() => setSelectedDay(day)} className={selectedDay === day ? 'selected' : ''}>{day}</button>)}</div></div><div className="chart-area"><div className="y-axis"><span>40¢</span><span>30¢</span><span>20¢</span><span>10¢</span><span>0¢</span></div><div className="bars">{prices.map((price, i) => <div className={'bar-wrap ' + (i >= 1 && i <= 5 ? 'best' : '')} key={i}><div className="bar" style={{ height: `${(price / high) * 100}%` }}><span className="tooltip">{price}.2¢</span></div><span className="hour">{i % 3 === 0 ? hours[i] : ''}</span></div>)}</div><div className="best-window"><span>CHEAPEST WINDOW</span><strong>1 AM – 5 AM</strong></div></div><div className="chart-footer"><span><i className="legend best-legend" />Best time to charge</span><span><i className="legend" />Energy price</span><span className="range">Prices refresh every hour <b>↗</b></span></div></section>
+    <section className="bottom-grid" id="history"><article className="stat-card"><div className="section-title">THIS MONTH</div><div className="stat"><strong>$18.42</strong><span>saved</span></div><p>Compared with charging at peak hours.</p><div className="progress"><i /></div><small>72% of your monthly goal</small></article><article className="tip-card"><div className="tip-icon">✦</div><div><div className="section-title">A LITTLE WISDOM</div><h3>One overnight charge can save enough to buy a cold brew.</h3><a href="#learn">Learn how we calculate savings <span>→</span></a></div></article></section>
+    <footer>© 2024 Chargewise <span>•</span> Built for better energy days</footer>
+  </main>
+}
