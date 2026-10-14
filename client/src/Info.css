@@ -1,4 +1,7 @@
 .info-page { padding-bottom: 36px; }
+.cost-split > .guide-panel { display: flex; flex-direction: column; justify-content: center; }
+.info-page details.guide-sources { margin-top: 32px; padding: 16px 0; }
+.guide-sources > summary { padding: 4px 0; font-weight: 500; }
 .cost-big.cost-less { color: #b63535; }
 .cost-big.cost-more { color: #276b48; }
 .cost-big.cost-equal { color: #637369; }
