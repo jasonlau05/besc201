@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import Info from './Info'
 
 const prices = [18, 17, 15, 13, 11, 10, 12, 19, 24, 28, 30, 29, 27, 25, 23, 22, 24, 31, 36, 39, 35, 29, 24, 20]
 const hours = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a', '10a', '11a', '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p']
@@ -11,8 +12,9 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState('Today')
   const [saved, setSaved] = useState(false)
   const high = Math.max(...prices)
+  if (window.location.pathname.replace(/\/$/, '') === '/info') return <Info />
   return <main className="app-shell">
-    <nav className="topbar"><a className="brand" href="#top"><span className="brand-mark"><Bolt size={17} /></span>chargewise</a><div className="nav-links"><a className="active" href="#plan">Plan</a><a href="#history">History</a></div><button className="profile" aria-label="Open profile">JL</button></nav>
+    <nav className="topbar"><a className="brand" href="#top"><span className="brand-mark"><Bolt size={17} /></span>chargewise</a><div className="nav-links"><a className="active" href="#plan">Plan</a><a href="#history">History</a><a href="/info">EV guide</a></div><button className="profile" aria-label="Open profile">JL</button></nav>
     <section className="hero" id="top"><div className="eyebrow"><span className="live-dot" />LIVE ENERGY PRICING</div><h1>Charge smarter.<br /><em>Spend less.</em></h1><p>Find the cheapest time to charge your EV, based on<br className="desktop-break" /> real-time energy prices in your neighborhood.</p></section>
     <section className="planner" id="plan"><div className="planner-search"><label htmlFor="address">YOUR CHARGING LOCATION</label><div className="search-row"><span className="pin">⌖</span><input id="address" value={address} onChange={(e) => setAddress(e.target.value)} /><button className="check-button" onClick={() => setSaved(false)}>Check prices <span>→</span></button></div></div><div className="planner-car"><label>YOUR EV</label><button className="car-select" onClick={() => setCarOpen(!carOpen)}><span><span className="car-icon">▱</span> 2024 Tesla Model 3</span><span>⌄</span></button>{carOpen && <div className="car-menu"><button onClick={() => setCarOpen(false)}>2024 Tesla Model 3</button><button onClick={() => setCarOpen(false)}>2023 Ford Mustang Mach-E</button></div>}</div></section>
     <section className="recommendation"><div className="rec-icon"><Bolt size={23} /></div><div className="rec-copy"><span className="label">YOUR BEST WINDOW</span><h2>Tonight, 1:00 – 5:00 AM</h2><p>Prices are expected to be at their lowest while you sleep.</p></div><div className="rec-price"><span>EST. PRICE</span><strong>10.2<span>¢/kWh</span></strong><small>↓ 58% below peak</small></div><button className={saved ? 'save-button saved' : 'save-button'} onClick={() => setSaved(!saved)}>{saved ? '✓ Plan saved' : 'Save charging plan'}</button></section>
