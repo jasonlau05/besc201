@@ -146,11 +146,11 @@ Vite’s preview command serves the static frontend. The EIA lookup needs a work
 From the repository root:
 
 ```sh
-node --test client/src/carbon-model.test.mjs
+node --test client/src/carbon-model.test.mjs client/src/electricity-rates-client.test.mjs
 node --test server/src/electricity-rates.test.js
 ```
 
-The carbon tests cover unit conversion, curve intersection, MPG effects, fixed annual mileage, and no-break-even cases. API tests mock EIA responses and cover validation, missing credentials, normalization, caching, failures, and avoiding credential echoes. They do not require an EIA key or make live API calls.
+The carbon tests cover unit conversion, curve intersection, MPG effects, fixed annual mileage, and no-break-even cases. API tests mock EIA responses and cover validation, missing credentials, normalization, caching, failures, and avoiding credential echoes. They do not require an EIA key or make live API calls. Browser-cache tests cover duplicate requests, session persistence, blocked storage, stale fallback, and response validation.
 
 The backend’s `npm test` command is still a placeholder; use the direct Node command above.
 
@@ -211,11 +211,17 @@ The server queries:
 https://api.eia.gov/v2/electricity/retail-sales/data/
 ```
 
-It requests monthly frequency, the price field, the selected state, residential sector `RES`, descending period order, and up to 12 rows.
+It requests monthly frequency, the price field, the selected state, residential sector `RES`, descending period order, and up to 12 rows. The query is bounded to the last two years rather than scanning all historical observations.
 
 Returned rows must match the state and sector, have a YYYY-MM period, contain a positive numeric price, and use EIA’s unit string **`cents per kilowatt-hour`**. The handler converts price strings to numbers.
 
-Successful results are cached per state for one hour in memory. Cache state is lost when the process restarts and is not shared across deployment instances. Upstream requests have a 10-second timeout.
+Successful results are cached per state for six hours in server memory. Concurrent requests for the same state share one EIA request. On transient network errors, HTTP 429, or upstream 5xx responses, the server retries once; each attempt has a six-second timeout and the retry waits 200 ms. Non-retryable errors are not retried.
+
+Responses include public Cache-Control headers: up to five minutes in the HTTP browser cache, six hours at the CDN, and one day of stale-while-revalidate at Vercel. Remaining freshness is calculated from the original fetch time, so memory cache hits do not reset the TTL. CDN caching requires the updated deployment; local checks cannot confirm edge-cache hits. Errors use no-store.
+
+If a refresh fails, the server can return its last successful observation set for up to seven days, marked `stale: true`. A 30-second failure cooldown prevents repeated upstream requests during an outage. Error responses include Retry-After. Server memory is still local to each process; cross-instance reuse comes from the CDN.
+
+The frontend also caches public rate responses in memory and sessionStorage, reuses in-flight requests, and retains recent data during temporary failures. Freshness lasts up to six hours from the server fetch time; previously loaded data is labeled and is never retained beyond seven days. Shared requests survive React StrictMode cleanup. Browser requests time out after 15 seconds. The API adds `fetchedAt` and `stale` fields; `X-Rate-Cache` distinguishes MISS, HIT, SHARED, and STALE at the origin.
 
 The server returns only normalized fields. It does not forward EIA’s raw response, whose request metadata can echo the API key.
 
@@ -304,7 +310,7 @@ Do not print the complete upstream response or request URL, because it can expos
 
 ### “EIA rates are temporarily unavailable”
 
-Check key validity, backend network access, and EIA availability. The message also covers upstream errors, non-JSON responses, and the 10-second timeout. Retry after resolving the cause.
+Check key validity, backend network access, and EIA availability. The message also covers upstream errors, non-JSON responses, and the per-attempt timeout. Retry after resolving the cause.
 
 ### /info returns Vercel 404
 
