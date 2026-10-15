@@ -1,14 +1,14 @@
-# Group 9 — EV charging and comparison app
+# Group 9 — EV comparison guide
 
 A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that retrieves residential electricity rates from the US Energy Information Administration (EIA).
 
-The charging planner is currently a demonstration with hardcoded prices. The state electricity-rate lookup on the EV guide uses real EIA data when an API key is configured.
+The home page introduces the project’s problem statement. The EV guide compares carbon and energy costs, with real EIA state electricity-rate data when an API key is configured.
 
 ## Pages and features
 
 | Route | Purpose | Data |
 | --- | --- | --- |
-| `/` | Address input, charging-window recommendation, hourly price chart, and save-plan feedback | Mock prices and recommendations |
+| `/` | Problem statement explaining the project’s purpose | Static project overview |
 | `/info` | Carbon break-even simulator, annual energy-cost comparison, state electricity prices, and environmental context | Calculated estimates plus live EIA monthly averages |
 
 ### Carbon break-even simulator
@@ -49,7 +49,7 @@ These are **monthly state averages**, not address-specific utility rates, hourly
 
 - Node.js **20.19+ within Node 20**, or **22.12+**. Node 22 is a straightforward choice.
 - npm, normally installed with Node.js.
-- An EIA API key for the state-rate lookup. The calculators and demo planner work without it.
+- An EIA API key for the state-rate lookup. The problem statement and calculators work without it.
 
 Check your installation:
 
@@ -281,7 +281,7 @@ The client fallback lets a direct visit or refresh at `/info` load React. It doe
 
 After deployment, check:
 
-- `/` loads the charging demo.
+- `/` loads the problem statement.
 - `/info` loads directly and survives a browser refresh.
 - `/api/health` returns the health JSON.
 - `/api/electricity-rates?state=TX` returns prices when the server key is configured.
@@ -336,8 +336,8 @@ This bypasses npm for the build only; it does not install dependencies.
 │   ├── vite.config.js
 │   ├── index.html
 │   └── src/
-│       ├── App.jsx                    # Demo planner and /info page selection
-│       ├── App.css                    # Shared/planner styles
+│       ├── App.jsx                    # Problem statement and /info page selection
+│       ├── App.css                    # Shared styles
 │       ├── Info.jsx                   # EV guide and cost calculation
 │       ├── Info.css                   # Guide styles
 │       ├── CarbonSimulator.jsx        # Carbon controls and SVG chart
@@ -367,7 +367,7 @@ This bypasses npm for the build only; it does not install dependencies.
 
 ## Current limitations
 
-The home-page address field does not geocode addresses or retrieve utility tariffs. Its price chart, recommended charging window, savings, and vehicle choices are demonstration content. Day tabs change selection styling rather than fetching different forecasts, and save-plan feedback is session state rather than persistent storage.
+The home page is a static problem statement. The EV guide uses estimates and state-average rates; it does not geocode addresses, retrieve utility-specific tariffs, or recommend actual charging windows.
 
 The app has no accounts, EV charger integration, actual charge scheduling, database, or total ownership-cost model. Calculator inputs reset on reload. State-rate data can lag the current month, and the national carbon baseline does not reflect individual locations.
 
