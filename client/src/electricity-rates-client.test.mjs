@@ -1,51 +1,67 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createRatesClient } from './electricity-rates-client.mjs'
+import saved from '../../server/data/electricity-rates.json' with { type: 'json' }
+import { createRatesClient, lookupRates } from './electricity-rates-client.mjs'
 
-const time = Date.UTC(2026, 9, 15)
-const data = { state: 'TX', price: 15.88, period: '2026-07', history: [{ period: '2026-07', price: 15.88 }], fetchedAt: new Date(time).toISOString(), stale: false }
+const time = Date.parse(saved.retrievedAt)
 const ok = body => ({ ok: true, json: async () => body })
 
-test('reuses concurrent requests and fresh data without aborting shared subscribers', async () => {
-  let calls = 0; let signal; let release
+test('one batch request serves every subsequent state lookup', async () => {
+  let calls = 0; let release
   const gate = new Promise(resolve => { release = resolve })
   const client = createRatesClient({ now: () => time, storage: () => null, fetchImpl: async (url, options) => {
-    calls++; signal = options.signal; assert.equal(url, '/api/electricity-rates?state=TX'); await gate; return ok(data)
+    assert.equal(url, '/api/electricity-rates')
+    assert.equal(options.signal.aborted, false)
+    calls++; await gate; return ok(saved)
   } })
-  const first = client.load('TX'); const second = client.load('TX')
-  assert.equal(first, second); assert.equal(calls, 1); assert.equal(signal.aborted, false)
-  release(); await first
-  assert.equal((await client.load('TX')).price, 15.88); assert.equal(calls, 1)
+  const first = client.loadDataset()
+  assert.equal(first, client.loadDataset()); assert.equal(calls, 1)
+  release(); const dataset = await first
+  for (const state of Object.keys(saved.states)) {
+    assert.equal(lookupRates(dataset, state, time).price, saved.states[state].price)
+    assert.equal(lookupRates(dataset, state, time).state, state)
+  }
+  assert.equal(lookupRates(dataset, 'ZZ'), null)
+  assert.equal(lookupRates(dataset, 'constructor'), null)
+  await client.loadDataset(); assert.equal(calls, 1)
 })
 
-test('persists public rates across page reloads and tolerates unavailable storage', async () => {
-  const saved = new Map()
-  const storage = () => ({ getItem: key => saved.get(key), setItem: (key, value) => saved.set(key, value) })
-  const client = createRatesClient({ now: () => time, storage, fetchImpl: async () => ok(data) })
-  await client.load('TX')
-  const reloaded = createRatesClient({ now: () => time + 1000, storage, fetchImpl: async () => { throw Error('must not fetch') } })
-  assert.equal((await reloaded.load('TX')).price, data.price)
-  const blocked = createRatesClient({ now: () => time, storage: () => { throw Error('blocked') }, fetchImpl: async () => ok(data) })
-  assert.equal((await blocked.load('TX')).price, data.price)
+test('the entire dataset persists as one entry across reloads; storage failures are optional', async () => {
+  const memory = new Map()
+  const storage = () => ({ getItem: key => memory.get(key), setItem: (key, value) => memory.set(key, value) })
+  await createRatesClient({ now: () => time, storage, fetchImpl: async () => ok(saved) }).loadDataset()
+  assert.equal(memory.size, 1)
+  const next = createRatesClient({ now: () => time, storage, fetchImpl: async () => { throw Error('must not fetch') } })
+  assert.equal((await next.loadDataset()).states.CA.price, saved.states.CA.price)
+  const blocked = createRatesClient({ storage: () => { throw Error('blocked') }, fetchImpl: async () => ok(saved) })
+  assert.equal(Object.keys((await blocked.loadDataset()).states).length, 51)
 })
 
-test('keeps previous rates through a temporary failure without resetting their age', async () => {
+test('a failed dataset reload keeps all previous states and labels them stale', async () => {
   let clock = time; let fail = false; let calls = 0
   const client = createRatesClient({ now: () => clock, storage: () => null, fetchImpl: async () => {
-    calls++; if (fail) throw new TypeError('network'); return ok(data)
+    calls++; if (fail) throw new TypeError('offline'); return ok(saved)
   } })
-  await client.load('TX'); fail = true; clock += 7 * 3600000
-  assert.equal(client.peek('TX'), null)
-  assert.equal((await client.load('TX')).stale, true)
-  assert.equal(calls, 2)
-  clock += 8 * 86400000
-  await assert.rejects(client.load('TX'), /Unable to load/)
+  await client.loadDataset(); fail = true; clock += 3600000
+  assert.equal(client.peekDataset(), null)
+  const stale = await client.loadDataset()
+  assert.equal(stale.stale, true); assert.equal(Object.keys(stale.states).length, 51)
+  assert.equal(lookupRates(stale, 'HI', clock).price, saved.states.HI.price); assert.equal(calls, 2)
 })
 
-test('rejects a response for another state and allows a later retry', async () => {
+test('partial or invalid data never poisons the all-state cache and can be retried', async () => {
+  const partial = structuredClone(saved); delete partial.states.CA
   let calls = 0
-  const client = createRatesClient({ now: () => time, storage: () => null, fetchImpl: async () => ok(++calls === 1 ? { ...data, state: 'CA' } : data) })
-  await assert.rejects(client.load('TX'), /unavailable/)
-  assert.equal(client.peek('TX'), null)
-  assert.equal((await client.load('TX', { force: true })).state, 'TX')
+  const client = createRatesClient({ storage: () => null, fetchImpl: async () => ok(++calls === 1 ? partial : saved) })
+  await assert.rejects(client.loadDataset(), /Unable to load saved/)
+  assert.equal(client.peekDataset(true), null)
+  assert.equal((await client.loadDataset({ force: true })).states.CA.price, saved.states.CA.price)
+})
+
+test('first-visit failures show an actionable error and reference dates stay intact', async () => {
+  const client = createRatesClient({ storage: () => null, fetchImpl: async () => { throw new TypeError('network') } })
+  await assert.rejects(client.loadDataset(), /Unable to load saved electricity rates/)
+  const lookup = lookupRates(saved, 'TX', time)
+  assert.equal(lookup.fetchedAt, saved.retrievedAt); assert.equal(lookup.fallback, saved.kind === 'reference')
+  assert.equal(lookupRates(saved, 'TX', time + 3 * 86400000).stale, true)
 })

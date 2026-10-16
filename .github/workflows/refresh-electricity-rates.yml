@@ -1,0 +1,46 @@
+name: Refresh state electricity rates
+
+on:
+  schedule:
+    # Daily at 11:23 UTC (6:23 AM CDT / 5:23 AM CST).
+    - cron: '23 11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: electricity-rates-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Verify refresh logic without contacting EIA
+        run: node --test server/scripts/refresh-electricity-rates.test.mjs server/src/electricity-rates.test.js
+      - name: Refresh shared dataset
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: node server/scripts/refresh-electricity-rates.mjs
+      - name: Commit and push the refreshed dataset
+        env:
+          TARGET_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if git diff --quiet -- server/data/electricity-rates.json; then
+            echo "Dataset is unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- server/data/electricity-rates.json
+          git commit -m "chore: refresh shared electricity rates"
+          git push origin "HEAD:$TARGET_BRANCH"

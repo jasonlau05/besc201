@@ -1,66 +1,71 @@
-const FRESH_MS = 6 * 60 * 60 * 1000
-const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
-const PREFIX = 'group9:eia:v1:'
+const FRESH_MS = 15 * 60 * 1000
+const STORAGE_KEY = 'group9:eia:all-states:v2'
+const STATE_CODES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ')
+const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
 
-function valid(data, state) {
-  return data?.state === state && Number.isFinite(data.price) && data.price > 0
-    && /^\d{4}-(0[1-9]|1[0-2])$/.test(data.period)
-    && Array.isArray(data.history) && data.history.length > 0 && data.history.length <= 12
-    && data.history.every(row => Number.isFinite(row.price) && row.price > 0 && /^\d{4}-(0[1-9]|1[0-2])$/.test(row.period))
+function valid(dataset) {
+  return dataset?.schemaVersion === 1 && dataset.sector === 'Residential' && dataset.unit === 'cents per kWh'
+    && Number.isFinite(Date.parse(dataset.retrievedAt))
+    && dataset.states && Object.keys(dataset.states).length === STATE_CODES.length
+    && STATE_CODES.every(state => {
+      const rate = dataset.states[state]
+      return rate && MONTH.test(rate.period) && Number.isFinite(rate.price) && rate.price > 0
+        && Array.isArray(rate.history) && rate.history.length > 0 && rate.history.length <= 12
+        && rate.history[0].period === rate.period && rate.history[0].price === rate.price
+        && rate.history.every((row, i) => MONTH.test(row.period) && Number.isFinite(row.price) && row.price > 0
+          && (i === 0 || rate.history[i - 1].period > row.period))
+    })
+}
+
+export function lookupRates(dataset, state, now = Date.now()) {
+  if (!dataset?.states || !Object.hasOwn(dataset.states, state)) return null
+  const rate = dataset.states[state]
+  return { state, ...rate, sector: dataset.sector, unit: dataset.unit, source: dataset.source,
+    fetchedAt: dataset.retrievedAt, fallback: dataset.kind === 'reference',
+    stale: Boolean(dataset.stale) || now - Date.parse(dataset.retrievedAt) > 48 * 60 * 60 * 1000 }
 }
 
 export function createRatesClient({
   fetchImpl = (...args) => fetch(...args), now = Date.now,
   storage = () => { try { return window.sessionStorage } catch { return null } },
 } = {}) {
-  const cache = new Map()
-  const inFlight = new Map()
-  function peek(state, allowStale = false) {
-    let entry = cache.get(state)
-    if (!entry) {
-      try { entry = JSON.parse(storage()?.getItem(PREFIX + state) ?? 'null') } catch { /* Storage may be unavailable. */ }
-      if (entry && valid(entry.data, state)) cache.set(state, entry)
+  let saved = null
+  let inFlight = null
+  function peekDataset(allowStale = false) {
+    if (!saved) {
+      try { saved = JSON.parse(storage()?.getItem(STORAGE_KEY) ?? 'null') } catch { /* Optional storage. */ }
     }
-    if (!entry || !valid(entry.data, state) || !Number.isFinite(entry.savedAt) || !Number.isFinite(entry.expiresAt)) return null
-    if (now() - entry.savedAt >= MAX_AGE_MS) return null
-    if (now() < entry.expiresAt) return entry.data
-    return allowStale ? { ...entry.data, stale: true } : null
+    if (!saved || !valid(saved.dataset) || !Number.isFinite(saved.savedAt)) { saved = null; return null }
+    if (now() - saved.savedAt < FRESH_MS) return saved.dataset
+    return allowStale ? { ...saved.dataset, stale: true } : null
   }
-  function save(state, data) {
-    const savedAt = now()
-    const upstreamTime = Date.parse(data.fetchedAt)
-    const expiresAt = data.stale ? savedAt + 30000 : Math.min(savedAt + FRESH_MS, (Number.isFinite(upstreamTime) ? upstreamTime : savedAt) + FRESH_MS)
-    const entry = { data, savedAt: Number.isFinite(upstreamTime) ? Math.min(savedAt, upstreamTime) : savedAt, expiresAt }
-    cache.set(state, entry)
-    try { storage()?.setItem(PREFIX + state, JSON.stringify(entry)) } catch { /* Memory cache still works. */ }
-  }
-  function load(state, { force = false } = {}) {
-    const cached = peek(state)
-    if (cached && !force) return Promise.resolve(cached)
-    if (inFlight.has(state)) return inFlight.get(state)
-    const fallback = peek(state, true)
-    const request = (async () => {
+  function loadDataset({ force = false } = {}) {
+    const fresh = peekDataset()
+    if (fresh && !force) return Promise.resolve(fresh)
+    if (inFlight) return inFlight
+    const previous = peekDataset(true)
+    inFlight = (async () => {
       const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 15000)
+      const timeout = setTimeout(() => controller.abort(), 10000)
       try {
-        const response = await fetchImpl(`/api/electricity-rates?state=${encodeURIComponent(state)}`, { signal: controller.signal, cache: force ? 'no-cache' : 'default' })
-        const result = await response.json()
-        if (!response.ok) throw new Error(result.error || 'Rates are unavailable. Please try again.')
-        if (!valid(result, state)) throw new Error('Rates are unavailable. Please try again.')
-        save(state, result)
-        return result
+        // Fetch all locations once. Selecting another state only calls lookupRates.
+        const response = await fetchImpl('/api/electricity-rates', {
+          signal: controller.signal, cache: force ? 'no-cache' : 'default',
+        })
+        const dataset = await response.json()
+        if (!response.ok || !valid(dataset)) throw new Error('Saved electricity rates are unavailable. Please try again.')
+        saved = { dataset, savedAt: now() }
+        try { storage()?.setItem(STORAGE_KEY, JSON.stringify(saved)) } catch { /* Memory still works. */ }
+        return dataset
       } catch (error) {
-        if (fallback) return { ...fallback, stale: true }
-        if (error.name === 'AbortError') throw new Error('The rate request timed out. Please try again.')
-        throw new Error(error instanceof SyntaxError || error instanceof TypeError ? 'Unable to load electricity rates. Please try again.' : error.message)
-      } finally {
-        clearTimeout(timeout)
-      }
-    })().finally(() => inFlight.delete(state))
-    inFlight.set(state, request)
-    return request
+        if (previous) return { ...previous, stale: true }
+        if (error.name === 'AbortError') throw new Error('Loading saved rates timed out. Please try again.')
+        throw new Error('Unable to load saved electricity rates. Please try again.')
+      } finally { clearTimeout(timeout) }
+    })().finally(() => { inFlight = null })
+    return inFlight
   }
-  return { peek, load }
+  return { peekDataset, loadDataset }
 }
 
 export const ratesClient = createRatesClient()

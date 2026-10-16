@@ -1,15 +1,15 @@
 # Group 9 — EV comparison guide
 
-A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that retrieves residential electricity rates from the US Energy Information Administration (EIA).
+A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that serves one shared, saved dataset of residential electricity rates from the US Energy Information Administration (EIA).
 
-The home page introduces the project’s problem statement. The EV guide compares carbon and energy costs, with real EIA state electricity-rate data when an API key is configured.
+The home page introduces the project’s problem statement. The EV guide compares carbon and energy costs, with saved EIA state electricity-rate data. A daily GitHub Action updates the dataset; visitor requests never call EIA.
 
 ## Pages and features
 
 | Route | Purpose | Data |
 | --- | --- | --- |
 | `/` | Problem statement explaining the project’s purpose | Static project overview |
-| `/info` | Carbon break-even simulator, annual energy-cost comparison, state electricity prices, and environmental context | Calculated estimates plus live EIA monthly averages |
+| `/info` | Carbon break-even simulator, annual energy-cost comparison, state electricity prices, and environmental context | Calculated estimates plus saved EIA monthly averages |
 
 ### Carbon break-even simulator
 
@@ -32,7 +32,7 @@ The dollar difference is **red when an EV costs less** and **green when it costs
 
 ### Electricity by location
 
-Select any US state or Washington, DC to retrieve the latest available monthly residential price and up to 12 observations. The page shows the reporting month, monthly history, and estimated electricity cost per 100 miles. Apply the selected state average directly to the cost calculator.
+The page fetches all 50 states and DC together once. Selecting a state is then an instant lookup in that dataset, with no state-change network request. The daily updater saves up to 12 monthly observations per state. The page shows the reporting month, monthly history, and estimated electricity cost per 100 miles. Apply the selected state average directly to the cost calculator.
 
 These are **monthly state averages**, not address-specific utility rates, hourly forecasts, or public-charging prices.
 
@@ -49,7 +49,7 @@ These are **monthly state averages**, not address-specific utility rates, hourly
 
 - Node.js **20.19+ within Node 20**, or **22.12+**. Node 22 is a straightforward choice.
 - npm, normally installed with Node.js.
-- An EIA API key for the state-rate lookup. The problem statement and calculators work without it.
+- No EIA key is required to run the site or read saved rates. An EIA key is needed only for the daily refresh job.
 
 Check your installation:
 
@@ -72,25 +72,11 @@ npm ci
 cd ..
 ```
 
-### 2. Configure the EIA key
+### 2. Optional local environment
 
-Register for a key at [EIA Open Data](https://www.eia.gov/opendata/). Create a file named `server/.env` with:
+The site serves the committed `server/data/electricity-rates.json` and does not need an EIA key. You may create `server/.env` to override `PORT=5000`. The development proxy must use the same port.
 
-```dotenv
-EIA_API_KEY=your_actual_eia_api_key
-PORT=5000
-```
-
-Replace the example value with your key. The backend explicitly loads `server/.env`, regardless of the directory from which it starts. A root or client `.env` file will not supply the backend key through this loader.
-
-Environment variables already set in the server process take precedence over dotenv values. Restart the server after changing its environment.
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `EIA_API_KEY` | For EIA requests | Server-side EIA credential |
-| `PORT` | No | Local backend port; defaults to 5000 |
-
-Do not prefix the key with `VITE_`: Vite-prefixed variables can be included in the browser bundle. Keep the key in the server environment. The repository ignores `.env` and `.env.*` files, with an exception for optional example files.
+The EIA key belongs in the GitHub Actions repository secret described below. Do not put it in client code or a `VITE_` variable. Existing server EIA environment variables are no longer used for visitor requests.
 
 ### 3. Start the backend
 
@@ -147,10 +133,10 @@ From the repository root:
 
 ```sh
 node --test client/src/carbon-model.test.mjs client/src/electricity-rates-client.test.mjs
-node --test server/src/electricity-rates.test.js
+node --test server/src/electricity-rates.test.js server/scripts/refresh-electricity-rates.test.mjs
 ```
 
-The carbon tests cover unit conversion, curve intersection, MPG effects, fixed annual mileage, and no-break-even cases. API tests mock EIA responses and cover validation, missing credentials, normalization, caching, failures, and avoiding credential echoes. They do not require an EIA key or make live API calls. Browser-cache tests cover duplicate requests, session persistence, blocked storage, stale fallback, and response validation.
+Tests cover carbon math, all-state browser caching and lookups, credential-free saved-data serving, batch validation, atomic file updates, network failures, incomplete responses, and HTTP 429 preservation. All use local fixtures or mocked EIA responses. They do not need an EIA key or make live EIA requests.
 
 The backend’s `npm test` command is still a placeholder; use the direct Node command above.
 
@@ -163,67 +149,79 @@ npm run lint
 
 Lint is separate from the production build.
 
+## Daily shared-data refresh
+
+The workflow in [`.github/workflows/refresh-electricity-rates.yml`](.github/workflows/refresh-electricity-rates.yml) runs daily at **11:23 UTC** (6:23 AM CDT / 5:23 AM CST). It also supports **Actions → Refresh state electricity rates → Run workflow**.
+
+### Enable it
+
+1. Push the workflow and code changes to the repository’s default branch.
+2. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret**.
+3. Name the secret **`EIA_API_KEY`** and paste your EIA key as its value.
+4. Enable GitHub Actions and allow the workflow’s `contents: write` permission. Repository rules or branch protection must permit the bot’s data-only commit.
+5. When the rate limit clears, let the schedule run or trigger it manually. No initial EIA fetch is required to serve the existing saved data.
+
+GitHub schedules run from the default branch and can be delayed; they are not exact-time guarantees. The workflow checks out that branch, tests the updater, requests one batch, and commits only the generated JSON file. It never force-pushes. If branch protection blocks the push, the job fails and the deployed data is unchanged; allow the bot through your repository policy or adopt a reviewed data-update PR workflow.
+
+### Batch and persistence
+
+`server/scripts/refresh-electricity-rates.mjs` uses EIA API v2 with monthly frequency, residential sector `RES`, the price field, all 51 state/DC facets, a two-year date window, and a 5,000-row limit. This is one successful API request per daily run, rather than one request per visitor or state selection.
+
+The updater requires 12 valid, distinct observations for every state and the same newest reporting month across locations. It rejects truncated results, invalid units, incomplete coverage, conflicting rows, and backward-moving dates. Only normalized public data is saved; raw request metadata and the key are never written or logged.
+
+A complete candidate is written to a temporary file and atomically replaces `server/data/electricity-rates.json`. Network failures or 5xx responses get at most one retry after two seconds; each attempt has a 45-second timeout. **HTTP 429 is not retried.** A failed or throttled refresh leaves the previous saved file untouched.
+
+The committed seed contains previously verified **July 2026** residential values for all 50 states and DC from EIA Table 5.6.A, retrieved October 16, 2026. It has one observed month per state, explicitly labeled as a reference snapshot. The first successful scheduled batch replaces it with 12 months of history. No new EIA fetch was required to seed it.
+
+### Publish refreshed data
+
+The workflow pushes the data commit to the default branch. Vercel must deploy that commit before the site uses the new JSON. With the repository connected, check that the bot’s commits trigger your Vercel Git deployment and that the backend service is included. If your deployment policy skips bot commits, configure that integration or redeploy the updated commit. This workflow refreshes and commits data; it does not use a Vercel token or directly invoke a production deployment.
+
+For an intentional manual refresh outside GitHub, export `EIA_API_KEY` in that process and run:
+
+```sh
+node server/scripts/refresh-electricity-rates.mjs
+```
+
+This command makes real EIA requests. It does not automatically load a local `.env` file, and it should not be run repeatedly while rate-limited.
+
 ## API reference
 
 ### GET /api/health
 
-Returns:
+Returns `{ "status": "ok" }`.
 
-```json
-{ "status": "ok" }
-```
+### GET /api/electricity-rates
 
-### GET /api/electricity-rates?state=TX
+Returns the complete saved dataset for all 50 states and DC:
 
-Accepts a two-letter state abbreviation or `DC`. Lowercase abbreviations are converted to uppercase.
-
-Illustrative success response:
-
-```json
+```text
 {
-  "state": "TX",
-  "sector": "Residential",
-  "unit": "cents per kWh",
-  "period": "2026-07",
-  "price": 15.88,
-  "history": [
-    { "period": "2026-07", "price": 15.88 },
-    { "period": "2026-06", "price": 15.94 }
-  ],
-  "source": "https://www.eia.gov/opendata/"
+  schemaVersion: 1,
+  kind: "reference" or "scheduled",
+  sector: "Residential",
+  unit: "cents per kWh",
+  retrievedAt: original snapshot/refresh timestamp,
+  source: EIA source URL,
+  states: {
+    TX: { period: "YYYY-MM", price: number, history: [{ period, price }, ...] },
+    ...all other states and DC
+  },
+  stale: boolean
 }
 ```
 
-The values above demonstrate the response format; they are not a promise of current prices. `history` is sorted newest first, and the top-level price comes from the newest valid observation.
+History is newest first. The file’s reporting months and retrieval timestamp are preserved; serving it does not make old observations appear newly fetched. Data older than 48 hours since retrieval is labeled as potentially delayed but remains usable.
 
-| Status | Meaning |
-| --- | --- |
-| 200 | Valid residential data returned |
-| 400 | Missing or invalid state |
-| 503 | EIA key absent or still set to the placeholder |
-| 502 | Upstream request failed, timed out, or returned no acceptable observations |
+### GET /api/electricity-rates?state=TX
 
-### EIA request and processing
+Optional compatibility route: returns only that state from the same saved file. It does not contact EIA. Lowercase codes and surrounding whitespace are normalized; invalid codes receive HTTP 400 with `Cache-Control: no-store`.
 
-The server queries:
+### Cache behavior
 
-```text
-https://api.eia.gov/v2/electricity/retail-sales/data/
-```
+The server loads and validates the committed JSON at startup; no EIA credential is needed. Responses carry `X-Rate-Cache: SAVED`, five minutes of browser HTTP caching, one hour of CDN caching, and one day of stale-while-revalidate.
 
-It requests monthly frequency, the price field, the selected state, residential sector `RES`, descending period order, and up to 12 rows. The query is bounded to the last two years rather than scanning all historical observations.
-
-Returned rows must match the state and sector, have a YYYY-MM period, contain a positive numeric price, and use EIA’s unit string **`cents per kilowatt-hour`**. The handler converts price strings to numbers.
-
-Successful results are cached per state for six hours in server memory. Concurrent requests for the same state share one EIA request. On transient network errors, HTTP 429, or upstream 5xx responses, the server retries once; each attempt has a six-second timeout and the retry waits 200 ms. Non-retryable errors are not retried.
-
-Responses include public Cache-Control headers: up to five minutes in the HTTP browser cache, six hours at the CDN, and one day of stale-while-revalidate at Vercel. Remaining freshness is calculated from the original fetch time, so memory cache hits do not reset the TTL. CDN caching requires the updated deployment; local checks cannot confirm edge-cache hits. Errors use no-store.
-
-If a refresh fails, the server can return its last successful observation set for up to seven days, marked `stale: true`. A 30-second failure cooldown prevents repeated upstream requests during an outage. Error responses include Retry-After. Server memory is still local to each process; cross-instance reuse comes from the CDN.
-
-The frontend also caches public rate responses in memory and sessionStorage, reuses in-flight requests, and retains recent data during temporary failures. Freshness lasts up to six hours from the server fetch time; previously loaded data is labeled and is never retained beyond seven days. Shared requests survive React StrictMode cleanup. Browser requests time out after 15 seconds. The API adds `fetchedAt` and `stale` fields; `X-Rate-Cache` distinguishes MISS, HIT, SHARED, and STALE at the origin.
-
-The server returns only normalized fields. It does not forward EIA’s raw response, whose request metadata can echo the API key.
+The browser loads the whole dataset once per guide visit and shares in-flight requests, including React StrictMode remounts. It saves one dataset entry in sessionStorage and memory with a 15-minute revalidation window. State changes only call a local lookup; they do not trigger revalidation or EIA requests. An explicit “Reload saved data” reloads the saved API response, not EIA. If the application server is unavailable, previously loaded data is retained and labeled stale; an uncached first visit needs the server to be reachable.
 
 ## Calculator assumptions and formulas
 
@@ -276,7 +274,7 @@ The repository-root `vercel.json` uses Vercel Services to build and route two se
 | client | client | Vite |
 | server | server | Express |
 
-Import the repository as a Vercel project using the **repository root**, rather than only `client`, so the top-level services configuration is included. Configure `EIA_API_KEY` in the deployed server environment for the deployment environments you use, then deploy or redeploy.
+Import the repository as a Vercel project using the **repository root**, rather than only `client`, so the top-level services configuration is included. No EIA key is required in Vercel. Deploy both services and keep the saved JSON file included in the server service.
 
 Routing works in two stages:
 
@@ -290,7 +288,7 @@ After deployment, check:
 - `/` loads the problem statement.
 - `/info` loads directly and survives a browser refresh.
 - `/api/health` returns the health JSON.
-- `/api/electricity-rates?state=TX` returns prices when the server key is configured.
+- `/api/electricity-rates` returns all 51 saved locations, and state changes require no further request.
 
 Deployment configuration changes and environment changes require a new deployment. Local tests do not confirm that the published Vercel deployment has picked up the changes.
 
@@ -298,19 +296,19 @@ Relevant documentation: [Vercel Services](https://vercel.com/docs/services), [se
 
 ## Troubleshooting
 
-### “Electricity rates are not configured yet”
+### Scheduled refresh fails
 
-Check that `EIA_API_KEY` exists in `server/.env` locally or in the deployed server environment. It must not be empty or equal to `replace_with_your_eia_key`. Restart locally or redeploy after updating it.
+Check the Actions log and the `EIA_API_KEY` repository secret. HTTP 429 means the key is throttled: wait for the next daily run rather than repeatedly retrying. Incomplete or invalid batches are rejected and the last good JSON is preserved.
 
-### “No residential price data is currently available”
+If the push is rejected, check repository permissions, branch protection, and concurrent commits. The workflow does not force-push or overwrite other work.
 
-The request returned no rows that passed the handler’s filters. Check the state, reporting periods, prices, and units in a sanitized response. EIA currently returns `cents per kilowatt-hour`; using `cents per kilowatthour` rejects valid rows.
+### Rates do not change after a successful refresh
 
-Do not print the complete upstream response or request URL, because it can expose the key. Restart the backend after changing the handler, or redeploy the updated code.
+Check the data commit in the default branch and the deployed commit SHA in Vercel. The JSON is read at server startup, so a new deployment (or local server restart) is needed to load it. Browser session data can be revalidated using “Reload saved data”; “Dataset saved” shows the stored retrieval date.
 
-### “EIA rates are temporarily unavailable”
+### The page shows an old per-state EIA error
 
-Check key validity, backend network access, and EIA availability. The message also covers upstream errors, non-JSON responses, and the per-attempt timeout. Retry after resolving the cause.
+The current API never calls EIA and does not require an EIA key. Seeing an old configuration or rate-limit error indicates an older server deployment. Deploy the updated server and client together.
 
 ### /info returns Vercel 404
 
@@ -337,6 +335,7 @@ This bypasses npm for the build only; it does not install dependencies.
 .
 ├── README.md
 ├── vercel.json
+├── .github/workflows/refresh-electricity-rates.yml # Daily batch job
 ├── client/
 │   ├── package.json
 │   ├── vite.config.js
@@ -353,11 +352,13 @@ This bypasses npm for the build only; it does not install dependencies.
 └── server/
     ├── package.json
     ├── README.md
-    ├── .env                          # Local key; ignored by Git
+    ├── .env                          # Optional local port; ignored by Git
+    ├── data/electricity-rates.json     # Shared, persistent all-state dataset
+    ├── scripts/refresh-electricity-rates.mjs # Scheduled batch updater
     └── src/
         ├── index.js                  # Express routes and environment loading
-        ├── electricity-rates.js      # EIA request, filtering, cache, and errors
-        └── electricity-rates.test.js # Mocked API tests
+        ├── electricity-rates.js      # Saved dataset serving; no EIA calls
+        └── electricity-rates.test.js # Saved-data API tests
 ```
 
 ## Sources
