@@ -41,7 +41,48 @@ export default function Info() {
     
     <ElectricityRates efficiency={efficiency} onUseRate={setElectricity} />
 
-    <section className="guide-section planet-section"><div className="guide-section-heading"><span className="section-title">04 / THE BIGGER PICTURE</span><h2>No exhaust. Still a footprint.</h2><p>The whole lifecycle matters, from making the battery to the electricity you use.</p></div><div className="lifecycle"><article><span>01</span><h3>Build</h3><p>Battery manufacturing can give an EV a larger footprint before its first mile.</p></article><span className="lifecycle-arrow" aria-hidden="true">→</span><article><span>02</span><h3>Drive</h3><p>No tailpipe emissions. Charging emissions depend on how electricity is generated.</p></article><span className="lifecycle-arrow" aria-hidden="true">→</span><article><span>03</span><h3>Look at the lifetime</h3><p>EV lifetime greenhouse gas emissions are typically lower than an average gasoline car, including manufacturing.</p></article></div><div className="guide-myths"><details><summary>Does a battery cancel out the climate benefit?</summary><p>EPA’s lifecycle comparison includes battery production and still finds typically lower lifetime emissions for EVs. Vehicle size, lifetime mileage, and electricity generation affect the result. <a href={sources.epa}>Read the evidence</a></p></details><details><summary>What about mining and recycling?</summary><p>Battery materials have environmental and social impacts. Reuse and recycling can recover materials, but they do not erase production impacts. The Electric Car Scheme article offers a UK-focused overview; its numerical estimates should not be treated as a personal US forecast. <a href={sources.scheme}>Read the overview </a></p></details><details><summary>Could a hybrid be a better fit?</summary><p>If reliable charging is hard to arrange, compare a conventional hybrid too. A plug-in hybrid offers electric driving and a gasoline backup, but needs regular charging to realize its electric-driving benefits. <a href={sources.doe}>Compare the tradeoffs </a></p></details></div></section>
+    <section className="guide-section planet-section">
+      <div className="guide-section-heading"><span className="section-title">04 / THE BIGGER PICTURE</span><h2>No exhaust. Still a footprint.</h2><p>The whole lifecycle matters, from making the battery to the electricity you use.</p></div>
+      <div className="lifecycle">
+        <article><span>01</span><h3>Build</h3><p>Battery manufacturing can give an EV a larger footprint before its first mile.</p></article>
+        <span className="lifecycle-arrow" aria-hidden="true">→</span>
+        <article><span>02</span><h3>Drive</h3><p>No tailpipe emissions. Charging emissions depend on how electricity is generated.</p></article>
+        <span className="lifecycle-arrow" aria-hidden="true">→</span>
+        <article><span>03</span><h3>Look at the lifetime</h3><p>EV lifetime greenhouse gas emissions are typically lower than an average gasoline car, including manufacturing.</p></article>
+      </div>
+      <div className="guide-myths">
+        <article className="guide-myth-card" aria-labelledby="faq-battery">
+          <span className="myth-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+              <rect x="3" y="6" width="17" height="12" rx="3" /><path d="M22 10v4M12 8l-3 5h5l-3 4" />
+            </svg>
+          </span>
+          <h3 id="faq-battery">Does a battery cancel out the climate benefit?</h3>
+          <p>EPA’s lifecycle comparison includes battery production and still finds typically lower lifetime emissions for EVs. Vehicle size, lifetime mileage, and electricity generation affect the result.</p>
+          <a className="myth-card-link" href={sources.epa}>Read the evidence <span aria-hidden="true">↗</span></a>
+        </article>
+        <article className="guide-myth-card" aria-labelledby="faq-recycling">
+          <span className="myth-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+              <path d="M20 11a8 8 0 0 0-14-5L3 9m0-5v5h5M4 13a8 8 0 0 0 14 5l3-3m0 5v-5h-5" />
+            </svg>
+          </span>
+          <h3 id="faq-recycling">What about mining and recycling?</h3>
+          <p>Battery materials have environmental and social impacts. Reuse and recycling can recover materials, but they do not erase production impacts.</p>
+          <a className="myth-card-link" href={sources.scheme}>Read the overview <span aria-hidden="true">↗</span></a>
+        </article>
+        <article className="guide-myth-card" aria-labelledby="faq-hybrid">
+          <span className="myth-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+              <path d="M7 20V4M4 7l3-3 3 3M7 9a5 5 0 0 0 5 5h7m-4-4 4 4-4 4" />
+            </svg>
+          </span>
+          <h3 id="faq-hybrid">Could a hybrid be a better fit?</h3>
+          <p>If reliable charging is hard to arrange, compare a conventional hybrid too. A plug-in hybrid offers electric driving and a gasoline backup, but needs regular charging to realize its electric-driving benefits.</p>
+          <a className="myth-card-link" href={sources.doe}>Compare the tradeoffs <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+    </section>
 
     <section className="guide-next"><div><span className="section-title">YOUR NEXT STEP</span><h2>Make it about your life.</h2><p>Compare specific vehicles and local rates.<br />Use your own assumptions to explore the tradeoffs.</p></div><a className="guide-primary" href="/">Read the problem statement →</a></section>
     <details className="guide-sources"><summary>Sources</summary><p>Sources reviewed October 14, 2026. US units and USD are used in the interactive examples.</p><ol><li><a href={sources.epa}>US EPA · Electric Vehicle Myths ↗</a><span>Lifecycle emissions, efficiency, range, and cold weather.</span></li><li><a href={sources.doe}>US DOE · Electric Vehicle Benefits and Considerations ↗</a><span>Charging access, costs, and vehicle tradeoffs.</span></li><li><a href={sources.scheme}>The Electric Car Scheme · Are EVs Better for the Environment? ↗</a><span>Additional reading from a UK EV provider; geographic context differs.</span></li><li><a href={sources.range}>DOE · Median EV Range, Model Year 2024 ↗</a><span>Fact #1375 (December 30, 2024): median EPA-rated range of 283 miles per charge. This is a model-year median, not a guarantee for every EV.</span></li><li><a href={sources.maintenance}>DOE · Scheduled Maintenance Costs ↗</a><span>Fact #1190 (June 14, 2021): estimated 6.1¢/mile for battery-electric vehicles versus 10.1¢/mile for conventional vehicles. The roughly 40% reduction is calculated from those estimates; it excludes unscheduled repairs.</span></li><li><a href={sources.battery}>DOE AFDC · EV Maintenance and Battery Warranties ↗</a><span>Many manufacturers offer 8-year/100,000-mile EV battery warranties. Coverage, exclusions, and capacity guarantees vary; this is not a battery-life prediction.</span></li><li><a href="https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a">EIA · Saved residential electricity rates ↗</a><span>The initial shared dataset contains July 2026 Table 5.6.A rates for all states and DC, retrieved October 16, 2026. A daily batch job updates the saved monthly dataset; state selection does not call EIA. See “Last fetched” for its retrieval date.</span></li></ol></details><SiteFooter />
