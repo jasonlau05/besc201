@@ -304,7 +304,7 @@ If the push is rejected, check repository permissions, branch protection, and co
 
 ### Rates do not change after a successful refresh
 
-Check the data commit in the default branch and the deployed commit SHA in Vercel. The JSON is read at server startup, so a new deployment (or local server restart) is needed to load it. Browser session data can be revalidated using “Reload saved data”; “Dataset saved” shows the stored retrieval date.
+Check the data commit in the default branch and the deployed commit SHA in Vercel. The JSON is read at server startup, so a new deployment (or local server restart) is needed to load it. Browser session data can be revalidated using “Reload saved data”; “Last fetched” shows the stored retrieval date.
 
 ### The page shows an old per-state EIA error
 

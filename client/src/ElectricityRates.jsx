@@ -91,7 +91,7 @@ export default function ElectricityRates({ efficiency, onUseRate }) {
             {data.fallback ? <p className="guide-note">Published reference snapshot. Monthly history will expand after the first successful daily refresh.</p> : data.stale &&
               <p role="status">Showing the last saved dataset; the scheduled refresh may be delayed. <button type="button" onClick={reload}>Reload saved data</button></p>}
             <span className="section-title">{month(data.period)} · RESIDENTIAL AVERAGE</span>
-            <p className="guide-note">Dataset saved {new Date(data.fetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</p>
+            <p className="guide-note">Last fetched {new Date(data.fetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</p>
             <div className="carbon-big">{data.price.toFixed(2)}<small>¢ per kWh in {states.find(([code]) => code === data.state)?.[1]}</small></div>
             <p>About <strong>${(data.price / 100 * efficiency).toFixed(2)}</strong> per 100 miles at {efficiency} kWh/100 mi.</p>
             {data.history.length > 1 && <div className="rate-history" aria-label="Available monthly rate history">
