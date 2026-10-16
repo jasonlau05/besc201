@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "kind": "reference",
+  "source": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+  "dataset": "EIA Electric Power Monthly Table 5.6.A",
+  "sector": "Residential",
+  "unit": "cents per kWh",
+  "retrievedAt": "2026-10-16",
+  "publishedAt": "2026-09-24",
+  "states": {
+    "AL": {
+      "period": "2026-07",
+      "price": 16.4,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 16.4
+        }
+      ]
+    },
+    "AK": {
+      "period": "2026-07",
+      "price": 28.83,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 28.83
+        }
+      ]
+    },
+    "AZ": {
+      "period": "2026-07",
+      "price": 15.38,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.38
+        }
+      ]
+    },
+    "AR": {
+      "period": "2026-07",
+      "price": 14.33,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.33
+        }
+      ]
+    },
+    "CA": {
+      "period": "2026-07",
+      "price": 33.61,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 33.61
+        }
+      ]
+    },
+    "CO": {
+      "period": "2026-07",
+      "price": 17,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 17
+        }
+      ]
+    },
+    "CT": {
+      "period": "2026-07",
+      "price": 24.16,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 24.16
+        }
+      ]
+    },
+    "DE": {
+      "period": "2026-07",
+      "price": 18.48,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 18.48
+        }
+      ]
+    },
+    "DC": {
+      "period": "2026-07",
+      "price": 25.21,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 25.21
+        }
+      ]
+    },
+    "FL": {
+      "period": "2026-07",
+      "price": 15.03,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.03
+        }
+      ]
+    },
+    "GA": {
+      "period": "2026-07",
+      "price": 16.27,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 16.27
+        }
+      ]
+    },
+    "HI": {
+      "period": "2026-07",
+      "price": 48,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 48
+        }
+      ]
+    },
+    "ID": {
+      "period": "2026-07",
+      "price": 13.73,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.73
+        }
+      ]
+    },
+    "IL": {
+      "period": "2026-07",
+      "price": 19.22,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 19.22
+        }
+      ]
+    },
+    "IN": {
+      "period": "2026-07",
+      "price": 16.73,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 16.73
+        }
+      ]
+    },
+    "IA": {
+      "period": "2026-07",
+      "price": 15.99,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.99
+        }
+      ]
+    },
+    "KS": {
+      "period": "2026-07",
+      "price": 15.27,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.27
+        }
+      ]
+    },
+    "KY": {
+      "period": "2026-07",
+      "price": 13.81,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.81
+        }
+      ]
+    },
+    "LA": {
+      "period": "2026-07",
+      "price": 12.72,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 12.72
+        }
+      ]
+    },
+    "ME": {
+      "period": "2026-07",
+      "price": 32.41,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 32.41
+        }
+      ]
+    },
+    "MD": {
+      "period": "2026-07",
+      "price": 21.41,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 21.41
+        }
+      ]
+    },
+    "MA": {
+      "period": "2026-07",
+      "price": 30.49,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 30.49
+        }
+      ]
+    },
+    "MI": {
+      "period": "2026-07",
+      "price": 23.05,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 23.05
+        }
+      ]
+    },
+    "MN": {
+      "period": "2026-07",
+      "price": 17.45,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 17.45
+        }
+      ]
+    },
+    "MS": {
+      "period": "2026-07",
+      "price": 14.54,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.54
+        }
+      ]
+    },
+    "MO": {
+      "period": "2026-07",
+      "price": 16.09,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 16.09
+        }
+      ]
+    },
+    "MT": {
+      "period": "2026-07",
+      "price": 14.99,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.99
+        }
+      ]
+    },
+    "NE": {
+      "period": "2026-07",
+      "price": 13.78,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.78
+        }
+      ]
+    },
+    "NV": {
+      "period": "2026-07",
+      "price": 12.77,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 12.77
+        }
+      ]
+    },
+    "NH": {
+      "period": "2026-07",
+      "price": 26.6,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 26.6
+        }
+      ]
+    },
+    "NJ": {
+      "period": "2026-07",
+      "price": 25.19,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 25.19
+        }
+      ]
+    },
+    "NM": {
+      "period": "2026-07",
+      "price": 16.09,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 16.09
+        }
+      ]
+    },
+    "NY": {
+      "period": "2026-07",
+      "price": 29.9,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 29.9
+        }
+      ]
+    },
+    "NC": {
+      "period": "2026-07",
+      "price": 15.16,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.16
+        }
+      ]
+    },
+    "ND": {
+      "period": "2026-07",
+      "price": 13.41,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.41
+        }
+      ]
+    },
+    "OH": {
+      "period": "2026-07",
+      "price": 19.45,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 19.45
+        }
+      ]
+    },
+    "OK": {
+      "period": "2026-07",
+      "price": 14.35,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.35
+        }
+      ]
+    },
+    "OR": {
+      "period": "2026-07",
+      "price": 15.97,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.97
+        }
+      ]
+    },
+    "PA": {
+      "period": "2026-07",
+      "price": 21.72,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 21.72
+        }
+      ]
+    },
+    "RI": {
+      "period": "2026-07",
+      "price": 28.29,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 28.29
+        }
+      ]
+    },
+    "SC": {
+      "period": "2026-07",
+      "price": 15.47,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.47
+        }
+      ]
+    },
+    "SD": {
+      "period": "2026-07",
+      "price": 15.37,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.37
+        }
+      ]
+    },
+    "TN": {
+      "period": "2026-07",
+      "price": 13.71,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.71
+        }
+      ]
+    },
+    "TX": {
+      "period": "2026-07",
+      "price": 15.88,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.88
+        }
+      ]
+    },
+    "UT": {
+      "period": "2026-07",
+      "price": 13.12,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 13.12
+        }
+      ]
+    },
+    "VT": {
+      "period": "2026-07",
+      "price": 23.75,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 23.75
+        }
+      ]
+    },
+    "VA": {
+      "period": "2026-07",
+      "price": 17.55,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 17.55
+        }
+      ]
+    },
+    "WA": {
+      "period": "2026-07",
+      "price": 14.71,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.71
+        }
+      ]
+    },
+    "WV": {
+      "period": "2026-07",
+      "price": 15.78,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 15.78
+        }
+      ]
+    },
+    "WI": {
+      "period": "2026-07",
+      "price": 19.06,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 19.06
+        }
+      ]
+    },
+    "WY": {
+      "period": "2026-07",
+      "price": 14.36,
+      "history": [
+        {
+          "period": "2026-07",
+          "price": 14.36
+        }
+      ]
+    }
+  }
+}
