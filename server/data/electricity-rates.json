@@ -5,7 +5,7 @@
   "dataset": "EIA API v2 electricity/retail-sales",
   "sector": "Residential",
   "unit": "cents per kWh",
-  "retrievedAt": "2026-10-24T14:40:03.868Z",
+  "retrievedAt": "2026-10-25T14:58:50.848Z",
   "states": {
     "AL": {
       "period": "2026-08",
