@@ -2,8 +2,8 @@ const { readFileSync } = require('node:fs');
 const path = require('node:path');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Always use the free router, regardless of account defaults or environment overrides.
-const OPENROUTER_MODEL = 'openrouter/free';
+// OpenRouter tries these models in order. The explicitly selected backup is a paid model.
+const OPENROUTER_MODELS = ['dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3.5-super-vl:free'];
 // Load from the server directory so deployment and any working directory use the same guidance.
 const SYSTEM_PROMPT = readFileSync(path.join(__dirname, '../context.txt'), 'utf8').trim();
 
@@ -48,7 +48,7 @@ function createEvChatHandler({ fetchImpl = (...args) => fetch(...args), env = pr
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'X-OpenRouter-Title': 'Group9 EV assistant' },
         body: JSON.stringify({
-          model: OPENROUTER_MODEL,
+          models: OPENROUTER_MODELS,
           messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...req.body.messages.map(({ role, content }) => ({ role, content }))],
           max_tokens: 700,
           stream: false,

@@ -52,7 +52,8 @@ test('uses a server-owned prompt, carries follow-up context, and returns only re
   assert.equal(captured.url, 'https://openrouter.ai/api/v1/chat/completions');
   assert.equal(captured.options.headers.Authorization, 'Bearer private-test-key');
   const payload = JSON.parse(captured.options.body);
-  assert.equal(payload.model, 'openrouter/free');
+  assert.deepEqual(payload.models, ['dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3.5-super-vl:free']);
+  assert.equal('model' in payload, false);
   assert.equal(payload.messages[0].role, 'system');
   assert.equal(payload.messages[0].content, readFileSync(path.join(__dirname, '../context.txt'), 'utf8').trim());
   assert.match(payload.messages[0].content, /13,662/);
@@ -62,9 +63,9 @@ test('uses a server-owned prompt, carries follow-up context, and returns only re
   assert.doesNotMatch(JSON.stringify(res.body), /private-test-key|chosen\/model/);
 });
 
-test('always uses openrouter/free even if a paid model is set in the environment', async () => {
+test('preserves primary and backup order regardless of model environment overrides', async () => {
   for (const model of [undefined, '', 'chosen/paid-model']) {
-    const handler = createEvChatHandler({ env: { ...env, OPENROUTER_MODEL: model }, fetchImpl: async (_, options) => { assert.equal(JSON.parse(options.body).model, 'openrouter/free'); return success(); } });
+    const handler = createEvChatHandler({ env: { ...env, OPENROUTER_MODEL: model }, fetchImpl: async (_, options) => { assert.deepEqual(JSON.parse(options.body).models, ['dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3.5-super-vl:free']); return success(); } });
     assert.equal((await call(handler)).statusCode, 200);
   }
 });
@@ -74,12 +75,12 @@ test('provider authentication, billing, and other errors never expose upstream d
     let requests = 0;
     const handler = createEvChatHandler({ env, fetchImpl: async (_, options) => {
       requests++;
-      assert.equal(JSON.parse(options.body).model, 'openrouter/free');
+      assert.deepEqual(JSON.parse(options.body).models, ['dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3.5-super-vl:free']);
       return { ok: false, status, json: () => assert.fail('Do not forward upstream error data') };
     } });
     const res = await call(handler);
     assert.equal(res.statusCode, 502);
-    assert.equal(requests, 1, 'Provider failures must not trigger a paid fallback');
+    assert.equal(requests, 1, 'OpenRouter handles model fallback; the app must not retry a failed routing request');
     assert.doesNotMatch(JSON.stringify(res.body), /private-test-key/);
   }
 });

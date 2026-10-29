@@ -18,7 +18,7 @@ The chatbot’s answer guidance lives in `server/context.txt`. Edit it to change
 
 A small fixed circle at the bottom right opens the EV assistant on every page. It supports suggested questions, follow-up context, loading feedback, retry, minimizing, Escape to close, and a new-conversation button. Completed chat messages stay in the current tab’s sessionStorage across page navigation; a new conversation clears them. The server does not save chat logs. Questions and recent conversation context are sent to OpenRouter and its model provider when submitted; AI answers can be inaccurate.
 
-The Express backend owns the system prompt and API key and always requests `openrouter/free`, with no paid-model fallback. Requests have message and history limits, a 35-second provider timeout, a 700-token output limit, and per-instance request/concurrency limits. Free-model availability and OpenRouter quotas still apply. For a public deployment, configure hosting-level abuse protection: in-memory limits reset on cold starts and are not shared across server instances.
+The Express backend owns the system prompt and API key. It requests `dots-studio/dots-3-note-preview:free` first, with `nvidia/nemotron-3.5-super-vl:free` as the backup. The backup is a paid model and can consume OpenRouter credits when used. Requests have message and history limits, a 35-second provider timeout, a 700-token output limit, and per-instance request/concurrency limits. Model availability and OpenRouter quotas still apply. For a public deployment, configure hosting-level abuse protection: in-memory limits reset on cold starts and are not shared across server instances.
 
 ### Carbon break-even simulator
 
@@ -93,7 +93,7 @@ To enable the EV assistant, add this entry to the existing `server/.env`:
 OPENROUTER_API_KEY=your_openrouter_key
 ```
 
-Restart the backend after changing the key. Keep it server-only; never use a `VITE_` variable. Without a key, the site and Learn content still work, and chat shows that the assistant is not connected. The model is fixed to [OpenRouter’s free router](https://openrouter.ai/openrouter/free), which selects available free models. Account defaults and `OPENROUTER_MODEL` environment values cannot select a paid model. Free usage remains subject to OpenRouter’s quotas and model availability. The integration uses the chat completions HTTP API and does not require the TypeScript SDK.
+Restart the backend after changing the key. Keep it server-only; never use a `VITE_` variable. Without a key, the site and Learn content still work, and chat shows that the assistant is not connected. Model priority is fixed to `dots-studio/dots-3-note-preview:free`, then `nvidia/nemotron-3.5-super-vl:free`. OpenRouter handles fallback when the primary returns an error. The explicitly selected backup is paid; see [its model page](https://openrouter.ai/nvidia/nemotron-3.5-super-vl:free). Account defaults and `OPENROUTER_MODEL` environment values cannot change this order. Usage remains subject to OpenRouter’s quotas and model availability. The integration uses the chat completions HTTP API and does not require the TypeScript SDK.
 
 ### 3. Start the backend
 
@@ -210,7 +210,7 @@ This command makes real EIA requests. It does not automatically load a local `.e
 
 Accepts `{ "messages": [{ "role": "user", "content": "How does an EV work?" }] }` and returns `{ "reply": "..." }`. Send alternating user/assistant history ending with the new user question. The endpoint accepts up to 15 messages, 1,000 characters per user question, 4,000 per assistant reply, and 16,000 total characters. It prepends a server-owned EV education prompt and calls OpenRouter with the server’s credentials. Client-supplied system messages are rejected.
 
-Responses use `Cache-Control: no-store`. Errors return `{ "error": "..." }`: 400 for invalid input, 429 for throttling, 503 for missing configuration, 502 for provider/network failures, and 504 for timeout. Raw provider errors and credentials are never returned. Every request explicitly selects `openrouter/free`; provider failures return an error instead of falling back to a paid model.
+Responses use `Cache-Control: no-store`. Errors return `{ "error": "..." }`: 400 for invalid input, 429 for throttling, 503 for missing configuration, 502 for provider/network failures, and 504 for timeout. Raw provider errors and credentials are never returned. Every request sends `models: ["dots-studio/dots-3-note-preview:free", "nvidia/nemotron-3.5-super-vl:free"]` in that priority order. OpenRouter handles fallback; the app does not retry a failed routing request. If both models fail, the existing safe error handling applies. See [OpenRouter model fallbacks](https://openrouter.ai/docs/guides/routing/model-fallbacks).
 
 ### GET /api/health
 
@@ -301,7 +301,7 @@ The repository-root `vercel.json` uses Vercel Services to build and route two se
 
 Import the repository as a Vercel project using the **repository root**, rather than only `client`, so the top-level services configuration is included. No EIA key is required in Vercel. Deploy both services and keep the saved JSON file included in the server service.
 
-For chat, add `OPENROUTER_API_KEY` to the **server service’s runtime environment** in Vercel, then redeploy. The server always uses `openrouter/free`; no model environment variable is needed. Local `.env` files are ignored by Git and do not configure production. `/api/chat` uses the existing API routing; `/learn` uses the existing SPA fallback.
+For chat, add `OPENROUTER_API_KEY` to the **server service’s runtime environment** in Vercel, then redeploy. The server fixes the primary and backup models in code; no model environment variable is needed. The backup `nvidia/nemotron-3.5-super-vl:free` can incur charges. Local `.env` files are ignored by Git and do not configure production. `/api/chat` uses the existing API routing; `/learn` uses the existing SPA fallback.
 
 Routing works in two stages:
 
