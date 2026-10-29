@@ -2,14 +2,23 @@
 
 A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that serves one shared, saved dataset of residential electricity rates from the US Energy Information Administration (EIA).
 
-The home page introduces the project’s problem statement. The EV guide compares carbon and energy costs, with saved EIA state electricity-rate data. A daily GitHub Action updates the dataset; visitor requests never call EIA.
+The home page introduces the project’s problem statement. Learn explains EV basics, and the EV guide compares carbon and energy costs with saved EIA state electricity-rate data. A floating EV assistant uses OpenRouter through the backend. A daily GitHub Action updates the electricity dataset; visitor requests never call EIA.
 
 ## Pages and features
 
 | Route | Purpose | Data |
 | --- | --- | --- |
 | `/` | Problem statement explaining the project’s purpose | Static project overview |
+| `/learn` | EV basics, vehicle types, charging, environmental tradeoffs, and FAQs | EPA and DOE educational sources |
 | `/info` | Carbon break-even simulator, annual energy-cost comparison, state electricity prices, and environmental context | Calculated estimates plus saved EIA monthly averages |
+
+### EV assistant
+
+The chatbot’s answer guidance lives in `server/context.txt`. Edit it to change tone, topic boundaries, or website context, then restart the backend or redeploy. By default, replies are usually 2-4 sentences (40-80 words) and loosely related to EVs, driving, energy, or sustainability.
+
+A small fixed circle at the bottom right opens the EV assistant on every page. It supports suggested questions, follow-up context, loading feedback, retry, minimizing, Escape to close, and a new-conversation button. Completed chat messages stay in the current tab’s sessionStorage across page navigation; a new conversation clears them. The server does not save chat logs. Questions and recent conversation context are sent to OpenRouter and its model provider when submitted; AI answers can be inaccurate.
+
+The Express backend owns the system prompt and API key and always requests `openrouter/free`, with no paid-model fallback. Requests have message and history limits, a 35-second provider timeout, a 700-token output limit, and per-instance request/concurrency limits. Free-model availability and OpenRouter quotas still apply. For a public deployment, configure hosting-level abuse protection: in-memory limits reset on cold starts and are not shared across server instances.
 
 ### Carbon break-even simulator
 
@@ -78,6 +87,14 @@ The site serves the committed `server/data/electricity-rates.json` and does not 
 
 The EIA key belongs in the GitHub Actions repository secret described below. Do not put it in client code or a `VITE_` variable. Existing server EIA environment variables are no longer used for visitor requests.
 
+To enable the EV assistant, add this entry to the existing `server/.env`:
+
+```dotenv
+OPENROUTER_API_KEY=your_openrouter_key
+```
+
+Restart the backend after changing the key. Keep it server-only; never use a `VITE_` variable. Without a key, the site and Learn content still work, and chat shows that the assistant is not connected. The model is fixed to [OpenRouter’s free router](https://openrouter.ai/openrouter/free), which selects available free models. Account defaults and `OPENROUTER_MODEL` environment values cannot select a paid model. Free usage remains subject to OpenRouter’s quotas and model availability. The integration uses the chat completions HTTP API and does not require the TypeScript SDK.
+
 ### 3. Start the backend
 
 In one terminal:
@@ -132,13 +149,15 @@ Vite’s preview command serves the static frontend. The EIA lookup needs a work
 From the repository root:
 
 ```sh
-node --test client/src/carbon-model.test.mjs client/src/electricity-rates-client.test.mjs
-node --test server/src/electricity-rates.test.js server/scripts/refresh-electricity-rates.test.mjs
+node --test client/src/carbon-model.test.mjs client/src/electricity-rates-client.test.mjs client/src/ev-chat.test.mjs
+node --test server/src/electricity-rates.test.js server/src/ev-chat.test.js server/scripts/refresh-electricity-rates.test.mjs
 ```
 
 Tests cover carbon math, all-state browser caching and lookups, credential-free saved-data serving, batch validation, atomic file updates, network failures, incomplete responses, and HTTP 429 preservation. All use local fixtures or mocked EIA responses. They do not need an EIA key or make live EIA requests.
 
 The backend’s `npm test` command is still a placeholder; use the direct Node command above.
+
+Chat tests use a mocked provider, with no real API key, external requests, or credit use. They cover follow-up context, input validation, error redaction, rate limits, timeouts, disconnect cancellation, and browser history limits.
 
 An optional frontend lint command is available:
 
@@ -186,6 +205,12 @@ node server/scripts/refresh-electricity-rates.mjs
 This command makes real EIA requests. It does not automatically load a local `.env` file, and it should not be run repeatedly while rate-limited.
 
 ## API reference
+
+### POST /api/chat
+
+Accepts `{ "messages": [{ "role": "user", "content": "How does an EV work?" }] }` and returns `{ "reply": "..." }`. Send alternating user/assistant history ending with the new user question. The endpoint accepts up to 15 messages, 1,000 characters per user question, 4,000 per assistant reply, and 16,000 total characters. It prepends a server-owned EV education prompt and calls OpenRouter with the server’s credentials. Client-supplied system messages are rejected.
+
+Responses use `Cache-Control: no-store`. Errors return `{ "error": "..." }`: 400 for invalid input, 429 for throttling, 503 for missing configuration, 502 for provider/network failures, and 504 for timeout. Raw provider errors and credentials are never returned. Every request explicitly selects `openrouter/free`; provider failures return an error instead of falling back to a paid model.
 
 ### GET /api/health
 
@@ -276,6 +301,8 @@ The repository-root `vercel.json` uses Vercel Services to build and route two se
 
 Import the repository as a Vercel project using the **repository root**, rather than only `client`, so the top-level services configuration is included. No EIA key is required in Vercel. Deploy both services and keep the saved JSON file included in the server service.
 
+For chat, add `OPENROUTER_API_KEY` to the **server service’s runtime environment** in Vercel, then redeploy. The server always uses `openrouter/free`; no model environment variable is needed. Local `.env` files are ignored by Git and do not configure production. `/api/chat` uses the existing API routing; `/learn` uses the existing SPA fallback.
+
 Routing works in two stages:
 
 1. Top-level `/api/(.*)` requests go to the server service.
@@ -286,6 +313,8 @@ The client fallback lets a direct visit or refresh at `/info` load React. It doe
 After deployment, check:
 
 - `/` loads the problem statement.
+- `/learn` loads directly, survives refresh, and appears between Problem statement and EV guide in navigation.
+- The bottom-right assistant expands, sends a question after the key is configured, and can be minimized.
 - `/info` loads directly and survives a browser refresh.
 - `/api/health` returns the health JSON.
 - `/api/electricity-rates` returns all 51 saved locations, and state changes require no further request.
@@ -341,8 +370,13 @@ This bypasses npm for the build only; it does not install dependencies.
 │   ├── vite.config.js
 │   ├── index.html
 │   └── src/
-│       ├── App.jsx                    # Problem statement and /info page selection
+│       ├── App.jsx                    # Problem statement, /learn, /info, and shared chat
 │       ├── App.css                    # Shared styles
+│       ├── Learn.jsx                  # EV learning page with EPA/DOE sources
+│       ├── Learn.css                  # Learning page styles
+│       ├── EvChat.jsx                 # Expandable floating EV assistant
+│       ├── EvChat.css                 # Responsive chat styles
+│       ├── ev-chat.mjs                # Chat requests and tab session history
 │       ├── Info.jsx                   # EV guide and cost calculation
 │       ├── Info.css                   # Guide styles
 │       ├── CarbonSimulator.jsx        # Carbon controls and SVG chart
@@ -352,11 +386,14 @@ This bypasses npm for the build only; it does not install dependencies.
 └── server/
     ├── package.json
     ├── README.md
-    ├── .env                          # Optional local port; ignored by Git
+    ├── .env                          # Local port and OpenRouter key; ignored by Git
+    ├── context.txt                   # Chatbot answer style, EV focus, and website context
     ├── data/electricity-rates.json     # Shared, persistent all-state dataset
     ├── scripts/refresh-electricity-rates.mjs # Scheduled batch updater
     └── src/
         ├── index.js                  # Express routes and environment loading
+        ├── ev-chat.js                # Validated, rate-limited OpenRouter endpoint
+        ├── ev-chat.test.js           # Chat API tests with a mocked provider
         ├── electricity-rates.js      # Saved dataset serving; no EIA calls
         └── electricity-rates.test.js # Saved-data API tests
 ```

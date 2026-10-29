@@ -10,6 +10,7 @@ export function SiteHeader({ page }) {
     <Group9Logo />
     <div className="nav-links">
       <a href="/" className={page === 'problem' ? 'active' : undefined} aria-current={page === 'problem' ? 'page' : undefined}>Problem statement</a>
+      <a href="/learn" className={page === 'learn' ? 'active' : undefined} aria-current={page === 'learn' ? 'page' : undefined}>Learn</a>
       <a href="/info" className={page === 'info' ? 'active' : undefined} aria-current={page === 'info' ? 'page' : undefined}>EV guide</a>
     </div>
     </div>
