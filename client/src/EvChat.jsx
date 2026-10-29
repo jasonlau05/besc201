@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { askEvAssistant, MAX_QUESTION_LENGTH, readConversation, requestMessages, saveConversation } from './ev-chat.mjs'
 import './EvChat.css'
 
-const suggestions = ['How does an EV work?', 'Can I charge at home?', 'Are EVs better for the environment?']
+const suggestions = ['How does an EV work?', 'Are EVs better for the environment?', 'Why are Cybertrucks ugly?']
 
 function ChatIcon() {
   return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5H9l-5.5 2V7A3.5 3.5 0 0 1 7 3.5Z" /><circle cx="8" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none" /></svg>
@@ -83,15 +83,15 @@ export default function EvChat({ open, onOpenChange }) {
     {open && <section className="ev-chat-panel" id="ev-chat-panel" role="dialog" aria-modal="false" aria-labelledby="ev-chat-title" aria-describedby="ev-chat-disclosure">
       <header className="ev-chat-header">
         <span className="ev-chat-avatar"><ChatIcon /></span>
-        <div className="ev-chat-heading"><h2 id="ev-chat-title">EV assistant</h2></div>
+        <div className="ev-chat-heading"><h2 id="ev-chat-title">Elon</h2></div>
         <div className="ev-chat-actions">
           <button className="ev-chat-icon-button" onClick={resetChat} disabled={loading || (!messages.length && !pendingQuestion)} aria-label="Start a new conversation" title="New conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6" /></svg></button>
           <button className="ev-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
         </div>
       </header>
 
-      <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with the EV assistant" aria-live="polite" aria-relevant="additions text">
-        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">EV assistant</span><p>Hi! I’m here to help make EVs a little easier to understand. Ask me about charging, batteries, costs, or environmental impact.</p></div>
+      <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
+        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love Teslas, rockets, AI, and creating shareholder value.</p></div>
         {!messages.length && !pendingQuestion && <div className="ev-chat-suggestions" aria-label="Suggested questions">{suggestions.map(question => <button key={question} onClick={() => sendMessage(question)}>{question}<span aria-hidden="true">↗</span></button>)}</div>}
         {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'EV assistant'}</span><p>{message.content}</p></div>)}
         {pendingQuestion && <div className="ev-chat-message ev-chat-user"><span className="ev-chat-sender">You</span><p>{pendingQuestion}</p></div>}

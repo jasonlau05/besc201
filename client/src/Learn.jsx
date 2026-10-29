@@ -18,7 +18,6 @@ export default function Learn({ onAsk }) {
       <p>Get to know the battery, the plug, and the bigger picture.<br className="desktop-break" /> A little understanding goes a long way.</p>
       <div className="learn-hero-actions">
         <a className="problem-link" href="#basics">Start with the basics <span aria-hidden="true">↓</span></a>
-        <button className="learn-text-button" onClick={onAsk}>Ask the EV assistant <span aria-hidden="true">↗</span></button>
       </div>
     </header>
 
@@ -76,7 +75,7 @@ export default function Learn({ onAsk }) {
       <details><summary>What should I know about the battery?</summary><p>Batteries age over time, and climate and charging habits matter. Several manufacturers offer an eight-year or 100,000-mile battery warranty, but coverage varies. Check the specific vehicle’s terms. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE battery considerations ↗</a></p></details>
     </section>
 
-    <section className="learn-next"><div><span className="section-title">FROM LEARNING TO EXPLORING</span><h2>Put the basics into perspective.</h2><p>Try your own numbers in the EV guide, or keep the conversation going.</p></div><div className="learn-next-actions"><a className="problem-link" href="/info">Explore the EV guide <span aria-hidden="true">→</span></a><button className="learn-text-button" onClick={onAsk}>Ask a question <span aria-hidden="true">↗</span></button></div></section>
+    <section className="learn-next"><div><span className="section-title">FROM LEARNING TO EXPLORING</span><h2>Put the basics into perspective.</h2><p>Try your own numbers in the EV guide, or keep the conversation going.</p></div><div className="learn-next-actions"><a className="problem-link" href="/info">Explore the EV guide <span aria-hidden="true">→</span></a></div></section>
     <SiteFooter />
   </main>
 }
