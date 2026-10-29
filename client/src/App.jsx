@@ -4,6 +4,7 @@ import Info from './Info'
 import Learn from './Learn'
 import EvChat from './EvChat'
 import { SiteHeader, SiteFooter } from './SiteLayout'
+import RoadScrollbar from './RoadScrollbar'
 
 export default function App() {
   const [chatOpen, setChatOpen] = useState(false)
@@ -21,5 +22,5 @@ export default function App() {
     </section>
     <SiteFooter />
   </main>
-  return <>{page}<EvChat open={chatOpen} onOpenChange={setChatOpen} /></>
+  return <>{page}<EvChat open={chatOpen} onOpenChange={setChatOpen} /><RoadScrollbar /></>
 }

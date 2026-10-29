@@ -1,0 +1,65 @@
+.scroll-road { display: none; }
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html.has-road-scroll { scrollbar-width: none; scrollbar-gutter: auto; }
+  html.has-road-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+  .has-road-scroll .scroll-road {
+    --road-car-width: 18px;
+    --road-width: calc(var(--road-car-width) * .3);
+    display: block;
+    position: fixed;
+    z-index: 150;
+    top: calc(var(--site-header-height, 86px) + 18px);
+    right: 0;
+    bottom: 24px;
+    width: 24px;
+    min-height: 120px;
+    overflow: hidden;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .scroll-road-markings {
+    position: absolute;
+    top: 32px;
+    bottom: 32px;
+    left: calc((100% - var(--road-width)) / 2);
+    width: var(--road-width);
+    background: #c9c9c6;
+    pointer-events: none;
+  }
+  .scroll-road-bend {
+    position: absolute;
+    left: calc(var(--road-width) / 2 - 4px);
+    width: 40px;
+    height: 40px;
+    overflow: visible;
+    stroke: #c9c9c6;
+    stroke-width: var(--road-width);
+  }
+  .scroll-road-bend-top { bottom: 100%; }
+  .scroll-road-bend-bottom {
+    top: 100%;
+    transform: scaleY(-1);
+  }
+  .scroll-road-car {
+    position: absolute;
+    top: 36px;
+    left: calc((100% - var(--road-car-width)) / 2);
+    width: var(--road-car-width);
+    height: calc(var(--road-car-width) * 2);
+    cursor: grab;
+    will-change: transform;
+  }
+  .scroll-road-car svg { display: block; width: 100%; height: 100%; }
+  .scroll-road[data-dragging], .scroll-road[data-dragging] .scroll-road-car { cursor: grabbing; }
+  .scroll-road:focus-visible:not([data-pointer-focus]) { outline: 2px solid #c9633f; outline-offset: 3px; }
+}
+
+@media print {
+  .scroll-road { display: none !important; }
+}

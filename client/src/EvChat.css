@@ -1,4 +1,4 @@
-.ev-chat { --chat-green: #276554; --chat-muted: #697b70; position: fixed; right: max(24px, env(safe-area-inset-right)); bottom: max(24px, env(safe-area-inset-bottom)); z-index: 200; font-family: 'DM Sans', sans-serif; }
+.ev-chat { --chat-green: #276554; --chat-muted: #697b70; position: fixed; right: max(48px, env(safe-area-inset-right)); bottom: max(24px, env(safe-area-inset-bottom)); z-index: 200; font-family: 'DM Sans', sans-serif; }
 .ev-chat-launcher { display: grid; place-items: center; width: 56px; height: 56px; padding: 0; line-height: 0; color: #fffefa; background: var(--chat-green); border: 1px solid #1b5543; border-radius: 50%; box-shadow: 0 5px 22px #1c443b29; transition: background .18s, transform .18s; }
 .ev-chat-launcher:hover { transform: translateY(-2px); background: #194e43; }
 .ev-chat-launcher svg { display: block; width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
