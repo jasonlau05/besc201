@@ -1,0 +1,6 @@
+# robots.txt file for besc201
+# created with the help of codex
+# back when tesla stock price was at $403.30
+
+User-agent: *
+Allow: /
