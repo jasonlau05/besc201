@@ -30,7 +30,7 @@ export async function askEvAssistant(messages, signal) {
     signal,
   })
   const data = await response.json().catch(() => null)
-  if (!response.ok) throw new Error(data?.error || 'The EV assistant is unavailable right now. Please try again shortly.')
+  if (!response.ok) throw new Error(data?.error || 'Elon is busy with shareholders. Please try again shortly.')
   if (typeof data?.reply !== 'string' || !data.reply.trim()) throw new Error('The assistant returned an empty reply. Please try again.')
   return data.reply
 }

@@ -62,7 +62,7 @@ export default function EvChat({ open, onOpenChange }) {
       setMessages(previous => [...previous, { role: 'user', content }, { role: 'assistant', content: reply }].slice(-40))
       setPendingQuestion('')
     } catch (failure) {
-      setError(failure.name === 'AbortError' ? 'That reply took too long. Please try again.' : failure instanceof TypeError ? 'Could not reach the EV assistant. Check your connection and try again.' : failure.message)
+      setError(failure.name === 'AbortError' ? 'Elon took too long, but we\'re just two weeks away from FSD.' : failure instanceof TypeError ? 'You are not connected to the internet. Check your Starlink.' : failure.message)
     } finally {
       clearTimeout(timeout)
       requestRef.current = null

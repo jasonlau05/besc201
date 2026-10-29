@@ -25,14 +25,14 @@ function createEvChatHandler({ fetchImpl = (...args) => fetch(...args), env = pr
     res.set('Cache-Control', 'no-store');
     if (!validMessages(req.body?.messages)) return res.status(400).json({ error: 'Send a question of up to 1,000 characters with a valid conversation history.' });
     const apiKey = env.OPENROUTER_API_KEY?.trim();
-    if (!apiKey) return res.status(503).json({ error: 'The EV assistant is not connected yet. Please try again later.' });
+    if (!apiKey) return res.status(503).json({ error: 'Elon is on Mars right now. Please try again later.' });
 
     const currentTime = now();
     if (currentTime - windowStart >= 60000) { visitors.clear(); requests = 0; windowStart = currentTime; }
     const visitor = req.ip || 'unknown';
     if ((visitors.get(visitor) || 0) >= 10 || requests >= 60 || inFlight >= 5) {
       res.set('Retry-After', '60');
-      return res.status(429).json({ error: 'The assistant is busy. Please wait a minute before trying again.' });
+      return res.status(429).json({ error: 'Elon is busy with shareholders. Please wait until market close.' });
     }
     visitors.set(visitor, (visitors.get(visitor) || 0) + 1);
     requests += 1;
@@ -59,16 +59,16 @@ function createEvChatHandler({ fetchImpl = (...args) => fetch(...args), env = pr
       if (!response.ok) {
         if (response.status === 429) {
           res.set('Retry-After', '60');
-          return res.status(429).json({ error: 'The assistant has reached its request limit. Please try again in a minute.' });
+          return res.status(429).json({ error: 'Elon is out of tokens. Please try again in a minute.' });
         }
-        return res.status(502).json({ error: 'The EV assistant could not connect to its AI provider. Please try again later.' });
+        return res.status(502).json({ error: 'Elon is arguing with Zuckerberg. Please try again later.' });
       }
       const data = await response.json();
       const reply = data?.choices?.[0]?.message?.content;
       if (data?.error || typeof reply !== 'string' || !reply.trim() || reply.length > 4000) return res.status(502).json({ error: 'The assistant could not finish that reply. Please try again.' });
       return res.json({ reply: reply.trim() });
     } catch (error) {
-      return res.status(error.name === 'AbortError' ? 504 : 502).json({ error: error.name === 'AbortError' ? 'The reply took too long. Please try again.' : 'The EV assistant is temporarily unavailable. Please try again shortly.' });
+      return res.status(error.name === 'AbortError' ? 504 : 502).json({ error: error.name === 'AbortError' ? 'This reply took too long, but we\'re just two weeks away from FSD.' : 'Elon is playing Overwatch. Please try again shortly.' });
     } finally {
       clearTimeout(timeout);
       res.off('close', onClose);
