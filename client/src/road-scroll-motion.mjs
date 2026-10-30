@@ -61,7 +61,8 @@ export function createRoadBounce() {
 
     advance(seconds) {
       // Solve the spring over elapsed time so it feels the same at any refresh rate.
-      const time = Math.max(0, seconds)
+      // Slow the bounce without reducing its reach around the curves.
+      const time = Math.max(0, seconds) * 0.55
       const decay = Math.exp(-damping * time / 2)
       const cosine = Math.cos(frequency * time)
       const sine = Math.sin(frequency * time)
