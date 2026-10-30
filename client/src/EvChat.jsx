@@ -93,7 +93,7 @@ export default function EvChat({ open, onOpenChange }) {
       <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
         <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love Teslas, rockets, AI, and creating shareholder value.</p></div>
         {!messages.length && !pendingQuestion && <div className="ev-chat-suggestions" aria-label="Suggested questions">{suggestions.map(question => <button key={question} onClick={() => sendMessage(question)}>{question}<span aria-hidden="true">↗</span></button>)}</div>}
-        {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'EV assistant'}</span><p>{message.content}</p></div>)}
+        {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'Elon'}</span><p>{message.content}</p></div>)}
         {pendingQuestion && <div className="ev-chat-message ev-chat-user"><span className="ev-chat-sender">You</span><p>{pendingQuestion}</p></div>}
         {loading && <div className="ev-chat-thinking" role="status"><span aria-hidden="true"><i /><i /><i /></span>Thinking…</div>}
         {error && <div className="ev-chat-error" role="alert"><p>{error}</p><button onClick={() => sendMessage(pendingQuestion)}>Try again <span aria-hidden="true">↻</span></button></div>}
@@ -105,6 +105,6 @@ export default function EvChat({ open, onOpenChange }) {
         <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>
       </form>
     </section>}
-    <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize EV assistant' : 'Open EV assistant'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize EV assistant' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>
+    <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize Elon' : 'Open Elon'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize Elon' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>
   </div>
 }
