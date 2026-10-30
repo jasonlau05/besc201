@@ -14,7 +14,6 @@ export default function Learn({ onAsk }) {
   return <main className="app-shell learn-page">
     <SiteHeader page="learn" />
     <header className="learn-hero">
-      <div className="eyebrow">A GOOD PLACE TO START</div>
       <h1>Electric vehicles,<br /><em>explained.</em></h1>
       <p>Get to know the battery, the plug, and the bigger picture.<br className="desktop-break" /> A little understanding goes a long way.</p>
       <div className="learn-hero-actions">

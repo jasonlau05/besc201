@@ -1,8 +1,10 @@
 .scroll-road { display: none; }
 
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  html.has-road-scroll { scrollbar-width: none; scrollbar-gutter: auto; }
-  html.has-road-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  /* Keep the same viewport width on short and scrollable pages, even before
+     the road scrollbar's effect runs. Otherwise the shared header shifts. */
+  html { scrollbar-width: none; scrollbar-gutter: auto; }
+  html::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
   .has-road-scroll .scroll-road {
     --road-car-width: 18px;
