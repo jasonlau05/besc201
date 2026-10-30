@@ -1,3 +1,4 @@
+import AnimatedDetails from './AnimatedDetails'
 import { useEffect, useState } from 'react'
 import { lookupRates, ratesClient } from './electricity-rates-client.mjs'
 
@@ -99,13 +100,13 @@ export default function ElectricityRates({ efficiency, onUseRate }) {
                 <i style={{ height: `${row.price / maxPrice * 90}%` }} /><span>{row.period.slice(5)}</span>
               </div>)}
             </div>}
-            <details>
+            <AnimatedDetails>
               <summary>View monthly prices</summary>
               <table className="rate-table">
                 <thead><tr><th>Month</th><th>¢/kWh</th></tr></thead>
                 <tbody>{data.history.map(row => <tr key={row.period}><td>{month(row.period)}</td><td>{row.price.toFixed(2)}</td></tr>)}</tbody>
               </table>
-            </details>
+            </AnimatedDetails>
             <button className="guide-primary" type="button" onClick={() => {
               onUseRate(Number(data.price.toFixed(2)))
               setApplied({ state: data.state, price: data.price })

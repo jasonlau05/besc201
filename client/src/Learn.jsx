@@ -1,3 +1,4 @@
+import AnimatedDetails from './AnimatedDetails'
 import { SiteHeader, SiteFooter } from './SiteLayout'
 import './Learn.css'
 
@@ -69,10 +70,10 @@ export default function Learn({ onAsk }) {
 
     <section className="learn-section learn-faq" aria-labelledby="learn-faq-title">
       <div className="learn-section-heading"><span className="section-title">05 / GOOD QUESTIONS</span><h2 id="learn-faq-title">A few things you might be wondering.</h2></div>
-      <details><summary>What affects an EV’s range?</summary><p>Speed, temperature, cabin heating or cooling, and driving conditions all affect how far you can go. Treat rated range as a comparison point and plan a buffer for your actual trip. <a href={sources.basics} target="_blank" rel="noreferrer">EPA range guidance ↗</a></p></details>
-      <details><summary>Will an EV always cost less to drive?</summary><p>Energy costs depend on electricity and gas prices and vehicle efficiency. Public fast charging can cost more than charging at home. Purchase price, insurance, repairs, and charger installation also affect total ownership cost. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE cost considerations ↗</a></p></details>
-      <details><summary>Do I need a charger at home?</summary><p>Home charging is convenient, but workplace or public charging may work for your routine. Check nearby locations, availability, compatibility, and pricing before relying on them. <a href={sources.charging} target="_blank" rel="noreferrer">EPA charging options ↗</a></p></details>
-      <details><summary>What should I know about the battery?</summary><p>Batteries age over time, and climate and charging habits matter. Several manufacturers offer an eight-year or 100,000-mile battery warranty, but coverage varies. Check the specific vehicle’s terms. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE battery considerations ↗</a></p></details>
+      <AnimatedDetails><summary>What affects an EV’s range?</summary><p>Speed, temperature, cabin heating or cooling, and driving conditions all affect how far you can go. Treat rated range as a comparison point and plan a buffer for your actual trip. <a href={sources.basics} target="_blank" rel="noreferrer">EPA range guidance ↗</a></p></AnimatedDetails>
+      <AnimatedDetails><summary>Will an EV always cost less to drive?</summary><p>Energy costs depend on electricity and gas prices and vehicle efficiency. Public fast charging can cost more than charging at home. Purchase price, insurance, repairs, and charger installation also affect total ownership cost. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE cost considerations ↗</a></p></AnimatedDetails>
+      <AnimatedDetails><summary>Do I need a charger at home?</summary><p>Home charging is convenient, but workplace or public charging may work for your routine. Check nearby locations, availability, compatibility, and pricing before relying on them. <a href={sources.charging} target="_blank" rel="noreferrer">EPA charging options ↗</a></p></AnimatedDetails>
+      <AnimatedDetails><summary>What should I know about the battery?</summary><p>Batteries age over time, and climate and charging habits matter. Several manufacturers offer an eight-year or 100,000-mile battery warranty, but coverage varies. Check the specific vehicle’s terms. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE battery considerations ↗</a></p></AnimatedDetails>
     </section>
 
     <section className="learn-next"><div><span className="section-title">FROM LEARNING TO EXPLORING</span><h2>Put the basics into perspective.</h2><p>Try your own numbers in the EV guide, or keep the conversation going.</p></div><div className="learn-next-actions"><a className="problem-link" href="/info">Explore the EV guide <span aria-hidden="true">→</span></a></div></section>

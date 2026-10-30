@@ -1,0 +1,4 @@
+.animated-details { box-sizing: border-box; }
+
+/* Keep content margins inside the measured height, even after clipping ends. */
+.animated-details-content { display: flow-root; }
