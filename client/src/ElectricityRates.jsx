@@ -24,14 +24,13 @@ function RatesSkeleton({ showHistory }) {
   </div>
 }
 
-export default function ElectricityRates({ efficiency, onUseRate }) {
+export default function ElectricityRates({ efficiency, appliedRate, onAppliedRateChange, onUseRate }) {
   const [state, setState] = useState('TX')
   const [resource, setResource] = useState(() => {
     const dataset = ratesClient.peekDataset(true)
     return { dataset, loading: !dataset, error: '' }
   })
   const [retry, setRetry] = useState(0)
-  const [applied, setApplied] = useState(null)
   const [revealedKey, setRevealedKey] = useState(null)
   const revealKey = `${state}:${retry}`
 
@@ -54,6 +53,7 @@ export default function ElectricityRates({ efficiency, onUseRate }) {
   }, [retry])
   const { loading, error } = resource
   const data = lookupRates(resource.dataset, state)
+  const isApplied = Boolean(data && appliedRate?.state === data.state && appliedRate?.price === data.price)
   const maxPrice = data ? Math.max(...data.history.map(row => row.price)) : 1
   const showSkeleton = !error && (loading || revealedKey !== revealKey)
   const reload = () => { setRevealedKey(null); setRetry(value => value + 1) }
@@ -70,7 +70,7 @@ export default function ElectricityRates({ efficiency, onUseRate }) {
           <select id="rate-state" value={state} onChange={event => {
             setRevealedKey(null)
             setState(event.target.value)
-            setApplied(null)
+            onAppliedRateChange(null)
           }}>
             {states.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
           </select>
@@ -107,10 +107,14 @@ export default function ElectricityRates({ efficiency, onUseRate }) {
                 <tbody>{data.history.map(row => <tr key={row.period}><td>{month(row.period)}</td><td>{row.price.toFixed(2)}</td></tr>)}</tbody>
               </table>
             </AnimatedDetails>
-            <button className="guide-primary" type="button" onClick={() => {
+            <button className="guide-primary rate-apply-button" type="button" data-applied={isApplied}
+              aria-label={isApplied ? 'Added to cost calculator' : 'Use this rate in the calculator'} onClick={() => {
               onUseRate(Number(data.price.toFixed(2)))
-              setApplied({ state: data.state, price: data.price })
-            }}>{applied?.state === data.state && applied?.price === data.price ? '✓ Added to cost calculator' : 'Use this rate in the calculator'}</button>
+              onAppliedRateChange({ state: data.state, price: data.price })
+            }}>
+              <span className="rate-apply-default" aria-hidden="true">Use this rate in the calculator</span>
+              <span className="rate-apply-confirmation" aria-hidden="true">Added to cost calculator</span>
+            </button>
           </>}
         </div>
       </div>

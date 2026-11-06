@@ -17,6 +17,11 @@
 .rate-content[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
 .rate-content > p { font-size: 13px; color: #567560; line-height: 1.6; }
 .location-result .guide-primary { border: 0; }
+.location-result .rate-apply-button { display: inline-grid; max-width: 100%; }
+.rate-apply-button > span { grid-area: 1 / 1; transition: opacity .24s ease, transform .24s ease; }
+.rate-apply-confirmation { opacity: 0; transform: translateY(4px); }
+.rate-apply-button[data-applied="true"] .rate-apply-default { opacity: 0; transform: translateY(-4px); }
+.rate-apply-button[data-applied="true"] .rate-apply-confirmation { opacity: 1; transform: translateY(0); }
 .rate-loading-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .rate-skeleton { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; min-height: 320px; padding-top: 5px; }
 .rate-skeleton-block { display: block; flex-shrink: 0; max-width: 100%; height: 12px; border-radius: 5px; background: #cfdecb; position: relative; overflow: hidden; }
@@ -75,4 +80,4 @@
 @media(prefers-reduced-transparency:reduce) { .guide-myth-card { background: #edf4eb; -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media(max-width:820px) { .guide-myths { grid-template-columns: 1fr; gap: 14px; }.guide-myth-card { padding: 24px; }.myth-card-icon { margin-bottom: 18px; } }
 @media(max-width:720px) { .guide-nav-cta { display: none; }.guide-hero { padding: 48px 0 30px; }.guide-hero h1 { letter-spacing: -1.8px; }.guide-hero p { font-size: 14px; }.guide-facts { gap: 20px; grid-template-columns: 1fr; padding: 25px 0; }.guide-facts > div { border: 0; padding: 0 8px; }.guide-facts strong { font-size: 30px; }.guide-section { padding-top: 35px; }.guide-section-heading h2 { font-size: 28px; }.guide-split { grid-template-columns: 1fr; }.guide-panel,.guide-range-result,.cost-result { padding: 24px; }.lifecycle { flex-direction: column; padding-top: 8px; }.lifecycle-arrow { align-self: flex-start; transform: rotate(90deg); margin-left: 5px; }.guide-next { flex-direction: column; align-items: flex-start; padding: 25px; }.guide-sources { padding-top: 30px; } }
-@media(prefers-reduced-motion:reduce) { html { scroll-behavior: auto; }.cost-bar-track i { transition: none; }.rate-skeleton-block::after { animation: none; display: none; }.guide-myths .myth-card-link,.myth-card-link span { transition: none; }.myth-card-link:hover span { transform: none; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior: auto; }.cost-bar-track i { transition: none; }.rate-apply-button > span { transition: none; }.rate-skeleton-block::after { animation: none; display: none; }.guide-myths .myth-card-link,.myth-card-link span { transition: none; }.myth-card-link:hover span { transform: none; } }
