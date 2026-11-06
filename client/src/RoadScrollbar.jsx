@@ -194,10 +194,10 @@ export default function RoadScrollbar() {
     </div>
     <div ref={carRef} className="scroll-road-car" aria-hidden="true">
       <svg viewBox="0 0 24 48" fill="none" focusable="false">
-        <rect x="0" y="30" width="5" height="3" rx="1.5" fill="#c9633f" />
-        <rect x="19" y="30" width="5" height="3" rx="1.5" fill="#c9633f" />
-        <path d="M8 2h8c4 0 6 4 6 10v23c0 7-4 11-10 11S2 42 2 35V12C2 6 4 2 8 2Z" fill="#c9633f" />
-        <path d="M7 26h10l1 8q-6 3-12 0Z" fill="#f8f7f3" />
+        <rect x="0" y="30" width="5" height="3" rx="1.5" fill="var(--color-accent)" />
+        <rect x="19" y="30" width="5" height="3" rx="1.5" fill="var(--color-accent)" />
+        <path d="M8 2h8c4 0 6 4 6 10v23c0 7-4 11-10 11S2 42 2 35V12C2 6 4 2 8 2Z" fill="var(--color-accent)" />
+        <path d="M7 26h10l1 8q-6 3-12 0Z" fill="var(--color-background)" />
       </svg>
     </div>
   </div>

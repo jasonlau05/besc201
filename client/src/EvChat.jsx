@@ -91,7 +91,7 @@ export default function EvChat({ open, onOpenChange }) {
       </header>
 
       <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
-        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love Teslas, rockets, AI, and creating shareholder value.</p></div>
+        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love electric vehicles and creating shareholder value.</p></div>
         {!messages.length && !pendingQuestion && <div className="ev-chat-suggestions" aria-label="Suggested questions">{suggestions.map(question => <button key={question} onClick={() => sendMessage(question)}>{question}<span aria-hidden="true">↗</span></button>)}</div>}
         {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'Elon'}</span><p>{message.content}</p></div>)}
         {pendingQuestion && <div className="ev-chat-message ev-chat-user"><span className="ev-chat-sender">You</span><p>{pendingQuestion}</p></div>}

@@ -32,7 +32,7 @@
     bottom: 32px;
     left: calc((100% - var(--road-width)) / 2);
     width: var(--road-width);
-    background: #c9c9c6;
+    background: var(--color-road-markings);
     pointer-events: none;
   }
   .scroll-road-bend {
@@ -41,7 +41,7 @@
     width: 40px;
     height: 40px;
     overflow: visible;
-    stroke: #c9c9c6;
+    stroke: var(--color-road-markings);
     stroke-width: var(--road-width);
   }
   .scroll-road-bend-top { bottom: 100%; }
@@ -60,7 +60,7 @@
   }
   .scroll-road-car svg { display: block; width: 100%; height: 100%; }
   .scroll-road[data-dragging], .scroll-road[data-dragging] .scroll-road-car { cursor: grabbing; }
-  .scroll-road:focus-visible:not([data-pointer-focus]) { outline: 2px solid #c9633f; outline-offset: 3px; }
+  .scroll-road:focus-visible:not([data-pointer-focus]) { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 }
 
 @media print {
