@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { SiteHeader, SiteFooter } from './SiteLayout'
+import { SiteFooter } from './SiteLayout'
 import ChargerMap from './ChargerMap'
 import { googleMapsDirections, findChargers, findLocations, formatDistance } from './chargers-client.mjs'
 import './Chargers.css'
@@ -40,10 +40,8 @@ export default function Chargers() {
     ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(results.retrievedAt)) : ''
 
   useEffect(() => {
-    const oldTitle = document.title
-    document.title = 'Chargers near me — Group9'
     document.documentElement.dataset.type = 'software'
-    return () => { request.current?.abort(); document.title = oldTitle }
+    return () => { request.current?.abort() }
   }, [])
 
   useEffect(() => { if (locations.length) choicesHeading.current?.focus() }, [locations])
@@ -143,8 +141,6 @@ export default function Chargers() {
         : results ? `${results.total} ${results.total === 1 ? 'charger' : 'chargers'} found within ${radiusLabel}.${results.total > chargers.length ? ` Showing the nearest ${chargers.length}.` : ''}` : ''
 
   return <div className="app-shell chargers-page">
-    <a className="chargers-skip" href="#charger-title">Skip to content</a>
-    <SiteHeader page="chargers" />
     <main id="charger-content" aria-labelledby="charger-title">
       <section className="charger-finder hero" aria-labelledby="charger-title">
         <div className="wrap charger-wrap">

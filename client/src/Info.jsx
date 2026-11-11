@@ -4,7 +4,7 @@ import './Info.css'
 import CarbonSimulator from './CarbonSimulator'
 import ElectricityRates from './ElectricityRates'
 import { ANNUAL_MILES } from './carbon-model.mjs'
-import { SiteHeader, SiteFooter } from './SiteLayout'
+import { SiteFooter } from './SiteLayout'
 import { ArrowIcon, PageContents, RangeControl as Slider } from './GuideUI'
 
 const sources = {
@@ -34,8 +34,6 @@ export default function Info() {
   const costMax = Math.max(evCost, gasCost, 1)
 
   return <main className="app-shell info-page reading-page">
-    <a className="reading-skip" href="#guide-title">Skip to content</a>
-    <SiteHeader page="info" />
     <header className="guide-hero hero page-intro reading-hero">
       <h1 id="guide-title" tabIndex={-1}>Is an EV right for me?</h1>
       <p>Explore how electric vehicles compare to gas-powered cars in<br className="desktop-break" />cost, energy use, and environmental impact.</p>

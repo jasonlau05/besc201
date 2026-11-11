@@ -16,10 +16,10 @@
 .minimal-landing a:focus-visible,.minimal-landing h1:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }
 .minimal-landing .site-footer { padding-top: 24px; }
 @media(min-width:721px) {
-  .minimal-landing .site-header .nav-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-problem-text); }
-  .minimal-landing .site-header .nav-links a.active { color: var(--color-nav-active); }
-  .minimal-landing .site-header .nav-links a.active:after { top: 39px; }
-  .minimal-landing .site-header .nav-links a:hover { text-decoration: underline; text-underline-offset: 5px; }
+  .site-header[data-page="problem"] .nav-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-problem-text); }
+  .site-header[data-page="problem"] .nav-links a.active { color: var(--color-nav-active); }
+  .site-header[data-page="problem"] .nav-links a.active:after { top: 39px; }
+  .site-header[data-page="problem"] .nav-links a:hover { text-decoration: underline; text-underline-offset: 5px; }
 }
 .minimal-landing .group9-logo { min-height: 44px; align-items: center; }
 .minimal-landing .site-footer .group9-logo span { color: var(--color-cost-value); }

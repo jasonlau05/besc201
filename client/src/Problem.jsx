@@ -1,4 +1,4 @@
-import { SiteHeader, SiteFooter } from './SiteLayout'
+import { SiteFooter } from './SiteLayout'
 import './Problem.css'
 
 function Arrow() {
@@ -7,8 +7,6 @@ function Arrow() {
 
 export default function Problem() {
   return <div className="app-shell problem-page minimal-landing">
-    <a className="minimal-skip" href="#problem-title">Skip to content</a>
-    <SiteHeader page="problem" />
     <main className="minimal-content" aria-labelledby="problem-title">
       <div className="minimal-copy hero page-intro">
         <h1 id="problem-title" tabIndex={-1}>An EV guide for<br />your next car.</h1>

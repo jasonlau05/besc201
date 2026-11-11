@@ -1,5 +1,5 @@
 import AnimatedDetails from './AnimatedDetails'
-import { SiteHeader, SiteFooter } from './SiteLayout'
+import { SiteFooter } from './SiteLayout'
 import { ArrowIcon, PageContents } from './GuideUI'
 import './Learn.css'
 
@@ -13,8 +13,6 @@ const sources = {
 
 export default function Learn({ onAsk }) {
   return <main className="app-shell learn-page reading-page">
-    <a className="reading-skip" href="#learn-title">Skip to content</a>
-    <SiteHeader page="learn" />
     <header className="learn-hero hero page-intro reading-hero">
       <h1 id="learn-title" tabIndex={-1}>Electric vehicles,<br /><em>explained.</em></h1>
       <p>Get to know the battery, the plug, and the bigger picture.<br className="desktop-break" /> A little understanding goes a long way.</p>
