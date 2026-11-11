@@ -1,0 +1,59 @@
+name: Refresh saved EV chargers
+
+on:
+  schedule:
+    # Daily at 11:47 UTC (6:47 AM CDT / 5:47 AM CST).
+    - cron: '47 11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chargers-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Verify charger data and refresh logic without provider requests
+        run: node --test server/src/charger-data.test.js server/src/chargers.test.js server/scripts/refresh-chargers.test.mjs
+      - name: Refresh the saved station dataset
+        env:
+          AFDC_API_KEY: ${{ secrets.AFDC_API_KEY }}
+        run: node server/scripts/refresh-chargers.mjs
+      - name: Commit and push the refreshed dataset
+        id: commit
+        env:
+          TARGET_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git add -- server/data/charging-stations.json
+          if git diff --cached --quiet; then
+            echo "Dataset is unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh saved EV chargers"
+          git pull --rebase origin "$TARGET_BRANCH"
+          git push origin "HEAD:$TARGET_BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Publish through the optional Vercel deploy hook
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "Dataset committed. Verify that Vercel deploys the bot commit, or configure VERCEL_DEPLOY_HOOK_URL." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          curl --fail --silent --show-error --max-time 30 --request POST --output /dev/null "$VERCEL_DEPLOY_HOOK_URL"

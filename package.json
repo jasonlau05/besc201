@@ -1,8 +1,9 @@
 {
   "scripts": {
     "client": "cd client && npm run dev",
-    "server": "cd server && npm run start",
-    "test:chargers": "node --test client/src/chargers-client.test.mjs client/src/google-maps.test.mjs server/src/chargers.test.js",
+    "server": "cd server && npm run dev",
+    "test:chargers": "node --test client/src/chargers-client.test.mjs client/src/google-maps.test.mjs server/src/charger-data.test.js server/src/chargers.test.js server/scripts/refresh-chargers.test.mjs",
+    "refresh:chargers": "node server/scripts/refresh-chargers.mjs",
     "dev": "concurrently \"npm run client\" \"npm run server\"",
     "start": "concurrently \"npm run client\" \"npm run server\""
   },

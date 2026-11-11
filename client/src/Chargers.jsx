@@ -5,6 +5,7 @@ import { googleMapsDirections, findChargers, findLocations, formatDistance } fro
 import './Chargers.css'
 
 const NO_CHARGERS = []
+const SEARCH_RADII = [1, 5, 10, 25]
 
 function SearchIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg>
@@ -20,7 +21,7 @@ function ChargerIcon() {
 
 export default function Chargers() {
   const [address, setAddress] = useState('')
-  const [radius, setRadius] = useState(5)
+  const [radius, setRadius] = useState(1)
   const [phase, setPhase] = useState('idle')
   const [locations, setLocations] = useState([])
   const [origin, setOrigin] = useState(null)
@@ -33,6 +34,10 @@ export default function Chargers() {
   const choicesHeading = useRef(null)
   const busy = ['resolving', 'locating', 'loading'].includes(phase)
   const chargers = results?.chargers || NO_CHARGERS
+  const radiusLabel = `${radius} ${radius === 1 ? 'mile' : 'miles'}`
+  const nextRadius = SEARCH_RADII.find(value => value > radius)
+  const retrievedDate = results?.retrievedAt && Number.isFinite(Date.parse(results.retrievedAt))
+    ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(results.retrievedAt)) : ''
 
   useEffect(() => {
     const oldTitle = document.title
@@ -134,8 +139,8 @@ export default function Chargers() {
 
   const statusText = phase === 'resolving' ? 'Finding your address…'
     : phase === 'locating' ? 'Finding your location…'
-      : phase === 'loading' ? `Finding chargers within ${radius} miles…`
-        : results ? `${results.total} ${results.total === 1 ? 'charger' : 'chargers'} found within ${radius} miles.${results.total > chargers.length ? ` Showing the nearest ${chargers.length}.` : ''}` : ''
+      : phase === 'loading' ? `Finding chargers within ${radiusLabel}…`
+        : results ? `${results.total} ${results.total === 1 ? 'charger' : 'chargers'} found within ${radiusLabel}.${results.total > chargers.length ? ` Showing the nearest ${chargers.length}.` : ''}` : ''
 
   return <div className="app-shell chargers-page">
     <a className="chargers-skip" href="#charger-title">Skip to content</a>
@@ -145,7 +150,7 @@ export default function Chargers() {
         <div className="wrap charger-wrap">
           <header className="charger-intro hero-text">
             <h1 id="charger-title" tabIndex={-1}>EV chargers near me</h1>
-            <p className="hero__lead">Find EV charging stations around an address, then get directions to your next stop.</p>
+            <p className="hero__lead">Find public EV charging stations in the U.S., then get directions to your next stop.</p>
           </header>
 
           <form className="charger-search" action="/api/charging-locations" method="get" onSubmit={submit} noValidate role="search" aria-label="Find nearby EV chargers" aria-describedby="charger-search-status">
@@ -157,12 +162,12 @@ export default function Chargers() {
               const value = Number(event.target.value)
               setRadius(value)
               if (origin) searchNear(origin, value, startRequest())
-            }}><option value="5">5 miles</option><option value="10">10 miles</option><option value="25">25 miles</option></select></div>
+            }}>{SEARCH_RADII.map(value => <option key={value} value={value}>{value} {value === 1 ? 'mile' : 'miles'}</option>)}</select></div>
             <button className="btn charger-primary" type="submit" disabled={busy}>{busy ? 'Searching…' : 'Find chargers'}<svg className="m-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button>
             {fieldError && <p id="charger-address-error" className="charger-field-error" role="alert">{fieldError}</p>}
             <p id="charger-search-status" className="charger-search-status" role="status" aria-live="polite">{statusText}</p>
           </form>
-          <div className="charger-search-meta"><button className="charger-location-button" type="button" onClick={useLocation} disabled={busy}><LocationIcon />Use my location</button><p id="charger-privacy">Location shared with OpenStreetMap and Google Maps.</p></div>
+          <div className="charger-search-meta"><button className="charger-location-button" type="button" onClick={useLocation} disabled={busy}><LocationIcon />Use my location</button><p id="charger-privacy">Addresses sent to <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>. Maps use Google.</p></div>
 
           <div className="charger-workspace app-frame" aria-busy={busy}>
             <div className="charger-results">
@@ -170,9 +175,9 @@ export default function Chargers() {
               {origin && <p className="charger-origin" title={origin.label}>{origin.label}</p>}
               {error && <div className="charger-error" role="alert"><h3>Search unavailable</h3><p>{error}</p>{origin && <button type="button" className="charger-inline-button" onClick={() => searchNear(origin, radius, startRequest())}>Retry search <span aria-hidden="true">→</span></button>}</div>}
               {locations.length > 0 && <div className="charger-address-choices"><p ref={choicesHeading} tabIndex={-1}>Select the location you mean.</p><ul>{locations.map(location => <li key={location.id}><button type="button" onClick={() => searchNear(location, radius, startRequest())}><span>{location.label}</span><span aria-hidden="true">→</span></button></li>)}</ul></div>}
-              {busy && <div className="charger-results-empty"><ChargerIcon /><h3>{phase === 'locating' ? 'Locating you' : 'Searching your area'}</h3><p>{phase === 'locating' ? 'Allow location access in your browser to search nearby.' : 'Checking mapped charging stations near your search location.'}</p></div>}
-              {!busy && !error && !locations.length && !results && <div className="charger-results-empty"><ChargerIcon /><h3>Find a place to plug in</h3><p>Search an address or use your location. Nearby stations will appear here, closest first.</p><span className="charger-radius-note">Start with a 5-mile search</span></div>}
-              {results && !chargers.length && <div className="charger-results-empty"><ChargerIcon /><h3>No mapped chargers nearby</h3><p>Try a larger search radius or a different address. OpenStreetMap coverage varies by area.</p>{radius < 25 && <button type="button" className="charger-inline-button" onClick={() => { const value = radius === 5 ? 10 : 25; setRadius(value); searchNear(origin, value, startRequest()) }}>Search {radius === 5 ? 10 : 25} miles <span aria-hidden="true">→</span></button>}</div>}
+              {busy && <div className="charger-results-empty"><ChargerIcon /><h3>{phase === 'locating' ? 'Locating you' : 'Searching your area'}</h3><p>{phase === 'locating' ? 'Allow location access in your browser to search nearby.' : 'Checking public charging stations near your search location.'}</p></div>}
+              {!busy && !error && !locations.length && !results && <div className="charger-results-empty"><ChargerIcon /><h3>Find a place to plug in</h3><p>Search an address or use your location. Nearby stations will appear here, closest first.</p><span className="charger-radius-note">Start with a 1-mile search</span></div>}
+              {results && !chargers.length && <div className="charger-results-empty"><ChargerIcon /><h3>No listed chargers nearby</h3><p>Try a larger search radius or a different address. Coverage includes public stations in the United States.</p>{nextRadius && <button type="button" className="charger-inline-button" onClick={() => { setRadius(nextRadius); searchNear(origin, nextRadius, startRequest()) }}>Search {nextRadius} miles <span aria-hidden="true">→</span></button>}</div>}
               {chargers.length > 0 && <ol className="charger-station-list">{chargers.map((station, index) => <li key={station.id} className={selectedId === station.id ? 'is-selected' : undefined}>
                 <button type="button" className="charger-station-select" onClick={() => selectStation(station.id)} aria-pressed={selectedId === station.id}><span className="charger-station-number">{index + 1}</span><span className="charger-station-heading"><span className="charger-station-name">{station.name}</span><span className="charger-station-distance">{formatDistance(station.distanceMiles)} away</span></span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="m7 4 6 6-6 6" /></svg></button>
                 <div className="charger-station-details">
@@ -181,13 +186,13 @@ export default function Chargers() {
                   <div className="charger-station-specs"><span>{station.maxPowerKw ? `Up to ${station.maxPowerKw} kW` : 'Power not listed'}</span><span>{station.connectors.length ? station.connectors.join(' · ') : 'Connector not listed'}</span></div>
                   {station.access && !['yes', 'permissive', 'public'].includes(station.access) && <p className="charger-access">{station.access === 'customers' ? 'Customers only' : station.access === 'destination' ? 'For visitors at this destination' : `Access: ${station.access}`}</p>}
                   {station.openingHours && <p>{station.openingHours === '24/7' ? 'Open 24 hours' : `Hours: ${station.openingHours}`}</p>}
-                  <div className="charger-station-links"><a href={googleMapsDirections(station)} target="_blank" rel="noreferrer">Get directions <span aria-hidden="true">↗</span></a><a href={station.osmUrl} target="_blank" rel="noreferrer" aria-label={`View ${station.name} on OpenStreetMap`}>Station details <span aria-hidden="true">↗</span></a></div>
+                  <div className="charger-station-links"><a href={googleMapsDirections(station)} target="_blank" rel="noreferrer">Get directions <span aria-hidden="true">↗</span></a><a href={station.detailsUrl} target="_blank" rel="noreferrer" aria-label={`View ${station.name} on AFDC`}>Station details <span aria-hidden="true">↗</span></a></div>
                 </div>
               </li>)}</ol>}
             </div>
             <ChargerMap origin={origin} chargers={chargers} radius={radius} selectedId={selectedId} />
           </div>
-          <div className="charger-data-note"><p>Distances are straight-line estimates. Check the operator for connector compatibility, access, pricing, and live availability.</p><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></div>
+          <div className="charger-data-note"><p>{retrievedDate && <>Station data retrieved {retrievedDate}. {results.stale && 'Update delayed; showing the last available data. '}</>}Distances are straight-line estimates. Check the operator for connector compatibility, access, pricing, and live availability.</p><a href="https://afdc.energy.gov/stations/" target="_blank" rel="noreferrer">Station data: DOE AFDC</a></div>
         </div>
       </section>
     </main>

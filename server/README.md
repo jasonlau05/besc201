@@ -1,4 +1,4 @@
-# Shared electricity-rate dataset
+# API and saved datasets
 
 The API serves `data/electricity-rates.json` for all 50 states and DC. It never contacts EIA while handling visitor traffic and does not need `EIA_API_KEY` at runtime.
 
@@ -6,6 +6,20 @@ The API serves `data/electricity-rates.json` for all 50 states and DC. It never 
 - `GET /api/electricity-rates?state=TX`: optional lookup in the same data.
 - `GET /api/health`: health check.
 - `POST /api/chat`: EV assistant using OpenRouter; returns `{ "reply": "..." }` or a safe `{ "error": "..." }`.
+- `GET /api/chargers?lat=41.88&lng=-87.63&radius=1`: up to 30 nearby public U.S. stations from the saved AFDC dataset; supported radii are 1 (default), 5, 10, and 25 miles.
+- `GET /api/charging-locations?q=Chicago`: explicitly submitted U.S. address search through Nominatim.
+
+## Saved AFDC chargers
+
+`data/charging-stations.json` contains only the fields the charger page uses, normalized from the DOE AFDC All Stations API. It stays in the server deployment; nearby searches load it once per warm instance, use a shared latitude index, and return only nearby records. They make no provider requests and need no AFDC key at runtime. Responses include the original retrieval timestamp, a delayed-data flag after 48 hours, and `Cache-Control: no-store`. Missing/corrupt data returns a safe 503.
+
+For an intentional refresh, add `AFDC_API_KEY=your_key` to this directory's ignored `.env`, then run `npm run refresh:chargers` from the repository root. The script loads `.env` automatically, sends the key in an HTTP header, validates a complete public/available/U.S./electric batch, and atomically replaces the saved file. Incomplete data, authentication errors, throttling, timeouts, and suspicious coverage drops preserve the previous data. Restart the backend after refreshing, or deploy the new file for Vercel. This dataset does not provide live plug availability.
+
+The daily `../.github/workflows/refresh-chargers.yml` uses the repository Actions secret `AFDC_API_KEY`; the local `.env` is not uploaded. It runs at 11:47 UTC and commits only the generated station file. Configure Vercel to deploy the bot's commits, or optionally set the Actions secret `VERCEL_DEPLOY_HOOK_URL` to publish after successful refreshes. Until the workflow is pushed and the secret configured, daily refreshes are not active.
+
+Address search still uses Nominatim with explicit submissions, a per-process rate limit, bounded cache, and timeout. Use `NOMINATIM_URL` to configure another compatible geocoder. Overpass and its former environment variables are no longer used. Current-location searches bypass geocoding entirely.
+
+Run all charger tests from the repository root with `npm run test:chargers`. Tests use local fixtures and do not contact AFDC or Nominatim. The root README documents setup, update validation, and deployment details.
 
 ## OpenRouter chat configuration
 

@@ -15,26 +15,29 @@ test('the initial Google Maps iframe needs no API key or search location', () =>
   assert.equal(embed.searchParams.get('output'), 'embed')
   assert.equal(embed.searchParams.get('q'), 'United States')
   assert.equal(embed.searchParams.get('z'), '4')
+  assert.equal(embed.searchParams.get('t'), 'k')
   assert.equal(embed.searchParams.has('key'), false)
   assert.equal(view.label, 'Google Maps')
 })
 
 test('the searched address centers the map and the radius changes its zoom', () => {
-  for (const [radius, zoom] of [[5, '12'], [10, '11'], [25, '10']]) {
+  for (const [radius, zoom] of [[1, '14'], [5, '12'], [10, '11'], [25, '10']]) {
     const view = googleMapsView({ origin, radius })
     const embed = new URL(view.embedUrl)
     assert.equal(embed.searchParams.get('q'), '41.88,-87.63')
     assert.equal(embed.searchParams.get('z'), zoom)
+    assert.equal(embed.searchParams.get('t'), 'k')
     assert.equal(view.label, 'Search location')
     assert.match(view.title, /Chicago/)
   }
 })
 
-test('a selected OSM charger uses its exact point and identifies its list number', () => {
+test('a selected charger preserves satellite imagery and identifies its exact point and list number', () => {
   const view = googleMapsView({ origin, chargers, selectedId: 'node/2', radius: 25 })
   const embed = new URL(view.embedUrl)
   assert.equal(embed.searchParams.get('q'), '41.882,-87.632')
   assert.equal(embed.searchParams.get('z'), '16')
+  assert.equal(embed.searchParams.get('t'), 'k')
   assert.equal(view.label, 'Charger 2')
   assert.equal(view.title, 'Second charger on Google Maps')
   const link = new URL(view.mapUrl)
