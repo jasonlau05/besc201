@@ -2,15 +2,34 @@
 
 A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that serves one shared, saved dataset of residential electricity rates from the US Energy Information Administration (EIA).
 
-The home page introduces the project’s problem statement. Learn explains EV basics, and the EV guide compares carbon and energy costs with saved EIA state electricity-rate data. A floating EV assistant uses OpenRouter through the backend. A daily GitHub Action updates the electricity dataset; visitor requests never call EIA.
+The home page introduces the project’s problem statement with a minimal text layout and links to Learn and the EV guide. Learn explains EV basics, and the EV guide compares carbon and energy costs with saved EIA state electricity-rate data. A floating EV assistant uses OpenRouter through the backend. A daily GitHub Action updates the electricity dataset; visitor requests never call EIA.
 
 ## Pages and features
 
 | Route | Purpose | Data |
 | --- | --- | --- |
-| `/` | Problem statement explaining the project’s purpose | Static project overview |
+| `/` | Problem statement and links to Learn and the guide | Static project overview |
 | `/learn` | EV basics, vehicle types, charging, environmental tradeoffs, and FAQs | EPA and DOE educational sources |
 | `/info` | Carbon break-even simulator, annual energy-cost comparison, state electricity prices, and environmental context | Calculated estimates plus saved EIA monthly averages |
+| `/chargers` | Address or current-location search for nearby EV charging stations, a selectable station list, and Google Maps | OpenStreetMap Nominatim + Overpass, with a Google Maps iframe |
+
+### Chargers near me
+
+Open **Chargers near me** in the navigation. Enter an address or city, select a matching address when needed, and search within 5, 10, or 25 miles. **Use my location** requests browser permission only when clicked; production geolocation requires HTTPS. Results are sorted by straight-line distance and show mapped connector types, power, access, and hours when available. Selecting a station centers the Google map on its exact coordinates. Directions open Google Maps in a new tab.
+
+The backend proxies explicit address searches to Nominatim and charging-station queries to the Private.coffee Overpass instance; no charger-data API key is required. Searches never run as autocomplete. Address results are cached in bounded server memory for 24 hours, station results for 5 minutes, and identical in-flight requests are shared. The public Nominatim service is limited to one request per 1.1 seconds per server process; busy searches return a retryable error. Address and coordinate responses use `Cache-Control: no-store`, and search locations are not persisted in browser storage. Location searches are sent to OpenStreetMap; the page displays its attribution.
+
+The Google map uses a web-map iframe with no API key, MapKit token, JavaScript SDK, or client environment configuration. It initially shows the US, then the searched location, then the selected station. The radius adjusts the area view; selecting a charger zooms in on that station. The toolbar identifies the selected list entry and offers **Open Google Maps**. The iframe displays one selected location at a time; its native map controls do not change the OpenStreetMap station list.
+
+The [Google Maps share/embed interface](https://support.google.com/maps/answer/7101463) supplies the web-map embedding approach, and [Google Maps URLs](https://developers.google.com/maps/documentation/urls/get-started) supply the keyless search and driving-directions links. This implementation does not use the separate Google Cloud Maps Embed API or Maps JavaScript API. Any old `VITE_MAPKIT_TOKEN` setting is unused and can be removed. If the map cannot load, the list, directions, and external map link remain available.
+
+Public OSM services have usage limits and no availability guarantee. Before running multiple server instances or increasing traffic, use a managed/self-hosted geocoder or enforce a shared application-wide rate limit: the public Nominatim limit applies to the whole application, not each instance. `NOMINATIM_URL` (a Nominatim-compatible search endpoint) and `OVERPASS_URL` (an interpreter endpoint) can switch providers through the server runtime environment without changing client code. See the [Nominatim policy](https://operations.osmfoundation.org/policies/nominatim/) and [Overpass API documentation](https://wiki.openstreetmap.org/wiki/Overpass_API).
+
+OpenStreetMap coverage and station details can be incomplete. Results exclude explicitly private, inaccessible, and car-incompatible stations; customer-only stations remain labeled. Distances are estimates, and the page asks users to check the operator for pricing, compatibility, access, and live availability.
+
+Charger endpoints: `GET /api/charging-locations?q=<address>` returns up to five address choices. `GET /api/chargers?lat=<latitude>&lng=<longitude>&radius=5|10|25` returns up to 30 nearest mapped stations plus the total found. Both validate input, time out provider requests, and return safe errors; a partial Overpass response is treated as a failure instead of an empty result.
+
+Run charger tests with `npm run test:chargers` from the repository root. They use mocked providers and do not call OSM or Apple services.
 
 ### EV assistant
 
@@ -372,6 +391,8 @@ This bypasses npm for the build only; it does not install dependencies.
 │   └── src/
 │       ├── App.jsx                    # Problem statement, /learn, /info, and shared chat
 │       ├── App.css                    # Shared styles
+│       ├── Problem.jsx                # Minimal problem statement landing page
+│       ├── Problem.css                # Landing layout, typography, and responsive styles
 │       ├── Learn.jsx                  # EV learning page with EPA/DOE sources
 │       ├── Learn.css                  # Learning page styles
 │       ├── EvChat.jsx                 # Expandable floating EV assistant
@@ -411,7 +432,7 @@ This bypasses npm for the build only; it does not install dependencies.
 
 ## Current limitations
 
-The home page is a static problem statement. The EV guide uses estimates and state-average rates; it does not geocode addresses, retrieve utility-specific tariffs, or recommend actual charging windows.
+The home page is a minimal problem statement. The EV guide uses estimates and state-average rates; it does not geocode addresses, retrieve utility-specific tariffs, or recommend actual charging windows.
 
 The app has no accounts, EV charger integration, actual charge scheduling, database, or total ownership-cost model. Calculator inputs reset on reload. State-rate data can lag the current month, and the national carbon baseline does not reflect individual locations.
 

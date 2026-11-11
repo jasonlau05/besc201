@@ -1,0 +1,106 @@
+.reading-page {
+  --reading-muted: #405348;
+  --reading-border: #d9dfd7;
+  --reading-space: clamp(64px, 7vw, 104px);
+  color: var(--color-text);
+}
+html:has(.reading-page) { scroll-behavior: auto; }
+.reading-page ::selection { background: var(--color-surface-green); color: var(--color-primary-dark); }
+.reading-page :is(a, button, input, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }
+.reading-skip { position: fixed; top: 12px; left: 16px; z-index: 110; transform: translateY(-200%); padding: 12px 20px; background: var(--color-primary); color: var(--color-white); }
+.reading-skip:focus { transform: translateY(0); }
+.reading-page .reading-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: calc(100svh - var(--site-header-height));
+  padding: clamp(64px, 8vw, 112px) 0 0;
+  text-align: left;
+}
+.reading-page .reading-hero .reading-contents { width: 100%; margin-top: auto; }
+.reading-page .site-footer .brand span { color: #a84f31; }
+.reading-page .reading-hero > h1 {
+  max-width: 900px;
+  margin: 0;
+  color: var(--color-primary-dark);
+  font: 600 clamp(48px, 6.2vw, 80px)/1.08 'Playfair Display', serif;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.reading-page .reading-hero > p {
+  max-width: 610px;
+  margin: 28px 0 0;
+  color: var(--reading-muted);
+  font-size: 18px;
+  line-height: 1.75;
+}
+.reading-page .reading-hero :is(.learn-hero-actions, .guide-primary) { margin-top: 32px; justify-content: flex-start; }
+.reading-page :is(.problem-link, .guide-primary) {
+  min-height: 48px;
+  justify-content: center;
+  gap: 24px;
+  padding: 13px 20px;
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font: 500 14px/1.4 'DM Sans', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+.reading-page :is(.problem-link, .guide-primary):hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+.reading-page :is(.problem-link, .guide-primary):active { transform: translateY(1px); }
+.reading-page .reading-text-link { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; border: 0; padding: 0; background: transparent; color: var(--color-primary-dark); font: 500 14px/1.5 'DM Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.reading-arrow { display: inline-block; flex: 0 0 18px; width: 18px; height: 18px; transition: translate 180ms ease; }
+.reading-arrow-down { rotate: 90deg; }
+.reading-arrow-external { rotate: -45deg; }
+:is(a, button):hover > .reading-arrow { translate: 3px 0; }
+:is(a, button):hover > .reading-arrow-down { translate: 0 3px; }
+:is(a, button):hover > .reading-arrow-external { translate: 2px -2px; }
+.reading-contents { margin-top: 64px; padding: 22px 0 26px; border-block: 1px solid var(--reading-border); }
+.reading-contents > span { display: block; margin-bottom: 10px; color: var(--reading-muted); font-size: 13px; }
+.reading-contents > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.reading-contents a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; color: var(--color-primary-dark); font-size: 14px; font-weight: 500; text-decoration: none; }
+.reading-contents a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.reading-page h1[id] { scroll-margin-top: 16px; }
+.reading-page section[id] { scroll-margin-top: calc(16px - var(--reading-space)); }
+.reading-page :is(.learn-source, .learn-footnote a, .guide-sources a) { color: var(--color-primary); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.reading-page :is(.learn-source, .learn-impact-copy > a) { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; }
+.reading-page .guide-control { margin-bottom: 28px; }
+.reading-page .guide-control label { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; color: var(--color-text); font: 400 15px/1.5 'DM Sans', sans-serif; letter-spacing: 0; }
+.reading-page .guide-control output { font-size: 14px; font-weight: 600; color: var(--color-primary-dark); font-variant-numeric: tabular-nums; }
+.reading-page .guide-control input {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  margin: 4px 0 0;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+.reading-page .guide-control input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--color-primary) var(--range-progress), var(--reading-border) var(--range-progress)); }
+.reading-page .guide-control input::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; margin-top: -8px; border: 3px solid var(--color-surface); border-radius: 50%; background: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+.reading-page .guide-control input::-moz-range-track { height: 4px; border-radius: 2px; background: var(--reading-border); }
+.reading-page .guide-control input::-moz-range-progress { height: 4px; background: var(--color-primary); }
+.reading-page .guide-control input::-moz-range-thumb { width: 14px; height: 14px; border: 3px solid var(--color-surface); border-radius: 50%; background: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+.reading-page .guide-control input:hover::-webkit-slider-thumb { background: var(--color-primary-dark); }
+@media (max-width: 1180px) {
+  /* Keep the bottom row of chapter links above the existing chat launcher. */
+  .reading-page .reading-hero .reading-contents { padding-bottom: 88px; }
+}
+@media (max-width: 720px) {
+  .reading-page .reading-hero { padding-top: 52px; }
+  .reading-page .reading-hero > h1 { font-size: clamp(42px, 9.8vw, 64px); letter-spacing: -.03em; }
+  .reading-page .reading-hero > p { margin-top: 24px; font-size: 16px; }
+  .reading-contents { margin-top: 40px; padding-block: 18px; }
+  .reading-contents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
+  .reading-contents a { font-size: 13px; }
+  .reading-page :is(.problem-link, .guide-primary) { max-width: 100%; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-page :is(.problem-link, .guide-primary), .reading-arrow { transition: none; }
+  .reading-page :is(.problem-link, .guide-primary):is(:hover, :active) { transform: none; }
+  :is(a, button):hover > .reading-arrow { translate: none; }
+}

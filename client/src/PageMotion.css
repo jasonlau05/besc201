@@ -1,0 +1,52 @@
+/* The page fade keeps components and icons together. The text keeps its own
+   staged entrance without changing its DOM or line wrapping. */
+:root {
+  --page-phase-duration: 650ms;
+  --page-phase-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+html[data-page-phase="entering"] #root {
+  animation: page-phase-in var(--page-phase-duration) var(--page-phase-ease) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-page-phase="entering"] :is(.page-intro, .charger-intro) > h1 {
+    --text-phase-distance: .35em;
+    animation: page-text-in 620ms var(--page-phase-ease) both;
+  }
+
+  html[data-page-phase="entering"] :is(.page-intro, .charger-intro) > p {
+    animation: page-text-in 520ms var(--page-phase-ease) 80ms both;
+  }
+
+  html[data-page-phase="entering"] :is(.minimal-actions, .learn-hero-actions, .guide-hero > .guide-primary, .charger-search, .charger-search-meta) {
+    animation: page-text-in 480ms var(--page-phase-ease) 140ms both;
+  }
+
+  html[data-page-phase="entering"] :is(.charger-workspace, .charger-data-note) {
+    animation: page-text-in 480ms var(--page-phase-ease) 160ms both;
+  }
+}
+
+@keyframes page-phase-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes page-text-in {
+  from { opacity: 0; transform: translateY(var(--text-phase-distance, 12px)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-page-phase] #root { animation: none; opacity: 1; }
+}
+
+@media print {
+  html[data-page-phase] #root { animation: none; opacity: 1; }
+  html[data-page-phase="entering"] :is(.page-intro > h1, .page-intro > p, .charger-intro > h1, .charger-intro > p, .minimal-actions, .learn-hero-actions, .guide-hero > .guide-primary, .charger-search, .charger-search-meta, .charger-workspace, .charger-data-note) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -27,3 +27,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Installed skills and local design check artifacts
+.agents/skills/
+.taste-skill/

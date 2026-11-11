@@ -2,6 +2,7 @@
   "scripts": {
     "client": "cd client && npm run dev",
     "server": "cd server && npm run start",
+    "test:chargers": "node --test client/src/chargers-client.test.mjs client/src/google-maps.test.mjs server/src/chargers.test.js",
     "dev": "concurrently \"npm run client\" \"npm run server\"",
     "start": "concurrently \"npm run client\" \"npm run server\""
   },

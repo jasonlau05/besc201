@@ -44,8 +44,6 @@ export default function ElectricityRates({ efficiency, appliedRate, onAppliedRat
 
   useEffect(() => {
     let active = true
-    const cached = ratesClient.peekDataset(true)
-    setResource({ dataset: cached, loading: !cached, error: '' })
     ratesClient.loadDataset({ force: retry > 0 })
       .then(dataset => { if (active) setResource({ dataset, loading: false, error: '' }) })
       .catch(error => { if (active) setResource({ dataset: null, loading: false, error: error.message }) })
@@ -56,12 +54,16 @@ export default function ElectricityRates({ efficiency, appliedRate, onAppliedRat
   const isApplied = Boolean(data && appliedRate?.state === data.state && appliedRate?.price === data.price)
   const maxPrice = data ? Math.max(...data.history.map(row => row.price)) : 1
   const showSkeleton = !error && (loading || revealedKey !== revealKey)
-  const reload = () => { setRevealedKey(null); setRetry(value => value + 1) }
+  const reload = () => {
+    const dataset = ratesClient.peekDataset(true)
+    setResource({ dataset, loading: !dataset, error: '' })
+    setRevealedKey(null)
+    setRetry(value => value + 1)
+  }
 
-  return <section className="guide-section" id="location">
+  return <section className="guide-section" id="location" aria-labelledby="rates-title">
     <div className="guide-section-heading">
-      <span className="section-title">03 / WHERE YOU LIVE</span>
-      <h2>Electricity prices across states.</h2>
+      <h2 id="rates-title">Electricity prices across states.</h2>
       <p>Explore residential electricity prices by state with data from the US Department of Energy.</p>
     </div>
     <div className="guide-split">

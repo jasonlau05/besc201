@@ -4,7 +4,39 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=group9-outline" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>group9</title>
+    <meta name="page-type" content="software" />
+    <meta name="site-kind" content="software" />
+    <meta name="description" content="Compare electric and gasoline cars with Group9’s guide to carbon emissions, energy costs, and state electricity prices." />
+    <meta name="theme-color" content="#f8f7f3" />
+    <meta property="og:title" content="Group9 — An EV guide for your next car" />
+    <meta property="og:description" content="Understand the carbon and energy costs behind your next car." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/share.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Group9 — Electric vehicle comparison guide</title>
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/playfair-display-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-mono-500-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/taste/motion/motion.css" />
+    <style>
+      html[data-page-phase="pending"] #root { opacity: 0; }
+      @media (prefers-reduced-motion: reduce) {
+        html[data-page-phase] #root { opacity: 1; }
+      }
+    </style>
+    <script>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.dataset.pagePhase = 'pending';
+        // Fail open if the application or its entrance controller cannot start.
+        setTimeout(() => {
+          if (document.documentElement.dataset.pagePhase === 'pending') {
+            delete document.documentElement.dataset.pagePhase;
+          }
+        }, 1600);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

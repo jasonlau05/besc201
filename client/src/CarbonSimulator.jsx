@@ -1,10 +1,7 @@
 import AnimatedDetails from './AnimatedDetails'
 import { useState } from 'react'
 import { CARBON_BASELINE, carbonModel, gasEmissionsPerMile } from './carbon-model.mjs'
-
-function Control({ id, title, value, onChange, min, max, step = 1, unit }) {
-  return <div className="guide-control"><label htmlFor={id}>{title}<output htmlFor={id}>{value} {unit}</output></label><input id={id} type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))} /></div>
-}
+import { RangeControl as Control } from './GuideUI'
 
 export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency, mpg, setMpg }) {
   const [evProduction, setEvProduction] = useState(12)
@@ -16,10 +13,10 @@ export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency
   const y = tonnes => 215 - tonnes / maxY * 185
   const crossing = model.breakEvenMiles !== null && model.breakEvenMiles <= horizon
   const result = model.breakEvenMiles === null ? 'No break-even' : model.breakEvenMiles === 0 ? 'Lower from the start' : `${Math.round(model.breakEvenMiles).toLocaleString()} miles`
-  return <section className="guide-section" id="fit"><div className="guide-section-heading"><span className="section-title">01 / YOUR CARBON FOOTPRINT</span><h2>When does electric break even?</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
-    <Control id="ev-production" title="EV manufacturing" value={evProduction} onChange={setEvProduction} min={4} max={25} step={0.5} unit="t CO₂e" />
-    <Control id="carbon-efficiency" title="EV energy use" value={efficiency} onChange={setEfficiency} min={20} max={50} unit="kWh/100 mi" />
-    <Control id="carbon-mpg" title="Gas car efficiency" value={mpg} onChange={setMpg} min={15} max={60} unit="mpg" />
+  return <section className="guide-section" id="fit" aria-labelledby="carbon-title"><div className="guide-section-heading"><h2 id="carbon-title">When does electric break even?</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
+    <Control id="ev-production" label="EV manufacturing" value={evProduction} onChange={setEvProduction} min={4} max={25} step={0.5} unit="t CO₂e" />
+    <Control id="carbon-efficiency" label="EV energy use" value={efficiency} onChange={setEfficiency} min={20} max={50} unit="kWh/100 mi" />
+    <Control id="carbon-mpg" label="Gas car efficiency" value={mpg} onChange={setMpg} min={15} max={60} unit="mpg" />
     <p className="guide-note">Annual driving is fixed at <strong>{annualMiles.toLocaleString()} miles</strong>. EV energy use and gas MPG also update the cost calculator.</p>
     <AnimatedDetails className="carbon-assumptions"><summary>Our fixed comparison & sources</summary>
       <p>Gas driving: <strong>{gasIntensity.toFixed(1)} g CO₂/mile</strong> at {mpg} mpg. Calculated as 8,887 g CO₂ per gallon ÷ MPG, using <a href="https://www.epa.gov/greenvehicles/comparison-your-car-vs-electric-vehicle">EPA’s gasoline emissions factor</a>.</p>
@@ -34,6 +31,6 @@ export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency
       <path d={`M 50 ${y(model.evAt(0))} L 410 ${y(model.evAt(horizon))}`} fill="none" stroke="var(--color-primary)" strokeWidth="3" />
       {crossing && <g><line x1={x(model.breakEvenMiles)} x2={x(model.breakEvenMiles)} y1={y(model.evAt(model.breakEvenMiles))} y2="215" stroke="var(--color-carbon-crossing)" strokeDasharray="4 4" /><circle cx={x(model.breakEvenMiles)} cy={y(model.evAt(model.breakEvenMiles))} r="5" fill="var(--color-primary)" /></g>}
       {[0, 75000, 150000].map(mi => <text key={mi} x={x(mi)} y="236" textAnchor="middle">{mi / 1000}k mi</text>)}
-    </svg><div className="carbon-legend"><span>━ Electric</span><span>━ Gasoline</span></div><p className="guide-note">Estimated footprint in tonnes: manufacturing + driving. {model.breakEvenMiles === null ? 'The lines never meet under these assumptions.' : model.breakEvenMiles > horizon ? 'Break-even occurs beyond the 150,000-mile chart.' : 'The dot marks where the two lines meet.'} {model.breakEvenMiles === 0 && model.evPerMile > gasIntensity ? 'The EV starts lower, but its higher driving emissions eventually reverse that advantage.' : ''} This is a simplified comparison, not a full lifecycle assessment.</p>
+    </svg><div className="carbon-legend"><span><i aria-hidden="true" />Electric</span><span><i aria-hidden="true" />Gasoline</span></div><p className="guide-note">Estimated footprint in tonnes: manufacturing + driving. {model.breakEvenMiles === null ? 'The lines never meet under these assumptions.' : model.breakEvenMiles > horizon ? 'Break-even occurs beyond the 150,000-mile chart.' : 'The dot marks where the two lines meet.'} {model.breakEvenMiles === 0 && model.evPerMile > gasIntensity ? 'The EV starts lower, but its higher driving emissions eventually reverse that advantage.' : ''} This is a simplified comparison, not a full lifecycle assessment.</p>
   </div></div></section>
 }
