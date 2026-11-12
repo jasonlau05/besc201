@@ -49,10 +49,15 @@ export function createTabNavigation(nav) {
     measure()
     const after = nav.getBoundingClientRect().width
     if (!reduced.matches && before && after && before !== after) {
-      const timing = { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' }
-      // Animate only transforms; counter-scale icons so they keep their shape.
-      chromeAnimations = [nav.animate([{ transform: `scaleX(${before / after})` }, { transform: 'scaleX(1)' }], timing),
-        ...links.map(link => link.querySelector('.nav-tab-icon').animate([{ transform: `scaleX(${after / before})` }, { transform: 'scaleX(1)' }], timing))]
+      const timing = { duration: 400, easing: 'cubic-bezier(.4, 0, .2, 1)' }
+      const scale = before / after
+      // Match the inverse at every step so icons do not stretch during the morph.
+      const counterScale = Array.from({ length: 21 }, (_, index) => {
+        const offset = index / 20
+        return { offset, transform: `scaleX(${1 / (scale + (1 - scale) * offset)})` }
+      })
+      chromeAnimations = [nav.animate([{ transform: `scaleX(${scale})` }, { transform: 'scaleX(1)' }], timing),
+        ...links.map(link => link.querySelector('.nav-tab-icon').animate(counterScale, timing))]
     }
   }
 
@@ -129,7 +134,6 @@ export function createTabNavigation(nav) {
 
   function pointerDown(event) {
     if (!mobile.matches || !event.isPrimary || event.button !== 0 || modified(event) || gesture) return
-    finishChromeAnimation()
     measure()
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false }
     nav.setPointerCapture(event.pointerId)
@@ -145,13 +149,21 @@ export function createTabNavigation(nav) {
     if (gesture.dragging) {
       nav.dataset.dragging = ''
       if (event.cancelable) event.preventDefault()
+      measure()
       moveTo(progressAt(event.clientX))
     }
   }
 
+  function dragTouchMove(event) {
+    // Once a horizontal drag owns the touch, keep it through vertical drift off
+    // the bar. An initial vertical swipe still belongs to native page scrolling.
+    if (gesture?.dragging && event.cancelable) event.preventDefault()
+  }
+
   function pointerUp(event) {
     if (!gesture || gesture.id !== event.pointerId) return
-    if (event.clientY < bounds.top - 20 || event.clientY > bounds.bottom + 20) { cancel(); return }
+    measure()
+    if (!gesture.dragging && (event.clientY < bounds.top - 20 || event.clientY > bounds.bottom + 20)) { cancel(); return }
     const index = Math.round(progressAt(event.clientX))
     ignoreClickUntil = performance.now() + 600
     release()
@@ -189,6 +201,7 @@ export function createTabNavigation(nav) {
   measure()
   nav.addEventListener('pointerdown', pointerDown)
   nav.addEventListener('pointermove', pointerMove, { passive: false })
+  nav.addEventListener('touchmove', dragTouchMove, { passive: false })
   nav.addEventListener('pointerup', pointerUp)
   nav.addEventListener('pointercancel', cancel)
   nav.addEventListener('lostpointercapture', cancel)
@@ -223,6 +236,7 @@ export function createTabNavigation(nav) {
       observer.disconnect()
       nav.removeEventListener('pointerdown', pointerDown)
       nav.removeEventListener('pointermove', pointerMove)
+      nav.removeEventListener('touchmove', dragTouchMove)
       nav.removeEventListener('pointerup', pointerUp)
       nav.removeEventListener('pointercancel', cancel)
       nav.removeEventListener('lostpointercapture', cancel)
