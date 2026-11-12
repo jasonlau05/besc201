@@ -4,7 +4,7 @@
   --reading-space: clamp(64px, 7vw, 104px);
   color: var(--color-text);
 }
-html:has(.reading-page) { scroll-behavior: auto; }
+html:has(.reading-page) { scroll-behavior: smooth; }
 .reading-page ::selection { background: var(--color-surface-green); color: var(--color-primary-dark); }
 .reading-page :is(a, button, input, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }
 .reading-skip { position: fixed; top: 12px; left: 16px; z-index: 110; transform: translateY(-200%); padding: 12px 20px; background: var(--color-primary); color: var(--color-white); }
@@ -101,6 +101,7 @@ html:has(.reading-page) { scroll-behavior: auto; }
   .reading-page :is(.problem-link, .guide-primary) { max-width: 100%; white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) {
+  html:has(.reading-page) { scroll-behavior: auto; }
   .reading-page :is(.problem-link, .guide-primary), .reading-arrow { transition: none; }
   .reading-page :is(.problem-link, .guide-primary):is(:hover, :active) { transform: none; }
   :is(a, button):hover > .reading-arrow { translate: none; }

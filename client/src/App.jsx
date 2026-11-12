@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import './App.css'
 import './PageMotion.css'
 import { startPageEntrance } from './page-motion.mjs'
@@ -15,18 +15,25 @@ const pages = {
   '/learn': { name: 'learn', heading: 'learn-title', title: 'Learn about electric vehicles — Group9' },
   '/info': { name: 'info', heading: 'guide-title', title: 'Compare electric vehicles — Group9' },
   '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Chargers near me — Group9' },
+  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Chat with Elon — Group9' },
 }
 const readPath = () => window.location.pathname.replace(/\/$/, '') || '/'
+const mobileQuery = window.matchMedia('(max-width: 720px)')
+const subscribeMobile = listener => {
+  mobileQuery.addEventListener('change', listener)
+  return () => mobileQuery.removeEventListener('change', listener)
+}
+const readMobile = () => mobileQuery.matches
 
 export default function App() {
   const [chatOpen, setChatOpen] = useState(false)
   const [path, setPath] = useState(readPath)
+  const mobile = useSyncExternalStore(subscribeMobile, readMobile)
   const routeRef = useRef(path)
   const scrollPositions = useRef(new Map())
   const pendingScroll = useRef(null)
   const focusContent = useRef(false)
   const current = pages[path] || pages['/']
-  useLayoutEffect(() => startPageEntrance(), [])
 
   const navigate = useCallback((href, options = {}) => {
     const url = new URL(href, window.location.href)
@@ -39,6 +46,11 @@ export default function App() {
     window.history.pushState(null, '', url.pathname)
     setPath(next)
   }, [])
+
+  const openChat = useCallback(() => {
+    if (mobile) navigate('/chat')
+    else setChatOpen(true)
+  }, [mobile, navigate])
 
   useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
@@ -67,6 +79,7 @@ export default function App() {
       focusContent.current = false
     }
   }, [path, current.heading])
+  useLayoutEffect(() => startPageEntrance(), [path])
   useEffect(() => { document.title = current.title }, [current.title])
 
   useEffect(() => {
@@ -79,15 +92,16 @@ export default function App() {
 
   let page
   if (path === '/info') page = <Info />
-  else if (path === '/learn') page = <Learn onAsk={() => setChatOpen(true)} />
+  else if (path === '/learn') page = <Learn onAsk={openChat} />
   else if (path === '/chargers') page = <Chargers />
+  else if (path === '/chat') page = null
   else page = <Problem />
   return <>
     <a className="site-skip" href={`#${current.heading}`}>Skip to content</a>
-    <SiteHeader page={current.name} onNavigate={navigate} />
+    <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />
     {page}
     <span className="site-route-status" role="status">{current.title}</span>
-    <EvChat open={chatOpen} onOpenChange={setChatOpen} />
+    <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />
     <RoadScrollbar />
   </>
 }

@@ -44,7 +44,7 @@ html { scrollbar-gutter: stable; scroll-padding-top: calc(var(--site-header-heig
     position: fixed;
     inset: auto max(12px, env(safe-area-inset-right, 0px)) var(--mobile-tabs-bottom) max(12px, env(safe-area-inset-left, 0px));
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0;
     width: auto;
     max-width: 420px;
@@ -60,6 +60,8 @@ html { scrollbar-gutter: stable; scroll-padding-top: calc(var(--site-header-heig
     background: rgba(248, 247, 243, .97);
     box-shadow: 0 3px 14px rgba(25, 36, 30, .08), inset 0 0 0 .5px rgba(255, 255, 255, .8), inset 0 1px 0 rgba(255, 255, 255, .65);
   }
+
+  .site-header .nav-links[data-compact] { width: min(260px, calc(100% - 24px)); }
 
   .site-header .nav-links a {
     display: flex;

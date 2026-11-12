@@ -8,7 +8,7 @@
 .ev-chat-avatar svg { display: block; width: 22px; height: 22px; }
 .ev-chat-heading { min-width: 0; text-align: center; }
 .ev-chat-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
-.ev-chat-header h2 { margin: 0; color: var(--color-surface); font: 600 15px/1.5 'DM Sans', sans-serif; letter-spacing: -.2px; }
+.ev-chat-header :is(h1, h2) { margin: 0; color: var(--color-surface); font: 600 15px/1.5 'DM Sans', sans-serif; letter-spacing: -.2px; }
 .ev-chat-header p { margin: 1px 0 0; color: var(--color-chat-header-subtitle); font-size: 10px; line-height: 1.5; }
 .ev-chat-icon-button { display: grid; flex: 0 0 auto; place-items: center; width: 30px; height: 30px; padding: 0; line-height: 0; background: none; border: 0; border-radius: 6px; color: var(--color-chat-header-icon); }
 .ev-chat-icon-button:hover:not(:disabled) { background: var(--color-chat-header-icon-hover); }
@@ -55,3 +55,19 @@
   .ev-chat-input-row input { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .ev-chat-panel, .ev-chat-thinking i { animation: none; }.ev-chat-launcher { transition: none; } }
+
+/* The routed conversation shares its state with the desktop popover. */
+.ev-chat.ev-chat-page { position: fixed; z-index: 90; inset: var(--site-header-height) 0 0; display: block; font-family: 'DM Sans', sans-serif; }
+.ev-chat-page .ev-chat-panel { position: static; width: min(760px, 100%); height: 100%; max-height: none; margin: 0 auto; border: 0; border-radius: 0; box-shadow: none; animation: none; }
+.ev-chat-page .ev-chat-header { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+.ev-chat-page .ev-chat-header h1 { font-size: 18px; }
+.ev-chat-page .ev-chat-icon-button, .ev-chat-page .ev-chat-send { width: 44px; height: 44px; }
+.ev-chat-page .ev-chat-message p { font-size: 15px; }
+.ev-chat-page .ev-chat-suggestions button { min-height: 44px; font-size: 14px; }
+.ev-chat-page .ev-chat-input-row input { font-size: 16px; }
+@media (max-width: 720px) {
+  .ev-chat.ev-chat-page { bottom: auto; height: calc(var(--chat-viewport-height, 100dvh) - var(--site-header-height)); padding-bottom: var(--mobile-tabs-clearance); pointer-events: auto; }
+  .ev-chat-page .ev-chat-panel { width: 100%; max-height: none; }
+  .ev-chat-page .ev-chat-log { padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
+  .ev-chat-page .ev-chat-composer { padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
+}

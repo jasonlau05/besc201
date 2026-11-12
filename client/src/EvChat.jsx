@@ -8,7 +8,7 @@ function ChatIcon() {
   return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5H9l-5.5 2V7A3.5 3.5 0 0 1 7 3.5Z" /><circle cx="8" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none" /></svg>
 }
 
-export default function EvChat({ open, onOpenChange }) {
+export default function EvChat({ open, onOpenChange, fullPage = false, mobile = false }) {
   const [messages, setMessages] = useState(readConversation)
   const [draft, setDraft] = useState('')
   const [pendingQuestion, setPendingQuestion] = useState('')
@@ -23,15 +23,15 @@ export default function EvChat({ open, onOpenChange }) {
   useEffect(() => () => requestRef.current?.abort(), [])
   useEffect(() => {
     if (open) {
-      inputRef.current?.focus({ preventScroll: true })
+      if (!fullPage) inputRef.current?.focus({ preventScroll: true })
       if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
     }
-  }, [open])
+  }, [open, fullPage])
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
   }, [messages, pendingQuestion, loading, error])
   useEffect(() => {
-    if (!open) return
+    if (!open || fullPage) return
     function onKeyDown(event) {
       if (event.key === 'Escape') {
         onOpenChange(false)
@@ -40,7 +40,21 @@ export default function EvChat({ open, onOpenChange }) {
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open, onOpenChange])
+  }, [open, onOpenChange, fullPage])
+
+  useEffect(() => {
+    if (!fullPage || !window.visualViewport) return
+    const viewport = window.visualViewport
+    const update = () => document.documentElement.style.setProperty('--chat-viewport-height', `${viewport.height + viewport.offsetTop}px`)
+    update()
+    viewport.addEventListener('resize', update)
+    viewport.addEventListener('scroll', update)
+    return () => {
+      viewport.removeEventListener('resize', update)
+      viewport.removeEventListener('scroll', update)
+      document.documentElement.style.removeProperty('--chat-viewport-height')
+    }
+  }, [fullPage])
 
   function closeChat() {
     onOpenChange(false)
@@ -67,7 +81,7 @@ export default function EvChat({ open, onOpenChange }) {
       clearTimeout(timeout)
       requestRef.current = null
       setLoading(false)
-      inputRef.current?.focus({ preventScroll: true })
+      if (inputRef.current?.getClientRects().length) inputRef.current.focus({ preventScroll: true })
     }
   }
 
@@ -79,14 +93,15 @@ export default function EvChat({ open, onOpenChange }) {
     inputRef.current?.focus()
   }
 
-  return <div className="ev-chat">
-    {open && <section className="ev-chat-panel" id="ev-chat-panel" role="dialog" aria-modal="false" aria-labelledby="ev-chat-title" aria-describedby="ev-chat-disclosure">
+  const Container = fullPage ? 'main' : 'div'
+  return <Container className={`ev-chat${fullPage ? ' ev-chat-page' : ''}`}>
+    {open && <section className="ev-chat-panel" id="ev-chat-panel" role={fullPage ? undefined : 'dialog'} aria-modal={fullPage ? undefined : 'false'} aria-labelledby="ev-chat-title" aria-describedby="ev-chat-disclosure">
       <header className="ev-chat-header">
         <span className="ev-chat-avatar"><ChatIcon /></span>
-        <div className="ev-chat-heading"><h2 id="ev-chat-title">Elon</h2></div>
+        <div className="ev-chat-heading">{fullPage ? <h1 id="ev-chat-title" tabIndex={-1}>Elon</h1> : <h2 id="ev-chat-title">Elon</h2>}</div>
         <div className="ev-chat-actions">
           <button className="ev-chat-icon-button" onClick={resetChat} disabled={loading || (!messages.length && !pendingQuestion)} aria-label="Start a new conversation" title="New conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6" /></svg></button>
-          <button className="ev-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+          {!fullPage && <button className="ev-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>}
         </div>
       </header>
 
@@ -105,6 +120,6 @@ export default function EvChat({ open, onOpenChange }) {
         <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>
       </form>
     </section>}
-    <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize Elon' : 'Open Elon'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize Elon' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>
-  </div>
+    {!mobile && !fullPage && <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize Elon' : 'Open Elon'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize Elon' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>}
+  </Container>
 }

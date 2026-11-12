@@ -4,7 +4,11 @@ export function startPageEntrance() {
   const html = document.documentElement
   const root = document.getElementById('root')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-  if (!root || html.dataset.pagePhase !== 'pending') return
+  if (!root) return
+
+  // Reset the entrance on every route, including navigation during a fade.
+  html.dataset.pagePhase = 'pending'
+  void root.offsetWidth
 
   let cancelled = false
   let frame = 0

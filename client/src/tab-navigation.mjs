@@ -14,6 +14,11 @@ export function createTabNavigation(nav) {
   let ignoreClickUntil = 0
   let bounds
   let step = 0
+  let compact = false
+  let scrollTarget = document.scrollingElement
+  let lastScroll = window.scrollY
+  let scrollTravel = 0
+  let chromeAnimations = []
 
   function draw() {
     const progress = Math.max(0, Math.min(links.length - 1, motion.position))
@@ -22,11 +27,52 @@ export function createTabNavigation(nav) {
 
   function measure() {
     bounds = nav.getBoundingClientRect()
-    step = (bounds.width - 8) / links.length
+    step = (nav.clientWidth - 8) / links.length
     const width = Math.min(64, step)
     indicator.style.width = `${width}px`
     indicator.style.left = `${4 + (step - width) / 2}px`
     draw()
+  }
+
+  function finishChromeAnimation() {
+    chromeAnimations.forEach(animation => animation.finish())
+    chromeAnimations = []
+  }
+
+  function setCompact(value) {
+    if (compact === value) return
+    finishChromeAnimation()
+    const before = nav.getBoundingClientRect().width
+    compact = value
+    nav.toggleAttribute('data-compact', value)
+    measure()
+    const after = nav.getBoundingClientRect().width
+    if (!reduced.matches && before && after && before !== after) {
+      const timing = { duration: 220, easing: 'cubic-bezier(.16, 1, .3, 1)' }
+      // Animate only transforms; counter-scale icons so they keep their shape.
+      chromeAnimations = [nav.animate([{ transform: `scaleX(${before / after})` }, { transform: 'scaleX(1)' }], timing),
+        ...links.map(link => link.querySelector('.nav-tab-icon').animate([{ transform: `scaleX(${after / before})` }, { transform: 'scaleX(1)' }], timing))]
+    }
+  }
+
+  function onScroll(event) {
+    if (!mobile.matches || gesture) return
+    const target = event.target === document ? document.scrollingElement : event.target
+    if (target !== document.scrollingElement && !target?.matches?.('.ev-chat-log')) return
+    const position = Math.max(0, Math.min(target.scrollTop, target.scrollHeight - target.clientHeight))
+    if (target !== scrollTarget) { scrollTarget = target; lastScroll = position; scrollTravel = 0; return }
+    const delta = position - lastScroll
+    lastScroll = position
+    if (position <= 8) { scrollTravel = 0; setCompact(false); return }
+    if (!delta) return
+    if (Math.sign(delta) !== Math.sign(scrollTravel)) scrollTravel = 0
+    scrollTravel += delta
+    if (scrollTravel > 28) setCompact(true)
+    else if (scrollTravel < -10) setCompact(false)
+  }
+
+  function focusIn() {
+    if (!gesture) setCompact(false)
   }
 
   function animate(time) {
@@ -64,6 +110,7 @@ export function createTabNavigation(nav) {
 
   function pointerDown(event) {
     if (!mobile.matches || !event.isPrimary || event.button !== 0 || modified(event) || gesture) return
+    finishChromeAnimation()
     measure()
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false }
     nav.setPointerCapture(event.pointerId)
@@ -111,6 +158,8 @@ export function createTabNavigation(nav) {
   }
   function preferencesChanged() {
     cancel()
+    finishChromeAnimation()
+    if (!mobile.matches) setCompact(false)
     if (reduced.matches || !mobile.matches) { motion.reset(selected); draw() }
   }
   function preventNativeDrag(event) { event.preventDefault() }
@@ -125,6 +174,8 @@ export function createTabNavigation(nav) {
   nav.addEventListener('lostpointercapture', cancel)
   nav.addEventListener('click', click)
   nav.addEventListener('dragstart', preventNativeDrag)
+  nav.addEventListener('focusin', focusIn)
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true })
   window.addEventListener('keydown', keyDown)
   window.addEventListener('blur', cancel)
   mobile.addEventListener('change', preferencesChanged)
@@ -133,11 +184,18 @@ export function createTabNavigation(nav) {
   return {
     update(index, onNavigate) {
       navigate = onNavigate
-      if (index !== selected) { cancel(); selected = index; moveTo(index) }
+      if (index !== selected) {
+        cancel(); selected = index; moveTo(index)
+        scrollTarget = document.scrollingElement
+        lastScroll = window.scrollY
+        scrollTravel = 0
+        setCompact(false)
+      }
     },
     destroy() {
       release()
       cancelAnimationFrame(frame)
+      finishChromeAnimation()
       observer.disconnect()
       nav.removeEventListener('pointerdown', pointerDown)
       nav.removeEventListener('pointermove', pointerMove)
@@ -146,6 +204,8 @@ export function createTabNavigation(nav) {
       nav.removeEventListener('lostpointercapture', cancel)
       nav.removeEventListener('click', click)
       nav.removeEventListener('dragstart', preventNativeDrag)
+      nav.removeEventListener('focusin', focusIn)
+      document.removeEventListener('scroll', onScroll, true)
       window.removeEventListener('keydown', keyDown)
       window.removeEventListener('blur', cancel)
       mobile.removeEventListener('change', preferencesChanged)
