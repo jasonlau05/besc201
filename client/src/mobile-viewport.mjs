@@ -7,8 +7,9 @@ export function trackMobileViewport(header, nav, view = window) {
 
   const document = header.ownerDocument
   let frame = 0
-  let settleTimer = 0
   let bouncing = false
+  let candidate = null
+  const calibrated = { header: 0, nav: 0 }
 
   function reset() {
     header.style.removeProperty('--site-viewport-top')
@@ -24,7 +25,7 @@ export function trackMobileViewport(header, nav, view = window) {
   function update() {
     frame = 0
     // Let pinch zoom retain the browser's normal layout and panning behavior.
-    if (viewport.scale !== 1) { bouncing = false; reset(); return }
+    if (viewport.scale !== 1) { bouncing = false; candidate = null; reset(); return }
 
     const page = document.scrollingElement
     const maximum = Math.max(0, page.scrollHeight - page.clientHeight)
@@ -33,16 +34,7 @@ export function trackMobileViewport(header, nav, view = window) {
     // into CSS displaces both bars as the native bounce reverses.
     if (view.scrollY < -1 || view.scrollY > maximum + 1 || viewport.offsetTop < 0) {
       bouncing = true
-      return
-    }
-    if (bouncing) {
-      // scrollY can return to its legal range before WebKit's painted origin
-      // settles. Keep the last stable anchors until events have been quiet.
-      settleTimer = view.setTimeout(() => {
-        settleTimer = 0
-        bouncing = false
-        update()
-      }, 120)
+      candidate = null
       return
     }
 
@@ -50,16 +42,29 @@ export function trackMobileViewport(header, nav, view = window) {
     const navOrigin = nav.getClientRects().length
       ? nav.getBoundingClientRect().top - parseFloat(view.getComputedStyle(nav).top)
       : null
+    if (!Number.isFinite(headerOrigin) || (navOrigin !== null && !Number.isFinite(navOrigin))) return
+
+    if (bouncing) {
+      // Follow viewport changes immediately using the last calibrated origins.
+      // Adopt new painted origins only after two consistent frames. Ordinary
+      // scrolling and toolbar animation cannot postpone this probe.
+      const consistent = candidate && Math.abs(headerOrigin - candidate.header) <= .5
+        && (navOrigin === null || (candidate.nav !== null && Math.abs(navOrigin - candidate.nav) <= .5))
+      if (consistent) { bouncing = false; candidate = null }
+      else { candidate = { header: headerOrigin, nav: navOrigin }; schedule() }
+    }
+    if (!bouncing) {
+      calibrated.header = headerOrigin
+      if (navOrigin !== null) calibrated.nav = navOrigin
+    }
 
     // Read both positions before writing, and remove the existing CSS offset
     // from each measurement so repeated scroll events cannot accumulate drift.
-    setOffset(header, '--site-viewport-top', viewport.offsetTop - headerOrigin)
-    if (navOrigin !== null) setOffset(nav, '--site-viewport-bottom', viewport.offsetTop + viewport.height - navOrigin)
+    setOffset(header, '--site-viewport-top', viewport.offsetTop - calibrated.header)
+    if (navOrigin !== null) setOffset(nav, '--site-viewport-bottom', viewport.offsetTop + viewport.height - calibrated.nav)
   }
 
   function schedule() {
-    view.clearTimeout(settleTimer)
-    settleTimer = 0
     if (!frame) frame = view.requestAnimationFrame(update)
   }
 
@@ -74,7 +79,6 @@ export function trackMobileViewport(header, nav, view = window) {
 
   return () => {
     view.cancelAnimationFrame(frame)
-    view.clearTimeout(settleTimer)
     for (const [target, event] of listeners) target.removeEventListener(event, schedule)
     reset()
   }

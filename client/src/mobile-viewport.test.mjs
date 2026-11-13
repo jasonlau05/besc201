@@ -172,18 +172,18 @@ for (const edge of ['top', 'bottom']) {
       assert.equal(page.header.style.getPropertyValue('--site-viewport-top'), headerTop)
       assert.equal(page.nav.style.getPropertyValue('--site-viewport-bottom'), navBottom)
     }
-    // The scroll position can be in range before the compositor stops bouncing.
+    // Viewport targets resume immediately while painted origins still rebound.
     page.view.scrollY = edge === 'top' ? 0 : 2000
+    Object.assign(page.viewport, { offsetTop: 24, height: 800 })
     page.view.dispatchEvent(new Event('scroll'))
     page.flush()
-    page.advance(60)
     assert.equal(page.header.style.getPropertyValue('--site-viewport-top'), headerTop)
-    assert.equal(page.nav.style.getPropertyValue('--site-viewport-bottom'), navBottom)
+    assert.equal(page.nav.style.getPropertyValue('--site-viewport-bottom'), '779px')
     Object.assign(page.viewport, { offsetTop: 24, height: 720 })
     page.header.origin = page.nav.origin = 45
     page.view.dispatchEvent(new Event('scrollend'))
     page.flush()
-    page.advance(150)
+    page.flush()
     page.aligned()
     stop()
   })
@@ -245,7 +245,95 @@ test('overscroll on a short page freezes anchors and then accepts a changed tool
   page.header.origin = page.nav.origin = 45
   page.viewport.dispatchEvent(new Event('resize'))
   page.flush()
-  page.advance(150)
+  page.flush()
   page.aligned()
   stop()
 })
+
+test('the first in-range frame follows the viewport without a recovery timeout', () => {
+  const page = browser()
+  const stop = trackMobileViewport(page.header, page.nav, page.view)
+  page.view.scrollY = -80
+  page.view.dispatchEvent(new Event('scroll'))
+  page.flush()
+  page.view.scrollY = 0
+  Object.assign(page.viewport, { height: 800, offsetTop: 24 })
+  page.view.dispatchEvent(new Event('scroll'))
+  page.flush()
+  page.aligned()
+  assert.equal(page.timers.size, 0)
+  page.flush()
+  assert.equal(page.frames.size, 0)
+  stop()
+})
+
+test('continuous scroll and toolbar animation cannot postpone rebound recovery', () => {
+  const page = browser()
+  page.header.origin = page.nav.origin = 45
+  const stop = trackMobileViewport(page.header, page.nav, page.view)
+  page.view.scrollY = 2100
+  page.view.dispatchEvent(new Event('scroll'))
+  page.flush()
+  for (const [index, origin] of [85, 65, 30, 30].entries()) {
+    page.view.scrollY = 2000 - index * 20
+    Object.assign(page.viewport, { height: 740 + index * 20, offsetTop: index * 4 })
+    page.header.origin = page.nav.origin = origin
+    page.view.dispatchEvent(new Event('scroll'))
+    page.viewport.dispatchEvent(new Event('resize'))
+    page.flush()
+    const calibrated = index === 3 ? 30 : 45
+    assert.equal(parseFloat(page.header.style.getPropertyValue('--site-viewport-top')), page.viewport.offsetTop - calibrated)
+    assert.equal(parseFloat(page.nav.style.getPropertyValue('--site-viewport-bottom')), page.viewport.offsetTop + page.viewport.height - calibrated)
+    assert.equal(page.timers.size, 0)
+  }
+  page.aligned()
+  assert.equal(page.frames.size, 0)
+  stop()
+})
+
+test('a hidden nav does not block frame recovery or lose calibration when shown again', () => {
+  const page = browser()
+  page.header.origin = page.nav.origin = 45
+  const stop = trackMobileViewport(page.header, page.nav, page.view)
+  page.view.scrollY = -60
+  page.view.dispatchEvent(new Event('scroll'))
+  page.flush()
+  page.nav.visible = false
+  page.view.scrollY = 0
+  page.viewport.offsetTop = 24
+  page.header.origin = 30
+  page.view.dispatchEvent(new Event('scroll'))
+  page.flush()
+  page.flush()
+  assert.equal(page.frames.size, 0)
+  assert.equal(page.header.getBoundingClientRect().top, 24)
+  page.nav.visible = true
+  page.nav.origin = 25
+  page.document.dispatchEvent(new Event('focusout'))
+  page.flush()
+  page.aligned()
+  stop()
+})
+
+for (const action of ['zoom', 'cleanup']) {
+  test(`${action} cancels autonomous rebound sampling`, () => {
+    const page = browser()
+    const stop = trackMobileViewport(page.header, page.nav, page.view)
+    page.view.scrollY = -60
+    page.view.dispatchEvent(new Event('scroll'))
+    page.flush()
+    page.view.scrollY = 0
+    page.view.dispatchEvent(new Event('scroll'))
+    page.flush()
+    assert.equal(page.frames.size, 1)
+    if (action === 'zoom') {
+      page.viewport.scale = 2
+      page.viewport.dispatchEvent(new Event('resize'))
+      page.flush()
+    } else stop()
+    assert.equal(page.frames.size, 0)
+    assert.equal(page.header.style.getPropertyValue('--site-viewport-top'), '')
+    assert.equal(page.nav.style.getPropertyValue('--site-viewport-bottom'), '')
+    stop()
+  })
+}
