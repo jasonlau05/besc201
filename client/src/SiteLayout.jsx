@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import { createTabNavigation } from './tab-navigation.mjs'
+import { trackMobileViewport } from './mobile-viewport.mjs'
 import './SiteLayout.css'
 
 // Lucide SVGs (ISC): https://github.com/lucide-icons/lucide
@@ -14,7 +15,7 @@ const navigation = [
     icon: <><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></>,
   },
   {
-    page: 'info', href: '/info', label: 'EV guide',
+    page: 'info', href: '/info', label: 'Compare',
     icon: <><path d="M5 21v-6" /><path d="M12 21V3" /><path d="M19 21V9" /></>,
   },
   {
@@ -32,6 +33,7 @@ export function Group9Logo() {
 }
 
 export function SiteHeader({ page, onNavigate, mobile }) {
+  const headerRef = useRef(null)
   const navRef = useRef(null)
   const motionRef = useRef(null)
   const items = navigation.filter(item => mobile || !item.mobileOnly)
@@ -42,8 +44,11 @@ export function SiteHeader({ page, onNavigate, mobile }) {
     return () => controller.destroy()
   }, [mobile])
   useLayoutEffect(() => { motionRef.current.update(selected, onNavigate) }, [selected, onNavigate, mobile])
+  useLayoutEffect(() => {
+    if (mobile) return trackMobileViewport(headerRef.current, navRef.current)
+  }, [mobile])
 
-  return <header className="topbar site-header" data-page={page}>
+  return <header ref={headerRef} className="topbar site-header" data-page={page}>
     <div className="site-header-inner">
     <Group9Logo />
     <nav ref={navRef} className="nav-links" aria-label="Main navigation">

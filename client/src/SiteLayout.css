@@ -3,7 +3,7 @@
 .site-header .nav-links { margin-left: auto; }
 :root { --site-header-height: 86px; }
 html { scrollbar-gutter: stable; scroll-padding-top: calc(var(--site-header-height) + 20px); }
-.topbar.site-header { position: fixed; inset: 0 0 auto; z-index: 100; height: var(--site-header-height); background: var(--color-background); }
+.topbar.site-header { position: fixed; inset: var(--site-viewport-top, 0px) 0 auto; z-index: 100; height: var(--site-header-height); background: var(--color-background); }
 .site-header-inner { width: 100%; max-width: 1180px; height: 100%; margin: 0 auto; padding: 0 44px; display: flex; align-items: center; }
 .app-shell { padding-top: var(--site-header-height); }
 @media(max-width:720px) { :root { --site-header-height: 65px; }.site-header-inner { padding: 0 16px; } }
@@ -42,7 +42,9 @@ html { scrollbar-gutter: stable; scroll-padding-top: calc(var(--site-header-heig
      Keep the opaque base for browsers without backdrop-filter support. */
   .site-header .nav-links {
     position: fixed;
-    inset: auto max(12px, env(safe-area-inset-right, 0px)) var(--mobile-tabs-bottom) max(12px, env(safe-area-inset-left, 0px));
+    /* A top coordinate avoids Safari's stale bottom-fixed viewport. The
+       controller supplies the visible bottom; dvh is the no-API fallback. */
+    inset: calc(var(--site-viewport-bottom, 100dvh) - var(--mobile-tabs-height) - var(--mobile-tabs-bottom)) max(12px, env(safe-area-inset-right, 0px)) auto max(12px, env(safe-area-inset-left, 0px));
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0;

@@ -92,12 +92,12 @@ export function createTabNavigation(nav) {
     if (mobile.matches && !event.ctrlKey && event.deltaY < 0) scroll.upwardIntent()
   }
 
-  function focusIn() {
-    if (!gesture) {
-      scroll.reset(scrollTarget.scrollTop, scrollTarget.scrollHeight - scrollTarget.clientHeight)
-      setCompact(false)
-    }
+  function expand() {
+    scroll.reset(scrollTarget.scrollTop, scrollTarget.scrollHeight - scrollTarget.clientHeight)
+    setCompact(false)
   }
+
+  function focusIn() { if (!gesture) expand() }
 
   function animate(time) {
     frame = 0
@@ -120,6 +120,7 @@ export function createTabNavigation(nav) {
 
   function release() {
     const pointerId = gesture?.id
+    if (gesture) scroll.reset(scrollTarget.scrollTop, scrollTarget.scrollHeight - scrollTarget.clientHeight)
     gesture = null
     delete nav.dataset.dragging
     if (pointerId !== undefined && nav.hasPointerCapture(pointerId)) nav.releasePointerCapture(pointerId)
@@ -135,9 +136,11 @@ export function createTabNavigation(nav) {
   function pointerDown(event) {
     if (!mobile.matches || !event.isPrimary || event.button !== 0 || modified(event) || gesture) return
     measure()
-    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false }
+    const index = Math.round(progressAt(event.clientX))
+    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, index, dragging: false }
     nav.setPointerCapture(event.pointerId)
-    moveTo(Math.round(progressAt(event.clientX)))
+    expand()
+    moveTo(index)
   }
 
   function pointerMove(event) {
@@ -164,7 +167,8 @@ export function createTabNavigation(nav) {
     if (!gesture || gesture.id !== event.pointerId) return
     measure()
     if (!gesture.dragging && (event.clientY < bounds.top - 20 || event.clientY > bounds.bottom + 20)) { cancel(); return }
-    const index = Math.round(progressAt(event.clientX))
+    // A held tap keeps its original tab even as expansion moves the icons.
+    const index = gesture.dragging ? Math.round(progressAt(event.clientX)) : gesture.index
     ignoreClickUntil = performance.now() + 600
     release()
     moveTo(index)
@@ -180,6 +184,7 @@ export function createTabNavigation(nav) {
     const link = event.target.closest('a[href]')
     if (!link || !nav.contains(link) || event.defaultPrevented || event.button !== 0 || modified(event)) return
     event.preventDefault()
+    expand()
     moveTo(links.indexOf(link))
     navigate(link.getAttribute('href'), { focusContent: event.detail === 0 })
   }

@@ -18,6 +18,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
   const logRef = useRef(null)
   const launcherRef = useRef(null)
   const requestRef = useRef(null)
+  const mobilePage = mobile && fullPage
 
   useEffect(() => { saveConversation(messages) }, [messages])
   useEffect(() => () => requestRef.current?.abort(), [])
@@ -45,16 +46,32 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
   useEffect(() => {
     if (!fullPage || !window.visualViewport) return
     const viewport = window.visualViewport
-    const update = () => document.documentElement.style.setProperty('--chat-viewport-height', `${viewport.height + viewport.offsetTop}px`)
+    const update = () => {
+      const root = document.documentElement
+      root.style.setProperty('--chat-viewport-height', `${viewport.height + viewport.offsetTop}px`)
+      root.toggleAttribute('data-chat-keyboard-open', mobile && viewport.scale === 1 && document.activeElement === inputRef.current && window.innerHeight - viewport.height > 120)
+    }
     update()
     viewport.addEventListener('resize', update)
     viewport.addEventListener('scroll', update)
+    document.addEventListener('focusin', update)
+    document.addEventListener('focusout', update)
     return () => {
       viewport.removeEventListener('resize', update)
       viewport.removeEventListener('scroll', update)
+      document.removeEventListener('focusin', update)
+      document.removeEventListener('focusout', update)
       document.documentElement.style.removeProperty('--chat-viewport-height')
+      document.documentElement.removeAttribute('data-chat-keyboard-open')
     }
-  }, [fullPage])
+  }, [fullPage, mobile])
+
+  useEffect(() => {
+    if (!mobilePage || !inputRef.current) return
+    const input = inputRef.current
+    input.style.height = 'auto'
+    input.style.height = `${Math.min(input.scrollHeight, 140)}px`
+  }, [draft, mobilePage])
 
   function closeChat() {
     onOpenChange(false)
@@ -81,7 +98,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
       clearTimeout(timeout)
       requestRef.current = null
       setLoading(false)
-      if (inputRef.current?.getClientRects().length) inputRef.current.focus({ preventScroll: true })
+      if (!mobile && inputRef.current?.getClientRects().length) inputRef.current.focus({ preventScroll: true })
     }
   }
 
@@ -90,7 +107,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     setPendingQuestion('')
     setError('')
     setDraft('')
-    inputRef.current?.focus()
+    if (!mobile) inputRef.current?.focus()
   }
 
   const Container = fullPage ? 'main' : 'div'
@@ -98,7 +115,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     {open && <section className="ev-chat-panel" id="ev-chat-panel" role={fullPage ? undefined : 'dialog'} aria-modal={fullPage ? undefined : 'false'} aria-labelledby="ev-chat-title" aria-describedby="ev-chat-disclosure">
       <header className="ev-chat-header">
         <span className="ev-chat-avatar"><ChatIcon /></span>
-        <div className="ev-chat-heading">{fullPage ? <h1 id="ev-chat-title" tabIndex={-1}>Elon</h1> : <h2 id="ev-chat-title">Elon</h2>}</div>
+        <div className="ev-chat-heading">{fullPage ? <h1 id="ev-chat-title" tabIndex={-1}>Elon</h1> : <h2 id="ev-chat-title">Elon</h2>}{mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}</div>
         <div className="ev-chat-actions">
           <button className="ev-chat-icon-button" onClick={resetChat} disabled={loading || (!messages.length && !pendingQuestion)} aria-label="Start a new conversation" title="New conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6" /></svg></button>
           {!fullPage && <button className="ev-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>}
@@ -116,8 +133,16 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
 
       <form className="ev-chat-composer" onSubmit={event => { event.preventDefault(); sendMessage(draft) }}>
         <label className="ev-chat-sr-only" htmlFor="ev-chat-input">Your question about electric vehicles</label>
-        <div className="ev-chat-input-row"><input ref={inputRef} id="ev-chat-input" value={draft} onChange={event => setDraft(event.target.value)} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" aria-describedby="ev-chat-disclosure" /><button type="submit" className="ev-chat-send" disabled={loading || !draft.trim()} aria-label="Send message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19 0-14m-6 6 6-6 6 6" /></svg></button></div>
-        <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>
+        <div className="ev-chat-input-row">
+          {mobilePage ? <textarea ref={inputRef} id="ev-chat-input" rows={1} value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={event => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault()
+              sendMessage(draft)
+            }
+          }} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" enterKeyHint="send" aria-describedby="ev-chat-disclosure" /> : <input ref={inputRef} id="ev-chat-input" value={draft} onChange={event => setDraft(event.target.value)} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" aria-describedby="ev-chat-disclosure" />}
+          <button type="submit" className="ev-chat-send" disabled={loading || !draft.trim()} aria-label="Send message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19 0-14m-6 6 6-6 6 6" /></svg></button>
+        </div>
+        {!mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}
       </form>
     </section>}
     {!mobile && !fullPage && <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize Elon' : 'Open Elon'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize Elon' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>}
