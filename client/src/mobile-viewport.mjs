@@ -7,6 +7,8 @@ export function trackMobileViewport(header, nav, view = window) {
 
   const document = header.ownerDocument
   let frame = 0
+  let settleTimer = 0
+  let bouncing = false
 
   function reset() {
     header.style.removeProperty('--site-viewport-top')
@@ -22,7 +24,27 @@ export function trackMobileViewport(header, nav, view = window) {
   function update() {
     frame = 0
     // Let pinch zoom retain the browser's normal layout and panning behavior.
-    if (viewport.scale !== 1) { reset(); return }
+    if (viewport.scale !== 1) { bouncing = false; reset(); return }
+
+    const page = document.scrollingElement
+    const maximum = Math.max(0, page.scrollHeight - page.clientHeight)
+    // Safari exposes elastic overscroll in scrollY and sometimes offsetTop.
+    // Its fixed-element rects move too; feeding those temporary positions back
+    // into CSS displaces both bars as the native bounce reverses.
+    if (view.scrollY < -1 || view.scrollY > maximum + 1 || viewport.offsetTop < 0) {
+      bouncing = true
+      return
+    }
+    if (bouncing) {
+      // scrollY can return to its legal range before WebKit's painted origin
+      // settles. Keep the last stable anchors until events have been quiet.
+      settleTimer = view.setTimeout(() => {
+        settleTimer = 0
+        bouncing = false
+        update()
+      }, 120)
+      return
+    }
 
     const headerOrigin = header.getBoundingClientRect().top - parseFloat(view.getComputedStyle(header).top)
     const navOrigin = nav.getClientRects().length
@@ -36,19 +58,23 @@ export function trackMobileViewport(header, nav, view = window) {
   }
 
   function schedule() {
+    view.clearTimeout(settleTimer)
+    settleTimer = 0
     if (!frame) frame = view.requestAnimationFrame(update)
   }
 
   const listeners = [
-    [viewport, 'resize'], [viewport, 'scroll'],
-    [view, 'resize'], [view, 'scroll'], [view, 'pageshow'],
+    [viewport, 'resize'], [viewport, 'scroll'], [viewport, 'scrollend'],
+    [view, 'resize'], [view, 'scroll'], [view, 'scrollend'], [view, 'pageshow'],
     [document, 'visibilitychange'], [document, 'focusin'], [document, 'focusout'],
+    [document, 'touchend'], [document, 'touchcancel'],
   ]
   for (const [target, event] of listeners) target.addEventListener(event, schedule, { passive: true })
   update()
 
   return () => {
     view.cancelAnimationFrame(frame)
+    view.clearTimeout(settleTimer)
     for (const [target, event] of listeners) target.removeEventListener(event, schedule)
     reset()
   }
