@@ -31,17 +31,6 @@ export default function ElectricityRates({ efficiency, appliedRate, onAppliedRat
     return { dataset, loading: !dataset, error: '' }
   })
   const [retry, setRetry] = useState(0)
-  const [revealedKey, setRevealedKey] = useState(null)
-  const revealKey = `${state}:${retry}`
-
-  useEffect(() => {
-    // This is only a presentation delay; changing states still uses the local dataset.
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    const delay = reducedMotion ? 0 : 180 + Math.floor(Math.random() * 241)
-    const timer = window.setTimeout(() => setRevealedKey(revealKey), delay)
-    return () => window.clearTimeout(timer)
-  }, [revealKey])
-
   useEffect(() => {
     let active = true
     ratesClient.loadDataset({ force: retry > 0 })
@@ -53,11 +42,10 @@ export default function ElectricityRates({ efficiency, appliedRate, onAppliedRat
   const data = lookupRates(resource.dataset, state)
   const isApplied = Boolean(data && appliedRate?.state === data.state && appliedRate?.price === data.price)
   const maxPrice = data ? Math.max(...data.history.map(row => row.price)) : 1
-  const showSkeleton = !error && (loading || revealedKey !== revealKey)
+  const showSkeleton = !error && loading
   const reload = () => {
     const dataset = ratesClient.peekDataset(true)
     setResource({ dataset, loading: !dataset, error: '' })
-    setRevealedKey(null)
     setRetry(value => value + 1)
   }
 
@@ -70,7 +58,6 @@ export default function ElectricityRates({ efficiency, appliedRate, onAppliedRat
       <div className="guide-panel">
         <label className="guide-field" htmlFor="rate-state">Your state
           <select id="rate-state" value={state} onChange={event => {
-            setRevealedKey(null)
             setState(event.target.value)
             onAppliedRateChange(null)
           }}>

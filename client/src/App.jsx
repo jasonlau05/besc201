@@ -11,12 +11,13 @@ import Chargers from './Chargers'
 import { SiteHeader } from './SiteLayout'
 
 const pages = {
-  '/': { name: 'problem', heading: 'problem-title', title: 'Group9' },
-  '/learn': { name: 'learn', heading: 'learn-title', title: 'Group9' },
-  '/info': { name: 'info', heading: 'guide-title', title: 'Group9' },
-  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Group9' },
-  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Group9' },
+  '/': { name: 'problem', heading: 'problem-title', title: 'Our mission | Group9' },
+  '/learn': { name: 'learn', heading: 'learn-title', title: 'Learn about EVs | Group9' },
+  '/info': { name: 'info', heading: 'guide-title', title: 'Compare emissions and costs | Group9' },
+  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Find EV chargers | Group9' },
+  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Ask the EV guide | Group9' },
 }
+const missing = { name: 'missing', heading: 'missing-title', title: 'Page not found | Group9' }
 const readPath = () => window.location.pathname.replace(/\/$/, '') || '/'
 const mobileQuery = window.matchMedia('(max-width: 720px)')
 const subscribeMobile = listener => {
@@ -33,16 +34,16 @@ export default function App() {
   const scrollPositions = useRef(new Map())
   const pendingScroll = useRef(null)
   const focusContent = useRef(false)
-  const current = pages[path] || pages['/']
+  const current = pages[path] || missing
 
-  const navigate = useCallback((href, options = {}) => {
+  const navigate = useCallback((href) => {
     const url = new URL(href, window.location.href)
     const next = url.pathname.replace(/\/$/, '') || '/'
     if (url.origin !== window.location.origin || !pages[next]) { window.location.assign(url.href); return }
     if (next === readPath()) return
     scrollPositions.current.set(readPath(), window.scrollY)
     pendingScroll.current = 0
-    focusContent.current = Boolean(options.focusContent)
+    focusContent.current = true
     window.history.pushState(null, '', url.pathname)
     setPath(next)
   }, [])
@@ -54,6 +55,7 @@ export default function App() {
       scrollPositions.current.set(routeRef.current, window.scrollY)
       const next = readPath()
       pendingScroll.current = scrollPositions.current.get(next) || 0
+      focusContent.current = true
       setPath(next)
     }
     window.addEventListener('popstate', restore)
@@ -90,7 +92,12 @@ export default function App() {
   else if (path === '/learn') page = <Learn />
   else if (path === '/chargers') page = <Chargers />
   else if (path === '/chat') page = null
-  else page = <Problem />
+  else if (path === '/') page = <Problem />
+  else page = <main className="app-shell reading-page"><header className="reading-hero">
+    <h1 id="missing-title" tabIndex={-1}>Page not found</h1>
+    <p>This address does not match a page in the EV guide.</p>
+    <a className="guide-primary" href="/learn">Learn about EVs</a> <a href="/info">Compare vehicles</a>
+  </header></main>
   return <>
     <a className="site-skip" href={`#${current.heading}`}>Skip to content</a>
     <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />

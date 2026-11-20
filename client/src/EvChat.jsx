@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { askEvAssistant, MAX_QUESTION_LENGTH, readConversation, requestMessages, saveConversation } from './ev-chat.mjs'
 import './EvChat.css'
 
-const suggestions = ['How does an EV work?', 'Are EVs better for the environment?', 'Why are Cybertrucks ugly?']
+const suggestions = ['How does an EV work?', 'Are EVs better for the environment?', 'How does my electricity source affect emissions?']
 
 function ChatIcon() {
   return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5H9l-5.5 2V7A3.5 3.5 0 0 1 7 3.5Z" /><circle cx="8" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none" /></svg>
@@ -93,7 +93,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
       setMessages(previous => [...previous, { role: 'user', content }, { role: 'assistant', content: reply }].slice(-40))
       setPendingQuestion('')
     } catch (failure) {
-      setError(failure.name === 'AbortError' ? 'Elon took too long, but we\'re just two weeks away from FSD.' : failure instanceof TypeError ? 'You are not connected to the internet. Check your Starlink.' : failure.message)
+      setError(failure.name === 'AbortError' ? 'The request timed out. Please try again.' : failure instanceof TypeError ? 'Could not reach the assistant. Check your connection and try again.' : failure.message)
     } finally {
       clearTimeout(timeout)
       requestRef.current = null
@@ -115,17 +115,17 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     {open && <section className="ev-chat-panel" id="ev-chat-panel" role={fullPage ? undefined : 'dialog'} aria-modal={fullPage ? undefined : 'false'} aria-labelledby="ev-chat-title" aria-describedby="ev-chat-disclosure">
       <header className="ev-chat-header">
         <span className="ev-chat-avatar"><ChatIcon /></span>
-        <div className="ev-chat-heading">{fullPage ? <h1 id="ev-chat-title" tabIndex={-1}>Elon</h1> : <h2 id="ev-chat-title">Elon</h2>}{mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}</div>
+        <div className="ev-chat-heading">{fullPage ? <h1 id="ev-chat-title" tabIndex={-1}>EV guide</h1> : <h2 id="ev-chat-title">EV guide</h2>}{mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}</div>
         <div className="ev-chat-actions">
           <button className="ev-chat-icon-button" onClick={resetChat} disabled={loading || (!messages.length && !pendingQuestion)} aria-label="Start a new conversation" title="New conversation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6" /></svg></button>
           {!fullPage && <button className="ev-chat-icon-button" onClick={closeChat} aria-label="Minimize chat" title="Minimize chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>}
         </div>
       </header>
 
-      <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
-        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love electric vehicles and creating shareholder value.</p></div>
+      <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with EV guide" aria-live="polite" aria-relevant="additions text">
+        <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">EV guide</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact.</p></div>
         {!messages.length && !pendingQuestion && <div className="ev-chat-suggestions" aria-label="Suggested questions">{suggestions.map(question => <button key={question} onClick={() => sendMessage(question)}>{question}<span aria-hidden="true">↗</span></button>)}</div>}
-        {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'Elon'}</span><p>{message.content}</p></div>)}
+        {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'EV guide'}</span><p>{message.content}</p></div>)}
         {pendingQuestion && <div className="ev-chat-message ev-chat-user"><span className="ev-chat-sender">You</span><p>{pendingQuestion}</p></div>}
         {loading && <div className="ev-chat-thinking" role="status"><span aria-hidden="true"><i /><i /><i /></span>Thinking…</div>}
         {error && <div className="ev-chat-error" role="alert"><p>{error}</p><button onClick={() => sendMessage(pendingQuestion)}>Try again <span aria-hidden="true">↻</span></button></div>}
@@ -145,6 +145,6 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
         {!mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}
       </form>
     </section>}
-    {!mobile && !fullPage && <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize Elon' : 'Open Elon'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize Elon' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>}
+    {!mobile && !fullPage && <button className={`ev-chat-launcher${open ? ' is-open' : ''}`} ref={launcherRef} onClick={() => open ? closeChat() : onOpenChange(true)} aria-label={open ? 'Minimize EV guide' : 'Open EV guide'} aria-expanded={open} aria-controls="ev-chat-panel" title={open ? 'Minimize EV guide' : 'Ask about EVs'}>{open ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg> : <ChatIcon />}</button>}
   </Container>
 }

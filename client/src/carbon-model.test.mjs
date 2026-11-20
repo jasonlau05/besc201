@@ -12,7 +12,7 @@ test('break-even intersection uses tonnes-to-grams conversion', () => {
 test('handles no break-even and an initial EV advantage', () => {
   assert.equal(carbonModel({ ...inputs, gridIntensity: 1200, efficiency: 50 }).breakEvenMiles, null)
   assert.equal(carbonModel({ ...inputs, gridIntensity: 800, efficiency: 50 }).breakEvenMiles, null)
-  assert.equal(carbonModel({ ...inputs, evProduction: 6 }).breakEvenMiles, 0)
+  assert.equal(carbonModel({ ...inputs, evProduction: 6 }).breakEvenMiles, null)
 })
 test('fixed average comparison intersects and mileage changes years, not break-even distance', () => {
   const input = { ...CARBON_BASELINE, evProduction: 12, efficiency: 30, annualMiles: 12000 }
@@ -41,4 +41,17 @@ test('MPG affects carbon break-even and uses the fixed annual driving assumption
   assert.equal(gasEmissionsPerMile(30), 8887 / 30)
   assert.ok(gas60.breakEvenMiles > gas30.breakEvenMiles)
   assert.equal(gas30.years, gas30.breakEvenMiles / 13662)
+})
+
+test('an initially cleaner EV can lose its advantage within the chart', () => {
+  const model = carbonModel({ ...inputs, evProduction: 4, gridIntensity: 367, efficiency: 50, gasIntensity: gasEmissionsPerMile(60) })
+  assert.equal(Math.round(model.breakEvenMiles), 113048)
+  assert.ok(Math.abs(model.evAt(model.breakEvenMiles) - model.gasAt(model.breakEvenMiles)) < 1e-10)
+  assert.ok(model.evAt(150000) > model.gasAt(150000))
+})
+
+test('distinguishes a crossing at manufacture, coincident lines and a distant crossing', () => {
+  assert.equal(carbonModel({ ...inputs, evProduction: 8 }).breakEvenMiles, 0)
+  assert.equal(carbonModel({ ...inputs, evProduction: 8, gasIntensity: 120 }).breakEvenMiles, null)
+  assert.equal(carbonModel({ ...inputs, gasIntensity: 121 }).breakEvenMiles, 4000000)
 })
