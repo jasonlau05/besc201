@@ -15,7 +15,7 @@
 .chargers-page :is(a,button,input,select,[tabindex]):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 .chargers-page button:disabled { cursor: wait; opacity: .65; }
 .charger-finder.hero { padding: 48px 0 32px; text-align: left; }
-.charger-intro h1 { margin: 0; color: var(--color-primary-dark); font: 500 clamp(36px,4vw,52px)/1.12 'DM Sans',sans-serif; letter-spacing: -.035em; }
+.charger-intro h1 { margin: 0; color: var(--color-primary-dark); font: 500 clamp(36px,4vw,52px)/1.12 var(--site-heading-font); letter-spacing: -.035em; }
 .charger-intro .hero__lead { max-width: 640px; margin: 16px 0 32px; color: var(--charger-muted); font: 400 16px/1.65 'DM Sans',sans-serif; }
 .charger-search { display: grid; grid-template-columns: minmax(0,1fr) 132px 172px; gap: 16px; align-items: end; }
 .charger-search label { display: block; margin-bottom: 8px; color: var(--color-text); font: 500 13px/1.4 'DM Sans',sans-serif; letter-spacing: 0; }

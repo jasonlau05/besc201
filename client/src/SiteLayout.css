@@ -5,6 +5,7 @@
   --site-header-height: 86px;
   --site-heading-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --site-title-size: clamp(44px, 5vw, 64px);
+  --site-subtitle-size: clamp(26px, 2.7vw, 34px);
   --site-intro-offset: 72px;
 }
 .page-intro > h1 {

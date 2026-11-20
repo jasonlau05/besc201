@@ -86,9 +86,11 @@ html:has(.reading-page) { scroll-behavior: smooth; }
   .reading-page .reading-hero .reading-contents { padding-bottom: 88px; }
 }
 @media (max-width: 720px) {
-  .reading-page .reading-hero .reading-contents { padding-bottom: calc(88px + var(--mobile-tabs-clearance)); }
+  /* Keep tab-bar clearance outside the chapter dividers. */
+  .reading-page .reading-hero { padding-bottom: var(--mobile-tabs-clearance); }
+  .reading-page .reading-hero :is(.learn-hero-actions, .guide-primary) { margin-bottom: 40px; }
+  .reading-page .reading-hero .reading-contents { padding-block: 24px; }
   .reading-page .reading-hero > p { margin-top: 24px; font-size: 16px; }
-  .reading-contents { margin-top: 40px; padding-block: 18px; }
   .reading-contents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
   .reading-contents a { font-size: 13px; }
   .reading-page :is(.problem-link, .guide-primary) { max-width: 100%; white-space: normal; }

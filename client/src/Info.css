@@ -9,7 +9,7 @@
 .guide-facts small { display: block; max-width: 32ch; color: var(--reading-muted); font-size: 12px; line-height: 1.7; }
 .guide-section { padding-top: var(--reading-space); }
 .guide-section-heading { max-width: 780px; margin-bottom: 32px; }
-.guide-section-heading h2, .guide-next h2 { margin: 0 0 18px; color: var(--color-primary-dark); font: 600 clamp(30px, 3.4vw, 44px)/1.18 var(--site-heading-font); letter-spacing: -.025em; text-wrap: balance; }
+.guide-section-heading h2, .guide-next h2 { margin: 0 0 18px; color: var(--color-primary-dark); font: 500 var(--site-subtitle-size)/1.25 var(--site-heading-font); letter-spacing: -.02em; text-wrap: balance; }
 .guide-section-heading p { max-width: 68ch; margin: 0; color: var(--reading-muted); font-size: 16px; line-height: 1.8; }
 .guide-split { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--reading-border); border-radius: 12px; overflow: hidden; background: var(--color-surface); }
 .guide-panel, .carbon-result, .cost-result, .location-result { min-width: 0; padding: 36px; }

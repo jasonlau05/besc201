@@ -9,6 +9,9 @@ const sources = {
   charging: 'https://www.epa.gov/greenvehicles/plug-electric-vehicle-charging-basics',
   myths: 'https://www.epa.gov/greenvehicles/electric-vehicle-myths',
   benefits: 'https://afdc.energy.gov/fuels/electricity-benefits',
+  grid: 'https://www.eia.gov/energyexplained/electricity/delivery-to-consumers.php',
+  modernization: 'https://www.energy.gov/oe/grid-modernization-and-smart-grid',
+  managedCharging: 'https://www.energy.gov/cmei/femp/managed-ev-charging-federal-fleets',
 }
 
 export default function Learn({ onAsk }) {
@@ -23,6 +26,7 @@ export default function Learn({ onAsk }) {
         { href: '#basics', label: 'EV basics' },
         { href: '#vehicle-types', label: 'Vehicle types' },
         { href: '#charging', label: 'Charging' },
+        { href: '#electrical-grid', label: 'Electrical grid' },
         { href: '#questions', label: 'Common questions' },
       ]} />
     </header>
@@ -64,6 +68,34 @@ export default function Learn({ onAsk }) {
         <article className="learn-card"><h3>DC fast charging</h3><strong className="learn-charge-label">A quicker stop on the road</strong><p>Useful on longer trips. Check your vehicle’s charging capability and connector compatibility.</p></article>
       </div>
       <p className="learn-footnote">Charging time varies with the car, charger, temperature, and battery level. Home equipment should be assessed by a qualified electrician. <a href={sources.charging} target="_blank" rel="noreferrer">EPA charging basics ↗</a></p>
+    </section>
+
+    <section className="learn-section learn-grid" id="electrical-grid" aria-labelledby="learn-grid-title">
+      <div className="learn-section-heading">
+        <h2 id="learn-grid-title">The electrical grid, behind every plug.</h2>
+        <p>The grid connects electricity producers to homes, businesses, and chargers. Operators balance supply and demand continuously to keep the system stable.</p>
+      </div>
+      <ol className="learn-grid-flow" aria-label="How electricity reaches your car">
+        <li><strong>Generation</strong><p>Power plants, wind, and solar produce electricity.</p><ArrowIcon /></li>
+        <li><strong>Transmission</strong><p>High-voltage lines carry it over long distances.</p><ArrowIcon /></li>
+        <li><strong>Distribution</strong><p>Transformers lower voltage; local lines serve your neighborhood.</p><ArrowIcon /></li>
+        <li><strong>Charging</strong><p>Your vehicle draws electricity to recharge its battery.</p></li>
+      </ol>
+      <div className="learn-card-grid">
+        <article className="learn-card"><h3>Demand at the same time</h3><p>EV charging adds demand. Many cars charging together can strain local transformers and lines, especially when buildings also need power. Having enough electricity overall doesn’t guarantee enough capacity on every street.</p></article>
+        <article className="learn-card"><h3>Aging equipment and outages</h3><p>Older lines and equipment need replacement. Storms can interrupt service, including charging. Stronger infrastructure, sensors, and controls can help utilities detect problems and restore power faster.</p></article>
+        <article className="learn-card"><h3>Connecting cleaner power</h3><p>New wind and solar projects may need transmission lines to reach customers. Approving routes and deciding who pays can slow construction. Storage and a more flexible grid help make better use of available electricity.</p></article>
+      </div>
+      <div className="learn-grid-response">
+        <h3>Better infrastructure. More flexible charging.</h3>
+        <p>Utilities can upgrade equipment and coordinate charging with available capacity. Managed charging shifts when cars charge or adjusts their charging power, while allowing time for the next trip. It can reduce peaks and the need for some upgrades.</p>
+        <p>At home, check your utility’s off-peak hours or managed-charging program and use your car’s charging schedule when it fits your needs. Off-peak pricing and cleaner electricity don’t always line up; the best time varies by location.</p>
+      </div>
+      <div className="learn-grid-sources" aria-label="Electrical grid sources">
+        <a className="learn-source" href={sources.grid} target="_blank" rel="noreferrer">EIA: How the grid works <ArrowIcon direction="external" /></a>
+        <a className="learn-source" href={sources.modernization} target="_blank" rel="noreferrer">DOE: Grid modernization <ArrowIcon direction="external" /></a>
+        <a className="learn-source" href={sources.managedCharging} target="_blank" rel="noreferrer">DOE: Managed charging <ArrowIcon direction="external" /></a>
+      </div>
     </section>
 
     <section className="learn-impact" aria-labelledby="learn-impact-title">
