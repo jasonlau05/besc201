@@ -31,11 +31,11 @@ AFDC coverage and station details can be incomplete. The saved dataset includes 
 
 Charger endpoints: `GET /api/charging-locations?q=<address>` returns up to five address choices. `GET /api/chargers?lat=<latitude>&lng=<longitude>&radius=1|5|10|25` returns up to 30 nearest saved stations plus `total`, `radius`, `source`, `sourceUrl`, `coverage`, `retrievedAt`, and `stale`; omitting `radius` defaults to 1 mile. Both validate input and return safe errors. Missing or invalid saved charger data returns HTTP 503 instead of pretending there are no stations.
 
-Run charger tests with `npm run test:chargers` from the repository root. They cover normalization, exact radius filtering, bounded results, freshness, address-search cancellation, and refresh failures without contacting external services.
+Run the full suite, including charger tests, with `npm test` from the repository root. They cover normalization, exact radius filtering, bounded results, freshness, address-search cancellation, and refresh failures without contacting external services.
 
 #### Refresh charger data
 
-Add `AFDC_API_KEY=your_key` to the ignored `server/.env` file, then run `npm run refresh:chargers` from the repository root. This command automatically reads that file and makes a real AFDC request; do not use a `VITE_` variable or put the key in source files. Node 22 is recommended. The key is sent in a private HTTP header and is never included in generated data, request URLs, or logs. The saved dataset is sufficient to run the site; Vercel does not need this key at runtime.
+Add `AFDC_API_KEY=your_key` to the ignored `server/.env` file, then run `node server/scripts/refresh-chargers.mjs` from the repository root. This command automatically reads that file and makes a real AFDC request; do not use a `VITE_` variable or put the key in source files. Node 22 is recommended. The key is sent in a private HTTP header and is never included in generated data, request URLs, or logs. The saved dataset is sufficient to run the site; Vercel does not need this key at runtime.
 
 The updater requests one complete `ELEC`, `public`, `E`, `US` batch with `limit=all`. It discards unused fields, checks completeness and all 50 states plus DC, and writes a validated candidate before atomically replacing the previous file. Each attempt has a two-minute deadline, including the response body. Transient failures get at most one retry; authentication errors and HTTP 429 do not. Truncated data, fewer than 50,000 usable stations, more than 1% invalid records, a station-count drop over 10%, or an oversized/older candidate leave the previous file unchanged. A local backend must restart after a refresh; deployed data updates when the new file is deployed.
 
@@ -100,17 +100,20 @@ npm --version
 
 ## Local setup
 
-Run commands from the repository root unless a different directory is shown. Frontend and backend dependencies are installed separately. Once installed, `npm run dev` at the root starts Vite and the backend together; nodemon automatically reloads the backend when its source or JSON data changes. The separate `server` command also uses nodemon. Running `npm start` inside `server` intentionally uses a plain Node process and requires a restart after changes.
+Run commands from the repository root. npm installs both workspaces from the root lockfile. Use `npm run dev` to start both services. Node watch mode restarts the development backend after changes to loaded modules.
 
-### 1. Install dependencies
+### 1. Install and verify
 
 ```sh
-cd client
 npm ci
-cd ../server
-npm ci
-cd ..
+npm test
+npm run lint -w client
+npm run build -w client
+npm exec -w client -- playwright install chromium --only-shell
+npm run test:browser -w client
 ```
+
+The browser suite uses a loopback server, the built client, saved rates and stations, and a fixture geocoder. The PR workflow runs these checks. See [server configuration](server/README.md) for deployment-wide geocoder throttling.
 
 ### 2. Optional local environment
 
@@ -135,7 +138,7 @@ cd server
 npm run dev
 ```
 
-This runs nodemon, which reloads the backend when watched source files change. The default address is [http://localhost:5000](http://localhost:5000).
+This runs Node watch mode, which reloads the backend when watched source files change. The default address is [http://localhost:5000](http://localhost:5000).
 
 For a server process without automatic reload:
 
