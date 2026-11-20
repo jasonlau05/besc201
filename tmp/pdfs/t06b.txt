@@ -1,0 +1,481 @@
+
+=== PDF PAGE 1 ===
+CSE 410 – Topic 6
+Paging – Part B
+1
+
+=== PDF PAGE 2 ===
+We talked about fork() before:
+• fork() is a system call that creates a new process, called the child process.
+• The child is initially a copy of the calling process, called the parent process.
+• The child has its own virtual address space, initially containing the same data as the 
+parent.
+• The child inherits open file descriptors from the parent.
+• The parent and child execute independently after fork().
+• Both processes resume execution immediately after the fork() call.
+• The return value distinguishes the two processes:
+• Parent: Returns the process ID (PID) of the child.
+• Child: Returns 0.
+• Failure: Returns -1 to the parent; no child is created.
+• Key concept: fork() creates a new process without starting a new ‘program’. 
+The child can subsequently execute a different program using exec().
+2
+
+=== PDF PAGE 3 ===
+Implications of parent and child having the 
+same address space
+3
+
+=== PDF PAGE 4 ===
+Copy-on-Write
+• Copy-on-Write (COW) allows both parent and child processes to initially share the same pages in 
+memory
+• If either process modifies a shared page, only then is the page copied
+• COW allows more efficient process creation as only modified pages are copied
+• In general, free pages are allocated from a pool of zero-fill-on-demand pages
+• ‘zero-filled’ means cleaned up; it may be that another value is chosen.
+Why cleaning up?
+• Pool should always have free frames for fast demand page execution
+• Don’t want to have to frame management on page fault:
+avoid expensive operations in the a critical path
+• vfork() variation on fork() system call has parent suspend
+• Designed to have child call exec()
+• Very efficient as the system knows real sharing won’t happen
+4
+
+=== PDF PAGE 5 ===
+What we need to know now about copy-on-
+write
+• When two processes share a page on the “copy on write” scheme, 
+it means that they share the same frame into two different address 
+spaces until one of then decides to change it. 
+• At that point, the system will allocate a different frame for the 
+shared page and each process will have its on
+5
+
+=== PDF PAGE 6 ===
+Before Process 1 Modifies Page C
+What is going on in this figure:
+• On process creation, processes 1 and 2 are setup so that they
+“share in copy-on-write scheme” pages A, B, C. 
+• This means that, as long as the two processes are only reading
+such a page, they share the physical frame holding the shared page
+6
+
+=== PDF PAGE 7 ===
+After Process 1 Modifies Page C
+The page table entry corresponding to virtual address X has
+X translated to physical memory C, BUT also marked as read-only.
+When process 1 issues a write instruction on the virtual address X,
+the hardware throws a page fault. 
+The OS knows that there was copy-on-write sharing going on,
+and allocates a new frame to correspond to X
+X
+7
+
+=== PDF PAGE 8 ===
+Example: The Intel IA-32 Architecture
+(we already discussed segmentation)
+• Supports both segmentation and segmentation with paging
+• Each segment can be 4 GB
+• Up to 16 K segments per process
+• Divided into two partitions
+• First partition of up to 8 K segments are private to process 
+(kept in local descriptor table (LDT))
+• Second partition of up to 8K segments shared among all processes 
+(kept in global descriptor table (GDT))
+8
+
+=== PDF PAGE 9 ===
+Logical to Physical Address Translation in IA-32
+9
+
+=== PDF PAGE 10 ===
+Intel IA-32 Segmentation
+10
+
+=== PDF PAGE 11 ===
+Intel IA-32 Paging Architecture
+11
+
+=== PDF PAGE 12 ===
+Intel x86-64
+ Current generation Intel x86 architecture
+ 64 bits is ginormous (> 16 exabytes)
+ In practice only implement 48 bit addressing
+ Page sizes of 4 KB, 2 MB, 1 GB
+ Four levels of paging hierarchy
+ Can also use PAE so virtual addresses are 48 bits and physical 
+addresses are 52 bits
+12
+
+=== PDF PAGE 13 ===
+Example: ARM Architecture
+ Dominant mobile platform chip (Apple iOS and 
+Google Android devices for example)
+ Modern, energy efficient, 32 -bit CPU
+ 4 KB and 16 KB pages
+ 1 MB and 16 MB pages (termed sections)
+ One-level paging for sections, two -level for 
+smaller pages
+ Two levels of TLBs
+ Outer level has two micro TLBs (one 
+data, one instruction)
+ Inner is single main TLB
+ First inner is checked, on miss outers 
+are checked, and on miss page table 
+walk performed by CPU
+We did not cover this topic as part of this class. Instead, 
+we saved to cover it in a future class (in Week 9)
+13
+
+=== PDF PAGE 14 ===
+Virtual Memory
+14
+
+=== PDF PAGE 15 ===
+How far have we solved the memory 
+translation problem?
+•Now (finally!) we will cover the part of memory 
+management that happens when 
+• the program wants to access a  virtual page 
+currently not in memory, 
+• but all (physical) page frames are taken!
+15
+
+=== PDF PAGE 16 ===
+Virtual memory 
+• Virtual memory – separation of user logical memory from physical 
+memory
+• Only part of the program needs to be in memory for execution
+• Logical address space can therefore be much larger than 
+physical address space
+• Allows address spaces to be shared by several processes
+• Allows for more efficient process creation
+• More programs running concurrently
+• Less I/O needed to load or swap processes
+We already discussed this:
+16
+
+=== PDF PAGE 17 ===
+Virtual memory  (Cont.)
+• Virtual address space – logical view of how process is 
+stored in memory
+• Usually start at address 0, contiguous addresses 
+until end of space
+• Meanwhile, physical memory organized in page 
+frames
+• MMU must map logical to physical
+• Virtual memory can be implemented via:
+• Demand paging 
+• Demand segmentation
+We already discussed this:
+17
+
+=== PDF PAGE 18 ===
+Virtual-address Space
+ Usually design logical address space for stack to 
+start at Max logical address and grow “down” while 
+heap grows “up”
+ Maximizes address space use
+ Unused address space between the two is 
+hole
+ No physical memory needed until heap 
+or stack grows to a given new page
+ Enables sparse address spaces with holes left for 
+growth, dynamically linked libraries, etc
+ System libraries shared via mapping into virtual 
+address space
+ Shared memory by mapping pages read -write 
+into virtual address space
+ Pages can be shared during fork(), speeding 
+process creation
+ 
+We already discussed this:
+18
+
+=== PDF PAGE 19 ===
+Basic Concepts
+If page needed and not memory-resident
+• Need to detect find and load the page into 
+memory from storage
+• Without changing program behavior
+• Without programmer needing to change 
+application code
+19
+
+=== PDF PAGE 20 ===
+How to know if a page is resident in memory 
+or not?
+Let’s assume page size is 4k and addresses are 32 bits.
+Assume TLB is empty at this moment.
+When program P1 issues an instruction asking for a virtual address 
+(e.g. 0x00000400) not used before, what happens? 
+20
+
+=== PDF PAGE 21 ===
+0x00000400 
+ page number:
+ offset: 
+0000 0000 0000 0000 0000 0100 0000 0000
+21
+
+=== PDF PAGE 22 ===
+0x00000400 
+ page number: 0
+ offset:            0x400 (1024)
+• Needs to find physical frame corresponding to page 0; so it looks 
+on the page table. 
+0000 0000 0000 0000 0000 0100 0000 0000
+22
+
+=== PDF PAGE 23 ===
+Another example
+0x000004000 
+ page number: 1
+ offset:            0
+• Needs to find physical frame corresponding to page 1; so it looks 
+on the page table. 
+• Where ? 
+0000 0000 0000 0000 0001 0000 0000 0000
+23
+
+=== PDF PAGE 24 ===
+0x000004000 
+ page number: 1
+ offset:            0
+• Needs to find physical frame corresponding to page 1; so it looks 
+on the page table. 
+• Index on primary (outer) page table:
+• Index on secondary (inner) page table: 
+0000 0000 0000 0000 0001 0000 0000 0000
+Entry 0
+Entry 1
+24
+
+=== PDF PAGE 25 ===
+Valid-Invalid Bit (we already discussed this!)
+• With each page table entry a valid–invalid 
+bit is associated
+(v  in-memory – memory resident, i  
+not-in-memory)
+• Initially valid–invalid bit is set to i on all 
+entries
+• Example of a page table snapshot:
+• During MMU address translation, if valid–invalid bit in page 
+table entry is i  page fault
+25
+
+=== PDF PAGE 26 ===
+Swapping
+• Swapping is a memory management technique in which the 
+operating system temporarily moves a process, or portions of its 
+memory, from main memory (RAM) to secondary storage (swap 
+space) to free up physical memory. The swapped-out data can 
+later be brought back into RAM when needed.
+• Traditionally, swapping referred to moving an entire process 
+between RAM and disk. Modern operating systems typically swap 
+individual memory pages rather than entire processes.
+26
+
+=== PDF PAGE 27 ===
+Steps in Handling Page Fault
+1.Operating system looks at page tables and 
+finds the entry. It then decides:
+ Improper access (e.g. write on read-only page) 
+ abort 
+ Proper access but valid bit indicates invalid  
+Just not in memory
+On page-fault, the OS needs to work:
+1.Find a free frame f
+2.Reset tables to indicate page now in memory
+Set validation bit = v and puts f into the entry
+3.Restart the instruction that caused the page 
+fault
+27
+
+=== PDF PAGE 28 ===
+Steps in Handling Page Fault
+1.Operating system looks at page tables and finds the 
+entry . It then decides:
+ Improper access (e.g. write on read -only page)  abort 
+ Proper access but valid bit indicates invalid  Just not 
+in memory
+On page-fault, the OS needs to work:
+1.Find a free frame
+2.Does the page exist in swap area? 
+YES: Swap in the page into frame via scheduled disk 
+operation
+NO: clear the frame content (maybe)
+3.Reset tables to indicate page now in memory
+Set validation bit = v and updates frame information
+4.Restart the instruction that caused the page fault
+28
+
+=== PDF PAGE 29 ===
+Steps in Handling a Page Fault (Cont.)
+29
+
+=== PDF PAGE 30 ===
+Aspects of Demand Paging
+• Extreme case – start process with no pages in 
+memory
+• OS sets instruction pointer to first instruction of 
+process, non-memory-resident -> page fault
+• And for every other process pages on first access
+• Pure demand paging
+• There may be instructions that access multiple 
+pages -> multiple page faults
+• Consider fetch and decode of instruction which adds 2 
+numbers from memory and stores result back to 
+memory
+• Pain decreased because of locality of reference
+• Hardware support needed for demand paging
+• Page table with valid / invalid bit
+• Secondary memory (swap device with swap space)
+• Instruction restart
+30
+
+=== PDF PAGE 31 ===
+Free-Frame List (here in case you forgot)
+• When a page fault occurs, the operating system must bring the 
+desired page from secondary storage into main memory. 
+• Most operating systems maintain a  free-frame list -- a pool of 
+free frames for satisfying such requests.
+• Operating system typically allocate free frames using a 
+technique known as zero-fill-on-demand --  the content of the 
+frames zeroed-out before being allocated.
+(not on the release)
+• When a system starts up, all available memory is placed on the 
+free-frame list. (or marked inaccessible)
+31
+
+=== PDF PAGE 32 ===
+Stages in Demand Paging – Worse Case
+1.Trap to the operating system
+2.Save the user registers and process state
+3.Determine that the interrupt was a page fault
+4.Check that the page reference was legal and determine the 
+location of the page on the disk
+5.Issue a read from the disk to a free frame:
+1. Wait in a queue for this device until the read request is serviced
+2. Wait for the device seek and/or latency time
+3. Begin the transfer of the page to a free frame
+32
+
+=== PDF PAGE 33 ===
+Stages in Demand Paging  (Cont.)
+6. While waiting, allocate the CPU to some other user
+7. Receive an interrupt from the disk I/O subsystem (I/O   
+completed)
+8.Save the registers and process state for the other user
+9.Determine that the interrupt was from the disk
+10.Correct the page table and other tables to show page is 
+now in memory
+11.Wait for the CPU to be allocated to this process again
+12.Restore the user registers, process state, and new page 
+table, and then resume the interrupted instruction
+33
+
+=== PDF PAGE 34 ===
+Performance of Demand Paging
+• Three major activities
+• Service the interrupt – careful coding means just several hundred instructions 
+needed
+• Read the page – lots of time
+• Restart the process – again just a small amount of time
+• Page Fault Rate 0  p  1
+• if p = 0 no page faults 
+• if p = 1, every reference is a fault
+• Effective Access Time
+(1 – p) * memory access+ p * (page fault overhead 
+     + swap page out
+                      + swap page in )
+34
+
+=== PDF PAGE 35 ===
+Demand Paging Example
+• Memory access time = 200 nanoseconds
+• Average page-fault service time = 8 milliseconds
+• EAT = (1 – p) x 200 + p (8 milliseconds) 
+         = (1 – p  x 200 + p x 8,000,000 
+              = 200 + p x 7,999,800
+• If one access out of 1,000 causes a page fault, then
+         EAT = 8.2 microseconds. 
+      This is a slowdown by a factor of 40!!
+• If want performance degradation < 10 percent
+• 220 > 200 + 7,999,800 x p
+20 > 7,999,800 x p
+• p < .0000025
+• < one page fault in every 400,000 memory accesses
+ 
+Let’s skip the arithmetic exercise, do it when studying
+35
+
+=== PDF PAGE 36 ===
+Demand Paging Optimizations (Background info)
+• Swap space I/O faster than file system I/O even if on the same device
+• Swap allocated in larger chunks, less management needed than file system
+• Dirty page: page modified in memory but not yet written back to 
+the file system
+• Copy entire process image to swap space at process load time
+• Then page in and out of swap space
+• Used in older BSD Unix
+• For demand page-in from program binary on disk: one can discard rather than paging 
+out when freeing frame
+• Mobile systems
+• We have an upcoming slide on that
+36
+
+=== PDF PAGE 37 ===
+What happens when there are 
+not enough frames (physical) for 
+all the pages being used?
+Swapping happens!
+37
+
+=== PDF PAGE 38 ===
+Schematic View of Swapping – original way
+• Before demand paging 
+became ubiquitous, 
+the whole process was 
+swapped
+38
+
+
+=== PDF PAGE 39 ===
+Context Switching
+• We already studied what happens when there is a process context 
+switch
+• But let’s keep in mind that virtual memory management adds cost 
+to context switching
+• Virtual-to-physical translation data is on a per-process basis
+• Also swap as discussed in next slide
+39
+
+=== PDF PAGE 40 ===
+Context Switch Time including Swapping
+• If next processes to be put on CPU is not in memory, need to swap out a process and swap 
+in target process
+• The whole process?
+• Just one page?
+• Context switch time for whole process can be very high, for example:
+• 300MB process swapping to hard disk with transfer rate of 100 MB/sec
+• Swap out time of 3 s (3000 ms)
+• Plus swap in of same sized process
+• Total context switch swapping component time of 6 s
+40
+
+=== PDF PAGE 41 ===
+Swapping on Mobile Systems
+• File systems in mobile systems are Flash-memory based (to be 
+covered later in the course)
+• Smaller amount of space than traditional disk 
+• Limited number of write cycles
+• Poor throughput between flash memory and CPU on mobile platform
+• Instead use other methods to free memory if low
+• iOS: memory compression, memory reclamation (including asking 
+applications to release memory), process termination
+• Android: memory compression through ZRAM, memory reclamation of clean 
+pages, process termination, possible conventional disk -based swap
+41

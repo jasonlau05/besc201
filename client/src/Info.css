@@ -9,7 +9,7 @@
 .guide-facts small { display: block; max-width: 32ch; color: var(--reading-muted); font-size: 12px; line-height: 1.7; }
 .guide-section { padding-top: var(--reading-space); }
 .guide-section-heading { max-width: 780px; margin-bottom: 32px; }
-.guide-section-heading h2, .guide-next h2 { margin: 0 0 18px; color: var(--color-primary-dark); font: 600 clamp(30px, 3.4vw, 44px)/1.18 'Playfair Display', serif; letter-spacing: -.025em; text-wrap: balance; }
+.guide-section-heading h2, .guide-next h2 { margin: 0 0 18px; color: var(--color-primary-dark); font: 600 clamp(30px, 3.4vw, 44px)/1.18 var(--site-heading-font); letter-spacing: -.025em; text-wrap: balance; }
 .guide-section-heading p { max-width: 68ch; margin: 0; color: var(--reading-muted); font-size: 16px; line-height: 1.8; }
 .guide-split { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--reading-border); border-radius: 12px; overflow: hidden; background: var(--color-surface); }
 .guide-panel, .carbon-result, .cost-result, .location-result { min-width: 0; padding: 36px; }
@@ -80,14 +80,14 @@
 .lifecycle { display: flex; align-items: stretch; gap: 24px; padding: 8px 0 40px; }
 .lifecycle article { flex: 1; }
 .lifecycle article > span { display: inline-flex; justify-content: center; align-items: center; width: 32px; height: 32px; border: 1px solid var(--reading-border); border-radius: 50%; color: var(--color-primary); font-size: 13px; }
-.lifecycle h3 { margin: 18px 0 12px; color: var(--color-primary-dark); font: 500 22px/1.3 'DM Sans', sans-serif; letter-spacing: -.02em; }
+.lifecycle h3 { margin: 18px 0 12px; color: var(--color-primary-dark); font: 500 22px/1.3 var(--site-heading-font); letter-spacing: -.02em; }
 .lifecycle p { margin: 0; color: var(--reading-muted); font-size: 15px; line-height: 1.8; }
 .lifecycle-arrow { align-self: center; color: var(--color-primary); }
 .guide-myths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .guide-myth-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 28px; border: 1px solid var(--reading-border); border-radius: 12px; background: var(--color-surface); }
 .myth-card-icon { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 24px; border-radius: 6px; color: var(--color-primary); background: var(--color-surface-green); }
 .myth-card-icon svg { width: 22px; height: 22px; }
-.guide-myth-card h3 { margin: 0 0 16px; color: var(--color-primary-dark); font: 500 21px/1.35 'DM Sans', sans-serif; letter-spacing: -.02em; text-wrap: balance; }
+.guide-myth-card h3 { margin: 0 0 16px; color: var(--color-primary-dark); font: 500 22px/1.3 var(--site-heading-font); letter-spacing: -.02em; text-wrap: balance; }
 .guide-myth-card p { margin: 0 0 20px; color: var(--reading-muted); font-size: 15px; line-height: 1.8; }
 .myth-card-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: auto; color: var(--color-primary); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
 .guide-next { display: flex; align-items: center; justify-content: space-between; gap: 48px; margin-top: var(--reading-space); padding: 40px; border-radius: 12px; background: var(--color-surface-green); }

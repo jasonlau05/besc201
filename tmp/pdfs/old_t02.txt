@@ -1,0 +1,118 @@
+
+=== PDF PAGE 1 ===
+CSCE 410 – Topic 2
+Processes
+D i l m a  D a  S i l v a
+
+
+=== PDF PAGE 2 ===
+Process-related concepts
+Likely a review of what you learned in 313
+CSCE 410 Fall 2026 2
+
+=== PDF PAGE 3 ===
+Definitions
+• Processes are running programs
+• Multiple parts
+• The program code, also called text section
+• Current activity including program counter (PC), processor registers
+• Also called instruction counter or IC
+• Stack containing temporary data
+• Function parameters, return addresses, local variables
+• Data section containing global variables
+• Heap containing memory dynamically allocated during run time
+• Address space: the memory that the process can access
+CSCE 410 Fall 2026 3
+
+=== PDF PAGE 4 ===
+Process in memory
+CSCE 410 Fall 2026 4
+Data refers to both the bss 
+segment (static, global 
+variable not initialized) and the 
+data segment
+(initialized)
+
+=== PDF PAGE 5 ===
+Example of a program in memory when 
+runnning
+CSCE 410 Fall 2026 5
+
+
+=== PDF PAGE 6 ===
+Process state
+As a process executes, it changes state
+• New:  The process is being created
+• Running:  Instructions are being executed
+• Waiting:  The process is waiting for some event
+                to occur
+• Ready:  The process is waiting to be assigned 
+              to a processor
+• Terminated:  The process has finished execution
+CSCE 410 Fall 2026 6
+
+=== PDF PAGE 7 ===
+Diagram of process state
+CSCE 410 Fall 2026 7
+
+
+=== PDF PAGE 8 ===
+Process Control Block (PCB)
+Information associated with each process(also 
+called
+ task control block)
+• Process state – running, waiting, etc.
+• Program counter – location of instruction to next 
+execute
+• CPU registers – contents of all process-centric 
+registers
+• CPU scheduling information- priorities, scheduling 
+queue pointers
+• Memory-management information – memory 
+allocated to the process
+• Accounting information – CPU used, clock time 
+elapsed since start, time limits
+• I/O status information – I/O devices allocated to 
+process, list of open files
+CSCE 410 Fall 2026 8
+
+
+=== PDF PAGE 9 ===
+Process Representation in Linux
+Represented by the C structure task_struct
+pid t_pid;   /* process identifier */ 
+long state;   /* state of the process */ 
+unsigned int time_slice /* scheduling information */ 
+struct task_struct *parent;/* this process ’s parent */ 
+struct list_head children; /* this process’s children */ 
+struct files_struct *files;/* list of open files */ 
+struct mm_struct *mm; /* address space of this process 
+*/
+CSCE 410 Fall 2026 9
+
+
+=== PDF PAGE 10 ===
+Process
+represent
+in xv6
+CSCE 410 Fall 2026 10
+
+
+=== PDF PAGE 11 ===
+Process API
+• Create
+• Destroy
+• Wait
+• For when it is useful to have the process stop running temporarily
+• Miscellaneous control
+• E.g., suspend, change priority for execution or access to other resources
+• Status
+• E.g., which state it is, when it was created, for how long it has been 
+running
+CSCE 410 Fall 2026 11
+
+=== PDF PAGE 12 ===
+Recommended reading
+• OSTEP Chapter 4
+• xv6 book sections 2.5 and 2.6 
+CSCE 410 Fall 2026 12

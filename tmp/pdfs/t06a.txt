@@ -1,0 +1,284 @@
+
+=== PDF PAGE 1 ===
+CSE 410 – Topic 6
+Paging – Part A
+CSCE 410 Fall 2026 1
+
+=== PDF PAGE 2 ===
+So far we covered 
+• How physical frames are managed
+• What is a page table is for
+• What a page table hit/miss means
+• What a TLB is
+• What a TLB hit/miss means
+CSCE 410 Fall 2026 2
+
+=== PDF PAGE 3 ===
+Again, what happens when CPU does not
+find translation in the TLB
+• Does the CPU ask help from the OS?
+• No, not yet 
+• This happens too often
+• Does the CPU have the page table inside the chip (register) ?
+• No, it has only a little space (the TLB)
+• Table page is too big for that 
+• Also too big to be kept all in memory all the time
+• Where is the page table
+• In memory
+• Its address is in a register
+• Another address to translate !?!?!
+CSCE 465  - dilma@tamu.edu 3
+
+=== PDF PAGE 4 ===
+We saw this figure before
+• It needs to access page_table[f]
+• page_table address is virtual or 
+physical?
+• CPU is in ‘paging mode’:all it sees is 
+considered virtual
+• Turning paging mode off/on for 
+accessing page_table not a 
+solution
+• Inefficient
+• It would require the table to be 
+organized as a contiguous structure  
+CSCE 465  - dilma@tamu.edu 4
+
+
+=== PDF PAGE 5 ===
+How is the page table data structure
+is filled up with entries?
+ What happens the first time a 
+program uses an address?
+frame(s) will be allocated for mymap
+If the first frame for this array is f, then
+Physical address mymap is f * FRAME_SIZE
+Page table is updated to store this translation
+When mymap is deallocated, this translation must
+disappear 
+When we look at a table, we need to know if bits there
+correspond to a translation or something that is garbage
+from the past 
+
+=== PDF PAGE 6 ===
+Memory Protection
+• Memory protection implemented by associating protection bit with 
+each frame to indicate if read-only or read-write access is allowed
+• Can also add more bits to indicate page execute-only, and so on
+• Valid-invalid bit attached to each entry in the page table:
+•“valid” indicates that the associated page is in the process’ logical address 
+space, and is thus a legal page
+•“invalid” indicates that the page is not in the process’ logical address space
+• Any violations result in a trap to the kernel
+
+=== PDF PAGE 7 ===
+Valid (v) or Invalid (i) Bit In A Page T able
+
+
+=== PDF PAGE 8 ===
+Shared Pages
+• Shared code
+• One copy of read-only (reentrant) code 
+shared among processes (i.e., text editors, 
+compilers, window systems)
+• Similar to multiple threads sharing the same 
+process space
+• Also useful for interprocess communication if 
+sharing of read-write pages is allowed
+• Private code and data 
+• Each process keeps a separate copy of the 
+code and data
+• The pages for the private code and data can 
+appear anywhere in the logical address space
+
+=== PDF PAGE 9 ===
+Shared Pages Example
+
+
+=== PDF PAGE 10 ===
+What if we needed to map only a “small” part of 
+the address space, let’s say the kernel’s one
+• Limitation in size and how often it is used allows simplification:
+• it is ok to assume we will store the data contiguously, always there
+• We can make the translation to be straightforward
+• have page_table virtual and physical address the same
+• We put it in a directly mapped area: 
+• when a new page table is created, it already starts with a small part filled up 
+to show translations in which virtual address v and physical address p are 
+the same. 
+• Accessing addresses in this range do not ever generate a page miss
+CSCE 410 Fall 2026 10
+
+=== PDF PAGE 11 ===
+Structure of the Page Table
+• Memory structures for paging can get huge using straight-forward methods
+• Consider a 32-bit logical address space (small for on modern 
+computers):
+• Page size of 4 KB (212)
+• Page table would have 1 million entries (232 / 212)
+• If each entry is 4 bytes ➔ each process 4 MB of physical address space for the  
+page table alone
+• Don’t want to allocate that contiguously in main memory
+• A solution is to divide the page table into smaller units
+• Hierarchical Paging
+• Hashed Page Tables
+• Inverted Page Tables
+
+=== PDF PAGE 12 ===
+Hierarchical Page Tables
+• Break up the logical address 
+space into multiple page 
+tables
+• A simple technique is a two-
+level page table
+• We then page the page 
+table
+
+
+=== PDF PAGE 13 ===
+Two-Level Paging Example
+• A logical address (on 32-bit machine with 4K page size) 
+is divided into:
+• a page number consisting of 20 bits
+• a page offset consisting of 12 bits
+• Since the page table is paged, the page number is 
+further divided into:
+• a 10-bit page number 
+• a 10-bit page offset
+• Thus, a logical address is as in the figure:
+• where p1 is an index into the outer page table, and p2 is the displacement within the page of the inner page table
+• Known as forward-mapped page table
+
+
+=== PDF PAGE 14 ===
+Address-Translation Scheme
+
+
+=== PDF PAGE 15 ===
+Another illustration for two-level paging scheme
+Source: computersciencecafe.blogspot.com
+
+=== PDF PAGE 16 ===
+Same thing with another picture.
+See memory savings come from the parts of the address space not used 
+Source: presentation at slide serve
+
+=== PDF PAGE 17 ===
+64-bit Logical Address Space
+• Even two-level paging scheme not sufficient
+• If page size is 4 KB (212)
+• Then page table has 252 entries
+• If two level scheme, inner page tables could be 210 4-byte 
+entries
+• Address would look like
+• Outer page table has 242 entries or 244 bytes
+• One solution is to add a 2nd outer page table
+• But in the following example the 2nd outer page 
+table is still 234 bytes in size
+• And possibly 4 memory access to get to one physical 
+memory location
+
+
+=== PDF PAGE 18 ===
+Three-level Paging Scheme
+
+
+=== PDF PAGE 19 ===
+Three-level page table
+Source: GeekForGeeks.com
+
+=== PDF PAGE 20 ===
+Intel offers a 5-level page table
+• x86-64 normally uses a 4-level page table. Newer processors optionally support 5-
+level paging for larger virtual address spaces.
+• Extension for the x86-64 line of processors that extends size of virtual addresses 
+from 48 to 57 bits (Intel calls it LA57)
+• Linux on x86-64 supports both 4-level and 5-level page tables. Support for Intel's 5-
+level paging (LA57) was added in Linux 4.14 in 2017
+
+
+=== PDF PAGE 21 ===
+Hashed Page Tables
+• Common in address spaces > 32 bits
+• The virtual page number is hashed into a page table
+• This page table contains a chain of elements hashing to the same location
+• Each element contains (1) the virtual page number (2) the value of 
+the mapped page frame (3) a pointer to the next element
+• Virtual page numbers are compared in this chain searching for a 
+match
+• If a match is found, the corresponding physical frame is extracted
+• Variation for 64-bit addresses is clustered page tables
+• Similar to hashed but each entry refers to several pages (such as 16) rather 
+than 1
+• Especially useful for sparse address spaces (where memory references are 
+non-contiguous and scattered) 
+
+=== PDF PAGE 22 ===
+Hashed Page Table
+
+
+=== PDF PAGE 23 ===
+Inverted Page Table
+• Rather than each process having a page table and keeping 
+track of all possible logical pages, track all physical pages
+• One entry for each real page of memory
+• Entry consists of the virtual address of the page stored in that 
+real memory location, with information about the process 
+that owns that page
+
+=== PDF PAGE 24 ===
+Inverted Page Tables
+
+
+=== PDF PAGE 25 ===
+Inverted Page Table (cont)
+• Rather than each process having a page table and keeping track of all 
+possible logical pages, track all physical pages
+• One entry for each real page of memory
+• Entry consists of the virtual address of the page stored in that real 
+memory location, with information about the process that owns that 
+page
+• Decreases memory needed to store each page table, but increases 
+time needed to search the table when a page reference occurs
+• Use hash table to limit the search to one — or at most a few — page-
+table entries
+• TLB can accelerate access
+• But how to implement shared memory?
+• One mapping of a virtual address to the shared physical address
+
+=== PDF PAGE 26 ===
+Looking at a bit of history
+CSCE 465 - dilma@tamu.edu 26
+
+=== PDF PAGE 27 ===
+Memory segments
+• Think back to circa 1980. 
+• Microcomputers used physical addresses represented with 16 
+bits (values 0x0000 to 0xffff, i.e., 0 to 65535). 
+• So 64KB of memory.
+• IBM was designing the PC and they wanted 1MB of memory: 
+• go from 16 bits (i.e., 4 hexa digits) to how many?
+
+=== PDF PAGE 28 ===
+Memory segments - 2
+• Inside the CPU, all the paths for data assumed addresses with 
+4 hexa digits
+• They represent 5 hexa using two instances of 4 hexa (so use 
+two 8 bits to represent a 12 bit)
+• Addresses were like 792d:12f3
+• Intel added a register to store the segment (the first part), so 
+instructions stayed with 16 bit addresses
+
+=== PDF PAGE 29 ===
+Memory segments - 3
+• Introduced in 78 (Intel 8086) to allow programs to address more 
+than 64 KB
+• Intel 80286 in 1982 added virtual memory and protection
+• Code segment, stack segment, data segment
+• x86-64 in 2003 (by AMD) dropped segmentation 
+• Intel introduced its compatible implementation Intel 64 in 2004
+
+=== PDF PAGE 30 ===
+Memory 
+Segmentation in 
+8086

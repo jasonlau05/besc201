@@ -14,18 +14,13 @@ html:has(.reading-page) { scroll-behavior: smooth; }
   flex-direction: column;
   align-items: flex-start;
   min-height: calc(100svh - var(--site-header-height));
-  padding: clamp(64px, 8vw, 112px) 0 0;
+  padding: var(--site-intro-offset) 0 0;
   text-align: left;
 }
 .reading-page .reading-hero .reading-contents { width: 100%; margin-top: auto; }
 .reading-page .site-footer .brand span { color: #a84f31; }
 .reading-page .reading-hero > h1 {
   max-width: 900px;
-  margin: 0;
-  color: var(--color-primary-dark);
-  font: 600 clamp(48px, 6.2vw, 80px)/1.08 'Playfair Display', serif;
-  letter-spacing: -.035em;
-  text-wrap: balance;
 }
 .reading-page .reading-hero > p {
   max-width: 610px;
@@ -92,8 +87,6 @@ html:has(.reading-page) { scroll-behavior: smooth; }
 }
 @media (max-width: 720px) {
   .reading-page .reading-hero .reading-contents { padding-bottom: calc(88px + var(--mobile-tabs-clearance)); }
-  .reading-page .reading-hero { padding-top: 52px; }
-  .reading-page .reading-hero > h1 { font-size: clamp(42px, 9.8vw, 64px); letter-spacing: -.03em; }
   .reading-page .reading-hero > p { margin-top: 24px; font-size: 16px; }
   .reading-contents { margin-top: 40px; padding-block: 18px; }
   .reading-contents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }

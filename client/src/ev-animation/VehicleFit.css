@@ -1,0 +1,2 @@
+.ev-assembly-fit { position: relative; width: 100%; height: 100%; }
+.ev-assembly-fit > .ev-assembly { width: 100%; height: 100%; transform-origin: 0 0; }

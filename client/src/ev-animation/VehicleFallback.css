@@ -1,0 +1,57 @@
+.ev-fallback { position: relative; width: 100%; aspect-ratio: 1.45; perspective: 1100px; pointer-events: none; container-type: inline-size; isolation: isolate; }
+.ev-fallback *, .ev-fallback *::before, .ev-fallback *::after { box-sizing: border-box; }
+.ev-fallback-car { --car-paint-light: #ecf5f0; --car-paint: #98b3ac; --car-paint-dark: #334c49; --car-window: #122526; }
+.ev-fallback-car-model, .ev-fallback-car-shell { position: absolute; transform-style: preserve-3d; }
+.ev-fallback-car-model { width: 480px; height: 250px; left: 50%; top: 48%; transform: translate(-50%, -50%) scale(calc(100cqw / 550px)) translateY(var(--scene-lift, 0px)) rotateX(-17deg) rotateY(calc(-29deg + var(--scene-turn, 0deg))) rotateZ(-4deg); }
+.ev-fallback-car-shell { inset: 0; transform: translateY(0); }
+.ev-fallback-car-shadow { position: absolute; width: 77%; height: 17%; left: 10%; top: 74%; border-radius: 50%; background: #071c16; opacity: .27; filter: blur(22px); transform: rotate(-9deg) translateY(calc(var(--scene-lift, 0px) * .35)); }
+.ev-fallback-car-floor { position: absolute; width: 425px; height: 158px; top: 130px; left: 27px; background: linear-gradient(90deg, #182625, #384543 45%, #102725); border-radius: 10px; transform: rotateX(90deg); }
+.ev-fallback-car-side { position: absolute; left: 23px; top: 129px; width: 434px; height: 80px; border-radius: 4px 4px 14px 14px; background: linear-gradient(174deg, #f8fffc 0%, var(--car-paint-light) 14%, var(--car-paint) 36%, #628d83 55%, var(--car-paint-dark) 92%); }
+.ev-fallback-car-side-near { transform: translateZ(79px); }
+.ev-fallback-car-side-far { transform: translateZ(-79px); background: linear-gradient(178deg, var(--car-paint-light), var(--car-paint-dark) 74%); }
+.ev-fallback-car-side-near::before { content: ''; position: absolute; inset: 13px 0 auto; height: 1px; background: linear-gradient(90deg, transparent, #eafff9 25%, #f8fffc 80%, transparent); }
+.ev-fallback-car-side-near::after { content: ''; position: absolute; left: 6%; width: 87%; top: 35%; height: 42%; border-radius: 50%; background: linear-gradient(180deg, #d9fff626, transparent 72%); filter: blur(5px); }
+.ev-fallback-car-door { position: absolute; top: 2px; bottom: 13px; width: 1px; background: #183e3a88; box-shadow: 1px 0 #e9fff22b; z-index: 1; }
+.ev-fallback-car-door-rear { left: 34%; transform: rotate(-5deg); }
+.ev-fallback-car-door-front { left: 70%; transform: rotate(4deg); }
+.ev-fallback-car-handle { position: absolute; width: 23px; height: 3px; top: 17px; background: linear-gradient(#183d36, #7f9f93); border-radius: 3px; box-shadow: 0 1px #d7ebe2; }
+.ev-fallback-car-handle-rear { left: 37%; }
+.ev-fallback-car-handle-front { left: 62%; }
+.ev-fallback-car-sill { position: absolute; width: 52%; height: 6px; left: 25%; bottom: 8px; border-radius: 4px; background: linear-gradient(#182d2c, #36524b); box-shadow: 0 -1px #c1d4cb5c; }
+.ev-fallback-car-side-light { position: absolute; width: 30px; height: 5px; right: 3px; top: 9px; background: #edfff7; box-shadow: -1px 1px 5px #f1fff89c; }
+.ev-fallback-car-deck, .ev-fallback-car-hood, .ev-fallback-car-roof { position: absolute; transform: rotateX(90deg); background: linear-gradient(90deg, var(--car-paint-dark), var(--car-paint) 15%, var(--car-paint-light) 47%, #b5cec5 76%, #6c9388); }
+.ev-fallback-car-deck { width: 434px; height: 158px; left: 23px; top: 50px; border-radius: 3px; }
+.ev-fallback-car-hood { width: 90px; height: 158px; left: 367px; top: 50px; border-radius: 0 3px 3px 0; }
+.ev-fallback-car-hood::before, .ev-fallback-car-hood::after { content: ''; position: absolute; left: 4px; width: 78px; height: 1px; background: #45685c8c; }
+.ev-fallback-car-hood::before { top: 22px; transform: rotate(4deg); }
+.ev-fallback-car-hood::after { bottom: 22px; transform: rotate(-4deg); }
+.ev-fallback-car-hood i { position: absolute; width: 9px; height: 12px; right: 17px; top: 73px; border: 1px solid #39584e; border-radius: 3px 3px 5px 5px; opacity: .7; }
+.ev-fallback-car-roof { width: 126px; height: 140px; left: 181px; top: 4px; border-radius: 2px; background: linear-gradient(90deg, #3e6159, #90b2a6 15%, #e8f7ed 49%, #c9e2d4 76%, #6b8b7d); box-shadow: inset 0 -2px #335349, inset 0 2px #d9f1e3; }
+.ev-fallback-car-windshield { position: absolute; width: 82px; height: 140px; left: 296px; top: 31.5px; transform: rotateZ(42.5deg) rotateX(90deg); border: 4px solid #a7c4b7; border-radius: 2px; background: linear-gradient(110deg, #152a29 15%, #45716b 40%, #d7f8ef 43%, #5a8681 45%, #163d38 65%, #0c2421); box-shadow: inset 0 0 0 1px #17342c; }
+.ev-fallback-car-rear-glass { position: absolute; width: 78px; height: 140px; left: 115px; top: 31.5px; transform: rotateZ(-45.5deg) rotateX(90deg); border: 4px solid #aac8bc; border-radius: 2px; background: linear-gradient(55deg, #112825, #345e55 60%, #b0d3c5 62%, #1d4035 65%); }
+.ev-fallback-car-glass { position: absolute; width: 240px; height: 60px; left: 127px; top: 69px; clip-path: polygon(0 100%, 22.5% 8%, 75% 8%, 100% 100%); background: linear-gradient(165deg, #e2f7ea 3%, #6c9382 39%, #c6e6d1 85%, #486358); }
+.ev-fallback-car-glass::before { content: ''; position: absolute; inset: 0; clip-path: polygon(5% 94%, 24% 17%, 73% 17%, 95% 94%); background: linear-gradient(123deg, #102726 12%, #31554d 31%, #b6dcce 32%, #5f8c7e 33%, #213f38 47%, #0c2421 81%); }
+.ev-fallback-car-glass::after { content: ''; position: absolute; left: 48%; top: 8%; height: 90%; width: 8px; background: linear-gradient(90deg, #0a1d16, #4c7061); transform: rotate(-2deg); }
+.ev-fallback-car-glass-near { transform: translateZ(70px); }
+.ev-fallback-car-glass-far { transform: translateZ(-70px); }
+.ev-fallback-car-mirror { position: absolute; width: 25px; height: 13px; left: 329px; top: 123px; border-radius: 8px 10px 3px 4px; background: linear-gradient(#d3e9dc, #6c9483 56%, #153e2f); transform: translateZ(99px) rotateY(-12deg); box-shadow: 0 3px 2px #11271d66; }
+.ev-fallback-car-mirror i { position: absolute; left: -4px; top: 8px; width: 7px; height: 5px; background: #224536; }
+.ev-fallback-car-front { position: absolute; left: 378px; top: 129px; width: 158px; height: 80px; border-radius: 3px 3px 14px 14px; transform: rotateY(90deg); background: linear-gradient(#bacdc5, #7c9e90 25%, #29443b 74%, #11281f 78%, #365648); box-shadow: inset 0 1px #e4f9eb; }
+.ev-fallback-car-front > i { position: absolute; top: 8px; width: 53px; height: 5px; background: #e8fff1; box-shadow: 0 1px 6px #b8ffdc87; border-radius: 2px; }
+.ev-fallback-car-front > i:first-child { left: 5px; }
+.ev-fallback-car-front > i:nth-child(2) { right: 5px; }
+.ev-fallback-car-front > span { position: absolute; width: 125px; height: 13px; left: 15px; bottom: 8px; border-radius: 3px 3px 8px 8px; background: repeating-linear-gradient(90deg, #071a16 0 3px, #244236 3px 5px); transform: skewY(-1deg); }
+.ev-fallback-car-rear { position: absolute; width: 158px; height: 80px; left: -56px; top: 129px; transform: rotateY(90deg); background: linear-gradient(#abc5b7, #507360 60%, #17372b); border-radius: 3px 3px 14px 14px; }
+.ev-fallback-car-rear i { position: absolute; top: 8px; height: 5px; width: 56px; border-radius: 4px; background: #db6658; box-shadow: inset 0 1px #ffc3a1; }
+.ev-fallback-car-rear i:first-child { left: 5px; }
+.ev-fallback-car-rear i:last-child { right: 5px; }
+.ev-fallback-wheel { position: absolute; width: 74px; height: 74px; top: 163px; transform-style: preserve-3d; }
+.ev-fallback-wheel-rear-near, .ev-fallback-wheel-rear-far { left: 75px; }
+.ev-fallback-wheel-front-near, .ev-fallback-wheel-front-far { left: 354px; }
+.ev-fallback-wheel-rear-near, .ev-fallback-wheel-front-near { transform: translateZ(85px); }
+.ev-fallback-wheel-rear-far, .ev-fallback-wheel-front-far { transform: translateZ(-85px); }
+.ev-fallback-wheel-face, .ev-fallback-wheel-inner { position: absolute; inset: 0; border-radius: 50%; border: 10px solid #101c18; background: conic-gradient(from 16deg, #b4c4bf 0 10deg, #253b32 10deg 30deg, #d3e2da 30deg 42deg, #263f34 42deg 70deg, #a2b5ab 70deg 82deg, #283a30 82deg 110deg, #d3e2da 110deg 122deg, #263f34 122deg 150deg, #a2b5ab 150deg 162deg, #283a30 162deg 190deg, #d3e2da 190deg 202deg, #263f34 202deg 230deg, #a2b5ab 230deg 242deg, #283a30 242deg 270deg, #d3e2da 270deg 282deg, #263f34 282deg 310deg, #a2b5ab 310deg 322deg, #283a30 322deg 350deg, #b4c4bf 350deg); box-shadow: inset 0 0 0 2px #9caf9f, 0 0 0 1px #081710, 1px 3px 3px #07130c66; }
+.ev-fallback-wheel-face { transform: translateZ(8px); }
+.ev-fallback-wheel-inner { transform: translateZ(-8px); background: #183429; border-color: #17271f; }
+.ev-fallback-wheel-face::before { content: ''; position: absolute; inset: -7px; border-radius: inherit; border: 1px dashed #2f3d34; }
+.ev-fallback-wheel-face i { position: absolute; width: 17px; height: 17px; border-radius: 50%; left: 18.5px; top: 18.5px; background: radial-gradient(circle at 35% 25%, #e2ebe4, #8b9d90 45%, #304e3b 49%, #c0d0c2 57%, #294b35 65%); box-shadow: 0 1px 2px #07170c; }

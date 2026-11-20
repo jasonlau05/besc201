@@ -1,0 +1,70 @@
+/* The x/y/z dimensions below share the existing car's 480×250 model space.
+   Within the pack, positive z raises a component above the floor pan. */
+.ev-assembly { aspect-ratio: 1.55; }
+.ev-assembly .ev-fallback-car-model { top: 56%; transform: translate(-50%, -50%) scale(calc(100cqw / 600px)) rotateX(calc(-17deg - var(--ev-view-tilt, 0deg))) rotateY(calc(-29deg + var(--ev-turn, 0deg))) rotateZ(-4deg); }
+.ev-assembly .ev-fallback-car-shell { transform: translateY(calc(var(--ev-body-lift, 0px) * -1)); }
+/* Fade the individual panels: opacity on their parent would flatten the car. */
+.ev-assembly .ev-fallback-car-shell > * { opacity: var(--ev-body-fade, 1); }
+.ev-assembly .ev-fallback-car-floor { opacity: var(--ev-chassis-fade, .12); }
+.ev-assembly .ev-fallback-car-shadow { width: 72%; left: 15%; top: 73%; opacity: .2; transform: rotate(-9deg); }
+.ev-assembly .ev-assembly-pack, .ev-assembly .ev-assembly-tray, .ev-assembly .ev-assembly-module, .ev-assembly .ev-assembly-cell-row, .ev-assembly .ev-assembly-cell { transform-style: preserve-3d; }
+.ev-assembly .ev-assembly-pack { position: absolute; left: 106px; top: 152px; width: 276px; height: 130px; transform: translateY(var(--ev-battery-drop, 0px)) rotateX(90deg); }
+.ev-assembly .ev-assembly-tray { position: absolute; inset: 0; background: linear-gradient(135deg, #b6c7bd, #607e70 48%, #344e44); border: 5px solid #a1b3a7; border-radius: 5px; box-shadow: inset 0 0 0 1px #2d483a; }
+.ev-assembly .ev-assembly-tray-front { position: absolute; left: -5px; right: -5px; height: 12px; top: 100%; transform-origin: top; transform: rotateX(90deg); background: linear-gradient(#899f90, #263c31); border-radius: 0 0 3px 3px; }
+.ev-assembly .ev-assembly-tray-side { position: absolute; top: -5px; bottom: -5px; width: 12px; left: 100%; transform-origin: left; transform: rotateY(-90deg); background: linear-gradient(90deg, #799888, #2e493b); }
+.ev-assembly .ev-assembly-busbar { position: absolute; inset: 5px; border: 3px solid #d98b45; border-radius: 3px; transform: translateZ(5px); box-shadow: 0 0 0 1px #714021; }
+.ev-assembly .ev-assembly-busbar i { position: absolute; width: 3px; background: #e3a166; top: 0; bottom: 0; left: 50%; }
+.ev-assembly .ev-assembly-busbar i:last-child { left: 24%; background: #a85b31; }
+.ev-assembly .ev-assembly-module { position: absolute; width: 58px; height: 46px; left: calc(7px + var(--module-column) * 65px); top: calc(7px + var(--module-row) * 60px); transform: translate3d(calc(var(--module-x) * var(--ev-module-spread, 0px) * .55), calc(var(--module-y) * var(--ev-module-spread, 0px) * .55), calc(12px + var(--ev-module-spread, 0px) * .45)); }
+.ev-assembly .ev-assembly-module-base { position: absolute; inset: 0; border-radius: 3px; background: linear-gradient(135deg, #7f9e82, #c4d7b8 38%, #527453 85%); border: 2px solid #d0e1c7; transform: translateZ(15px); box-shadow: inset 0 0 0 3px #526e53; }
+.ev-assembly .ev-assembly-module-front { position: absolute; width: 58px; height: 15px; top: 46px; transform-origin: top; transform: rotateX(90deg); background: linear-gradient(#6f8c6f, #244b34); border: 1px solid #233e2b; }
+.ev-assembly .ev-assembly-module-side { position: absolute; width: 15px; height: 46px; left: 58px; transform-origin: left; transform: rotateY(-90deg); background: linear-gradient(90deg, #8ba381, #3c6045); border: 1px solid #2e4f35; }
+.ev-assembly .ev-assembly-cell-row { position: absolute; left: 5px; top: calc(5px + var(--cell-row) * 21px); width: 48px; height: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; transform: translateZ(calc(17px + var(--ev-cell-spread, 0px) * (1 + var(--cell-row) * .35))); }
+.ev-assembly .ev-assembly-cell { display: block; position: relative; }
+.ev-assembly .ev-assembly-cell b { position: absolute; inset: 0; border: 1px solid #cdded0; border-radius: 1px; transform: translateZ(5px); background: linear-gradient(90deg, #49695c, #c0d4c4 18%, #edf5e8 48%, #9bb79e 68%, #42634e); }
+.ev-assembly .ev-assembly-cell b::before { content: ''; position: absolute; width: 3px; height: 2px; left: 4px; top: 2px; background: #d3a261; box-shadow: 0 7px #5d8172; }
+.ev-assembly .ev-assembly-cell i { position: absolute; left: 0; right: 0; height: 5px; top: 15px; transform-origin: top; transform: rotateX(90deg); background: linear-gradient(#97b39d, #375744); }
+.ev-assembly .ev-assembly-cell em { position: absolute; width: 5px; top: 0; bottom: 0; left: 100%; transform-origin: left; transform: rotateY(-90deg); background: linear-gradient(90deg, #718e78, #2c4c37); }
+.ev-assembly .ev-assembly-module-terminal { position: absolute; inset: auto 3px -1px; height: 4px; transform: translateZ(19px); display: flex; justify-content: space-between; }
+.ev-assembly .ev-assembly-module-terminal i { width: 6px; height: 4px; background: linear-gradient(#e9be7c, #af6f3e); border: 1px solid #80502d; border-radius: 1px; }
+/* Pull the lid behind the pack as it rises, keeping both module rows in view.
+   At zero lift the translation matches the closed vehicle exactly. */
+.ev-assembly .ev-assembly-cover { position: absolute; inset: 0; border-radius: 5px; transform-style: preserve-3d; transform: translate3d(calc(var(--ev-cover-lift, 0px) * -2), calc(var(--ev-cover-lift, 0px) * -1.8), calc(42px + var(--ev-cover-lift, 0px))); background: linear-gradient(125deg, #d2e0d7, #829e8e 30%, #e9f0e6 54%, #6e8d7b 87%); border: 3px solid #acbfb0; box-shadow: inset 0 0 0 2px #4c705c; }
+.ev-assembly .ev-assembly-cover::after { content: ''; position: absolute; top: 100%; left: -3px; right: -3px; height: 5px; background: linear-gradient(#b2c4b5, #486a51); transform-origin: top; transform: rotateX(90deg); }
+.ev-assembly .ev-assembly-cover > span { position: absolute; inset: 12px 16px; border: 1px solid #5c8064; border-radius: 3px; background: repeating-linear-gradient(90deg, transparent 0 18px, #4a72582b 18px 19px, #eef5e535 19px 20px); }
+.ev-assembly .ev-assembly-cover > i { position: absolute; width: 4px; height: 4px; left: 5px; top: 5px; border-radius: 50%; background: #3c5e45; box-shadow: 256px 0 #3c5e45, 0 110px #3c5e45, 256px 110px #3c5e45; }
+.ev-assembly .ev-assembly-cover > b { position: absolute; width: 9px; height: 11px; left: 130px; top: 54px; background: #d79b4b; clip-path: polygon(50% 0, 10% 58%, 44% 58%, 31% 100%, 92% 37%, 55% 37%, 70% 0); }
+.ev-assembly .ev-assembly-cooling { position: absolute; inset: -3px; border: 3px solid #5e8180; border-radius: 5px; transform: translate3d(0, 7px, calc(-18px - var(--ev-module-spread, 0px) * .5)); background: linear-gradient(125deg, #a9c4c4, #6f9698 32%, #bdd3cd 48%, #4b7177 85%); }
+.ev-assembly .ev-assembly-cooling > i { position: absolute; inset: 10px; border: 2px solid #294f54; border-radius: 5px; background: repeating-linear-gradient(90deg, transparent 0 15px, #527f8466 15px 17px, transparent 17px 22px); }
+.ev-assembly .ev-assembly-cooling > span, .ev-assembly .ev-assembly-cooling > b { position: absolute; left: -12px; top: 24px; width: 16px; height: 6px; border-radius: 3px; background: #55989a; border: 1px solid #244f59; }
+.ev-assembly .ev-assembly-cooling > b { top: 42px; background: #86b3ad; }
+.ev-assembly .ev-assembly-connector { position: absolute; height: 12px; width: 15px; top: 100%; border: 2px solid #713d22; border-radius: 2px; background: linear-gradient(90deg, #a65e31, #ecaa59 40%, #b46432); transform: translateZ(8px); }
+.ev-assembly .ev-assembly-connector-a { left: 12px; }
+.ev-assembly .ev-assembly-connector-b { left: 32px; }
+.ev-assembly .ev-assembly-electronics { position: absolute; width: 42px; height: 65px; left: 282px; top: 26px; border-radius: 3px; border: 3px solid #adc5b8; transform: translate3d(calc(var(--ev-module-spread, 0px) * .6), 0, 17px); transform-style: preserve-3d; background: linear-gradient(135deg, #7f9b94, #d3e1d4 48%, #6c8d79); box-shadow: inset 0 0 0 2px #4c7162; }
+.ev-assembly .ev-assembly-electronics::after { content: ''; position: absolute; width: 42px; height: 10px; top: calc(100% + 3px); left: -3px; transform-origin: top; transform: rotateX(90deg); background: #476957; }
+.ev-assembly .ev-assembly-electronics > i { position: absolute; inset: 8px 8px 18px; border-radius: 2px; background: repeating-linear-gradient(90deg, #35664d 0 3px, #6b9374 3px 5px); border: 1px solid #294f39; }
+.ev-assembly .ev-assembly-electronics > span { position: absolute; width: 14px; height: 10px; left: 11px; bottom: 5px; background: #213c34; border: 2px solid #c2cda9; }
+.ev-assembly .ev-assembly-electronics > b, .ev-assembly .ev-assembly-electronics > em { position: absolute; left: -23px; top: 15px; width: 23px; height: 4px; border-radius: 3px; background: #df8b3e; transform: translateZ(1px); }
+.ev-assembly .ev-assembly-electronics > em { top: 24px; background: #99502c; }
+.ev-assembly .ev-assembly-axle { position: absolute; width: 160px; height: 10px; top: 192px; background: linear-gradient(#6f8678, #172f26); border-radius: 4px; transform: rotateY(90deg); }
+.ev-assembly .ev-assembly-axle-rear { left: 32px; }
+.ev-assembly .ev-assembly-axle-front { left: 311px; }
+/* Paint opacity on individual faces. Opacity on a 3D assembly would flatten its
+   descendants, so enclosure surfaces get their own flat pseudo-element. */
+.ev-assembly :is(.ev-assembly-tray, .ev-assembly-cover, .ev-assembly-cooling, .ev-assembly-electronics) { background: none; border-color: transparent; box-shadow: none; }
+.ev-assembly .ev-assembly-tray::before { content: ''; position: absolute; inset: -5px; border: 5px solid #a1b3a7; border-radius: 5px; background: linear-gradient(135deg, #b6c7bd, #607e70 48%, #344e44); box-shadow: inset 0 0 0 1px #2d483a; opacity: var(--ev-pack-fade, .12); }
+.ev-assembly :is(.ev-assembly-tray-front, .ev-assembly-tray-side, .ev-assembly-busbar, .ev-assembly-connector) { opacity: var(--ev-pack-fade, .12); }
+.ev-assembly :is(.ev-assembly-module-base, .ev-assembly-module-front, .ev-assembly-module-side, .ev-assembly-module-terminal > i) { opacity: var(--ev-module-fade, .12); }
+.ev-assembly .ev-assembly-cell > :is(b, i, em) { opacity: var(--ev-cell-fade, .12); }
+.ev-assembly .ev-assembly-cover::before { content: ''; position: absolute; inset: -3px; border: 3px solid #acbfb0; border-radius: 5px; background: linear-gradient(125deg, #d2e0d7, #829e8e 30%, #e9f0e6 54%, #6e8d7b 87%); box-shadow: inset 0 0 0 2px #4c705c; opacity: var(--ev-cover-fade, .08); }
+.ev-assembly .ev-assembly-cover::after, .ev-assembly .ev-assembly-cover > :is(span, i, b) { opacity: var(--ev-cover-fade, .08); }
+.ev-assembly .ev-assembly-cooling::before { content: ''; position: absolute; inset: -3px; border: 3px solid #5e8180; border-radius: 5px; background: linear-gradient(125deg, #a9c4c4, #6f9698 32%, #bdd3cd 48%, #4b7177 85%); opacity: var(--ev-cooling-fade, .12); }
+.ev-assembly .ev-assembly-cooling > :is(i, span, b) { opacity: var(--ev-cooling-fade, .12); }
+.ev-assembly .ev-assembly-electronics::before { content: ''; position: absolute; inset: -3px; border: 3px solid #adc5b8; border-radius: 3px; background: linear-gradient(135deg, #7f9b94, #d3e1d4 48%, #6c8d79); box-shadow: inset 0 0 0 2px #4c7162; opacity: var(--ev-pack-fade, .12); }
+.ev-assembly .ev-assembly-electronics::after, .ev-assembly .ev-assembly-electronics > :is(i, span, b, em) { opacity: var(--ev-pack-fade, .12); }
+.ev-assembly :is(.ev-assembly-axle, .ev-fallback-wheel-face, .ev-fallback-wheel-inner) { opacity: var(--ev-chassis-fade, .12); }
+@media (prefers-reduced-motion: reduce) {
+  .ev-assembly .ev-fallback-car-model { transform: translate(-50%, -50%) scale(calc(100cqw / 600px)) rotateX(calc(-17deg - var(--ev-view-tilt, 0deg))) rotateY(calc(-29deg + var(--ev-turn, 0deg))) rotateZ(-4deg); }
+}
+

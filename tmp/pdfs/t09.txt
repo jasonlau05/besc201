@@ -1,0 +1,261 @@
+
+=== PDF PAGE 1 ===
+Topic 9
+Storage Systems
+CSCE 410 Fall 2026 1
+
+=== PDF PAGE 2 ===
+Storage Attachment
+• Computers access storage in three ways
+• host-attached
+• network-attached
+• cloud
+CSCE 410 Fall 2026 2
+
+=== PDF PAGE 3 ===
+Network-Attached Storage
+• Network-attached storage (NAS) is storage made 
+available over a network rather than over a local 
+connection (such as a bus)
+• Remotely attaching to file systems
+• NFS and CIFS are common protocols
+• Implemented via remote procedure calls (RPCs) 
+between host and storage over typically TCP or UDP on 
+IP network
+• iSCSI protocol uses IP network to carry the SCSI 
+protocol
+• Remotely attaching to devices (blocks)
+CSCE 410 Fall 2026 3
+
+=== PDF PAGE 4 ===
+Cloud Storage
+• Similar to NAS, provides access to storage across a network
+• Unlike NAS, accessed over the Internet or a WAN to remote data center
+• NAS presented as just another file system, while cloud storage is 
+API based, with programs using the APIs to provide access
+• Examples include Dropbox, Box, Amazon S3, Microsoft OneDrive, Apple 
+iCloud, Google Drive …
+• Use APIs because of latency and failure scenarios (NAS protocols 
+wouldn’t work well)
+CSCE 410 Fall 2026 4
+
+=== PDF PAGE 5 ===
+Storage Attachment
+• Computers access storage in three ways
+• host-attached
+• network-attached
+• cloud
+• Host attached access through local I/O ports, using one of several 
+technologies
+• To attach many devices, use storage busses such as USB, firewire, 
+thunderbolt
+• High-end systems use fibre channel (FC)
+• High-speed serial architecture using fibre or copper cables
+• Multiple hosts and storage devices can connect to the FC fabric
+CSCE 410 Fall 2026 5
+
+=== PDF PAGE 6 ===
+Storage Array
+• Can just attach disks, or arrays of disks
+• Avoids the NAS drawback of using network bandwidth
+• Storage Array has controller(s), provides features to attached 
+host(s)
+• Ports to connect hosts to array
+• Memory, controlling software (sometimes NVRAM, etc)
+• A few to thousands of disks
+• RAID, hot spares, hot swap (discussed later)
+• Shared storage -> more efficiency
+• Features found in some file systems
+• Snapshots, clones, thin provisioning, replication, deduplication, etc.
+CSCE 410 Fall 2026 6
+
+=== PDF PAGE 7 ===
+Storage Area Network
+• Common in large storage environments
+• Multiple hosts attached to multiple storage arrays – flexible
+CSCE 410 Fall 2026 7
+
+=== PDF PAGE 8 ===
+Storage Area Network (Cont.)
+• SAN is one or more storage arrays
+• Connected to one or more Fibre Channel switches or InfiniBand (IB) 
+network
+• Hosts also attach to the switches
+• Storage made available via LUN Masking from specific arrays to 
+specific servers
+• Easy to add or remove storage, add new host and allocate it 
+storage
+• Why have separate storage networks and communications 
+networks?
+• Consider iSCSI, FCOE
+CSCE 410 Fall 2026 8
+
+=== PDF PAGE 9 ===
+RAID 
+• RAID – redundant array of inexpensive disks
+• multiple disk drives provides reliability via redundancy
+• Important example of computing using redundancy (increasing 
+cost) to achieve other design goals
+CSCE 410 Fall 2026 9
+
+=== PDF PAGE 10 ===
+RAID Structure
+• Increases the mean time to failure
+• Mean time to repair – exposure time when another failure could cause data 
+loss
+• If mirrored disks fail independently, consider disk with 100,000 hours mean 
+time to failure and 10 hour mean time to repair
+• What is the mean time to data loss? 
+• 57,000 years! 
+• the rate of the first failure is approximately 2/100k per hour
+• The surviving disk still contains all the data, but the system is vulnerable during the 10-hour repair 
+period
+• The probability that the second disk fails during that window is 10/100k
+• Combining two probabilities 20/(100k*100k)
+CSCE 410 Fall 2026 10
+
+=== PDF PAGE 11 ===
+RAID Structure with NVRAM
+• Several improvements in disk usage techniques involve the use of 
+multiple disks working cooperatively
+• What is the impact of this design ?
+• Cost: device costs more to produce
+• For mirrored, double
+• Performance impact depends on how the disks are working together
+• For mirrored, similar to single disk
+• RAID is frequently combined with NVRAM to improve write 
+performance
+CSCE 410 Fall 2026 11
+
+=== PDF PAGE 12 ===
+RAID (Cont.)
+• Disk striping uses a group of disks as one storage unit
+• RAID is arranged into six different levels
+• RAID schemes improve performance and improve the reliability of 
+the storage system by storing redundant data
+CSCE 410 Fall 2026 12
+
+=== PDF PAGE 13 ===
+RAID 1
+• Mirroring or shadowing (RAID 1) keeps 
+duplicate of each disk
+• Each block of data is written to both disks 
+(mirrored).
+• If one disk fails, the other disk still has a 
+complete copy of the data.
+• Can tolerate 1 disk failure (per mirrored pair).
+• Reads can be served from either disk, which 
+can improve read performance.
+• Write performance is similar to a single disk 
+(data must be written to both disks).
+CSCE 410 Fall 2026 13
+
+
+=== PDF PAGE 14 ===
+RAID 1+0 Striping across mirrored pairs
+• Disks are organized into mirrored pairs (RAID 1), and data is striped across 
+those pairs (RAID 0).
+• Requires at least 4 disks, with 50% of total capacity available for data.
+CSCE 410 Fall 2026 14
+
+
+=== PDF PAGE 15 ===
+RAID 1+0 performance
+• Read performance: High, benefiting from striping and the ability to read 
+from either disk in each mirrored pair.
+• Write performance: High, benefiting from striping, but each data block 
+must be written to both disks in its mirrored pair.
+• Fault tolerance: Can survive one disk failure in each mirrored pair . Data is 
+lost if both disks in the same pair fail.
+• Rebuilding a failed disk requires copying data from its surviving mirror.
+CSCE 410 Fall 2026 15
+
+
+=== PDF PAGE 16 ===
+RAID 0+1 Mirroring across striped sets
+• Disks are organized into striped sets (RAID 0), and one complete striped set 
+is mirrored onto another (RAID 1).
+• Requires at least 4 disks, with 50% of total capacity available for data.
+CSCE 410 Fall 2026 16
+        
+                             
+                          
+  
+  
+      
+  
+  
+      
+  
+  
+      
+  
+  
+      
+      
+                                    
+
+=== PDF PAGE 17 ===
+RAID 0+1 performance
+• Write performance: High, benefiting from striping, but every write 
+must be performed on both striped sets.
+• Fault tolerance: A single disk failure makes its entire striped set 
+unavailable. The system then depends on the surviving striped set.
+• After one disk failure, a failure in the surviving striped set causes data 
+loss.
+CSCE 410 Fall 2026 17
+        
+                             
+                          
+  
+  
+      
+  
+  
+      
+  
+  
+      
+  
+  
+      
+      
+                                    
+
+=== PDF PAGE 18 ===
+Stopped cleaning up slides here
+CSCE 410 Fall 2026 18
+
+=== PDF PAGE 19 ===
+Again RAID (1 + 0) and (0 + 1)
+CSCE 410 Fall 2026 19
+
+=== PDF PAGE 20 ===
+RAID (Cont.)
+• Block interleaved parity (RAID 4, 5, 6) uses much less redundancy
+• RAID within a storage array can still fail if the array fails, so 
+automatic replication of the data between arrays is common
+• Frequently, a small number of hot-spare disks are left 
+unallocated, automatically replacing a failed disk and having data 
+rebuilt onto them
+• Decreases mean time to repair
+CSCE 410 Fall 2026 20
+
+=== PDF PAGE 21 ===
+RAID 
+Levels
+CSCE 410 Fall 2026 21
+
+
+=== PDF PAGE 22 ===
+Other Features
+• Regardless of whether RAID implemented or not, other useful 
+features can be added to achieve reliability
+• Snapshot is a view of file system before a set of changes take 
+place (i.e. at a point in time)
+• More in Ch 12
+• Replication is automatic duplication of writes between separate 
+sites
+• For redundancy and disaster recovery
+• Can be synchronous or asynchronous
+CSCE 410 Fall 2026 22

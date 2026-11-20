@@ -1,12 +1,27 @@
 .brand.group9-logo { display: inline-flex; align-items: baseline; gap: 0; color: var(--color-primary-dark); font: 600 22px/1.2 'DM Sans',sans-serif; letter-spacing: -1px; text-decoration: none; }
 .brand.group9-logo span { color: var(--color-accent); font-weight: 700; margin: 0; }
 .site-header .nav-links { margin-left: auto; }
-:root { --site-header-height: 86px; }
+:root {
+  --site-header-height: 86px;
+  --site-heading-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --site-title-size: clamp(44px, 5vw, 64px);
+  --site-intro-offset: 72px;
+}
+.page-intro > h1 {
+  margin: 0;
+  color: var(--color-primary-dark);
+  font: 500 var(--site-title-size)/1.1 var(--site-heading-font);
+  letter-spacing: -.03em;
+  text-wrap: balance;
+}
+.page-intro > h1 em { font-style: normal; font-weight: inherit; }
+.reading-page :is(h2, h3), .ev-journey .ev-journey-copy :is(h2, h3) { font-family: var(--site-heading-font); }
 html { scrollbar-gutter: stable; scroll-padding-top: calc(var(--site-header-height) + 20px); }
 .topbar.site-header { position: fixed; inset: 0 0 auto; z-index: 100; height: var(--site-header-height); background: var(--color-background); }
 .site-header-inner { width: 100%; max-width: 1180px; height: 100%; margin: 0 auto; padding: 0 44px; display: flex; align-items: center; }
 .app-shell { padding-top: var(--site-header-height); }
-@media(max-width:720px) { :root { --site-header-height: 65px; }.site-header-inner { padding: 0 16px; } }
+@media(max-width:720px) { :root { --site-header-height: 65px; --site-intro-offset: 64px; }.site-header-inner { padding: 0 16px; } }
+@media(max-width:380px) { :root { --site-title-size: 40px; } }
 .site-footer { border-top: 1px solid var(--color-border); padding: 24px 0 0; display: flex; justify-content: center; }
 .site-footer .group9-logo { font-size: 16px; }
 .site-header a:focus-visible,.site-footer a:focus-visible,.problem-content a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }

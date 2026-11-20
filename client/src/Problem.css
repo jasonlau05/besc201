@@ -1,7 +1,6 @@
 .minimal-landing { min-height: 100svh; padding-top: var(--site-header-height); }
-.minimal-content { display: flex; align-items: center; flex: 1; width: 100%; padding: 72px 0 104px; }
+.minimal-content { display: flex; align-items: flex-start; flex: 1; width: 100%; padding: var(--site-intro-offset) 0 104px; }
 .minimal-copy { width: 100%; max-width: 650px; margin-inline: auto; }
-.minimal-landing h1 { margin: 0; color: var(--color-primary-dark); font: 500 clamp(44px,5vw,64px)/1.1 'DM Sans',sans-serif; letter-spacing: -.03em; text-wrap: balance; }
 .minimal-landing ::selection { background: var(--color-surface-green); color: var(--color-primary-dark); }
 .minimal-description { max-width: 510px; margin: 28px 0 0; color: var(--color-text); font-size: 17px; line-height: 1.75; }
 .minimal-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 28px; margin-top: 36px; }
@@ -15,6 +14,7 @@
 .minimal-secondary:hover .minimal-arrow { transform: translateX(3px); }
 .minimal-landing a:focus-visible,.minimal-landing h1:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }
 .minimal-landing .site-footer { padding-top: 24px; }
+.app-shell.problem-animation-footer { padding-top: 0; }
 @media(min-width:721px) {
   .site-header[data-page="problem"] .nav-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-problem-text); }
   .site-header[data-page="problem"] .nav-links a.active { color: var(--color-nav-active); }
@@ -26,10 +26,10 @@
 .minimal-skip { position: fixed; top: 12px; left: 16px; z-index: 110; transform: translateY(-200%); padding: 12px 20px; background: var(--color-primary); color: var(--color-white); }
 .minimal-skip:focus { transform: translateY(0); }
 @media(max-width:720px) {
-  .minimal-content { padding-block: 64px 80px; }
+  .minimal-content { padding-bottom: 80px; }
   .minimal-copy { max-width: 540px; }
   .minimal-description { font-size: 16px; }
   .minimal-actions { gap: 16px 24px; margin-top: 28px; }
 }
-@media(max-width:380px) { .minimal-landing h1 { font-size: 40px; }.minimal-actions { align-items: start; flex-direction: column; gap: 12px; } }
+@media(max-width:380px) { .minimal-actions { align-items: start; flex-direction: column; gap: 12px; } }
 @media(prefers-reduced-motion:reduce) { .minimal-actions a,.minimal-arrow { transition: none; }.minimal-actions a:hover,.minimal-actions a:active,.minimal-secondary:hover .minimal-arrow { transform: none; } }

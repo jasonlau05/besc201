@@ -1,0 +1,10 @@
+.tesla-scene { position: relative; width: 100%; height: 100%; isolation: isolate; }
+.tesla-scene-fallback { position: absolute; inset: 0; visibility: hidden; }
+.tesla-scene-loading { position: absolute; inset: 0; display: none; }
+.tesla-scene[data-renderer='loading'] > .tesla-scene-loading { display: block; }
+.tesla-scene[data-renderer='fallback'] > .tesla-scene-fallback { visibility: visible; }
+.tesla-scene-fallback .ev-assembly { --car-paint-light: #f9fbf9; --car-paint: #d6dedb; --car-paint-dark: #748680; }
+.tesla-scene .ev-fallback-car-front > span { display: none; }
+.tesla-scene-canvas { position: absolute; display: block; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+.tesla-scene[data-renderer='webgl'] > .tesla-scene-canvas { opacity: 1; }
+.tesla-scene[data-renderer='webgl'] > .tesla-scene-fallback { visibility: hidden; }

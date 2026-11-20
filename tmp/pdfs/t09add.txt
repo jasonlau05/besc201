@@ -1,0 +1,120 @@
+
+=== PDF PAGE 1 ===
+A dd en du m  t o  T op i c 9
+Parity Bits, RAID-5, and RAID-6
+How redundancy protects data from bit errors and disk failures
+.
+Slide deck preparation: draft first produced by Claude and then fixed/refined by Dilma Da Silva
+
+=== PDF PAGE 2 ===
+Storage fails in two ways
+Bit errors
+A single bit can flip in memory, on a 
+bus, or on the platter. Something has 
+to notice.
+Whole-disk failure
+A drive can die entirely, taking every 
+block it holds with it.
+The cost of protection
+Extra bits or extra disks buy reliability 
+at the price of usable capacity.
+Redundancy stores extra information so that errors can be detected and, when possible, corrected.
+Parity, RAID-5, and RAID-6 · 2
+
+=== PDF PAGE 3 ===
+Parity bits catch one flipped bit
+Even parity appends one extra bit so the total number of 
+1s is even.
+The receiver counts the 1s. An odd count means 
+something changed.
+A parity bit catches any odd number of flipped bits, but it 
+cannot tell which bit flipped.
+Two flipped bits cancel out and go unnoticed.
+Case Bits Ones Outcome
+Sent intact 1011 + 1 4, even Accepted
+One bit flipped 1001 + 1 3, odd Error caught
+Two bits flipped 0111 + 1 4, even Error missed
+Parity, RAID-5, and RAID-6 · 3
+
+=== PDF PAGE 4 ===
+XOR parity rebuilds a lost block
+Block Contents
+D1 1011
+D2 (lost) 0110, to be rebuilt
+D3 1100
+Parity = D1 XOR D2 XOR D3 0001
+XOR gives 1 when its two inputs differ and 0 when they 
+match.
+The parity block is the XOR of every data block in a stripe.
+If D2 is lost, XOR the parity with the surviving blocks: 0001 
+XOR 1011 XOR 1100 = 0110.
+Parity, RAID-5, and RAID-6 · 4
+
+=== PDF PAGE 5 ===
+RAID-5 spreads parity across disks
+• Needs at least three disks.
+• Usable capacity is N minus 1 of N disks.
+• Survives the loss of any one disk.
+• Parity rotates from stripe to stripe, so no single 
+disk becomes a bottleneck.
+• A small write costs about four disk operations: read 
+old data and old parity, then write new data and 
+new parity.
+• A rebuild reads every surviving disk, which is slow 
+on large drives.
+Disk 0 Disk 1 Disk 2 Disk 3
+D0 D1 D2 P
+D3 D4 P D5
+D6 P D7 D8
+P D9 D10 D11
+Figure: dark cells are parity blocks (P); light cells are data 
+blocks (D).
+Parity, RAID-5, and RAID-6 · 5
+
+=== PDF PAGE 6 ===
+RAID-6 adds a second parity block
+• Needs at least four disks.
+• Usable capacity is N minus 2 of N disks.
+• Survives the loss of any two disks.
+• P is ordinary XOR parity. Q is an independent 
+second code based on Reed–Solomon arithmetic 
+over a finite field.
+• A small write costs about six disk operations, 
+because both P and Q must be updated.
+• Long rebuilds on large drives leave far less 
+exposure to a second failure than RAID-5.
+Disk 0 Disk 1 Disk 2 Disk 3 Disk 4
+D0 D1 D2 P’ Q’
+D3 D4 P’’ Q’’ D5
+D6 P’’’ Q’’’ D7 D8
+Figure: dark cells are parity blocks (P and Q); light cells are data 
+blocks (D).
+Parity, RAID-5, and RAID-6 · 6
+
+=== PDF PAGE 7 ===
+What happens on read – how are failures detected?
+• The RAID scheme does not check for errors occurrence. 
+It relies on the disk to detect failures.
+In other words, the RAID controller knows which block needs reconstruction because the disk reported a read 
+failure, not because RAID parity identified the defective block.
+There is the potential of silent data corruption.
+• Modern HDDs and SSDs use error-correcting codes (ECC) to protect stored data.
+When the RAID controller requests a block:
+• The disk reads the requested data and associated error -correction information.
+• The disk uses ECC to detect errors and attempts to correct them.
+• If correction succeeds, the disk returns the corrected data.
+• If correction fails, the disk reports an uncorrectable read error to the RAID controller.
+• The RAID controller can then use RAID parity to reconstruct the missing block.
+• This is how RAID-5 can recover from a single unreadable block even when no entire disk has failed.
+
+=== PDF PAGE 8 ===
+RAID-5 versus RAID-6
+Property RAID-5 RAID-6
+Minimum disks 3 4
+Failures tolerated 1 2
+Usable capacity N minus 1 of N N minus 2 of N
+Parity blocks per stripe 1 (XOR) 2 (XOR and Reed–Solomon)
+Small-write cost About 4 disk operations About 6 disk operations
+Risk during a rebuild A second failure loses data A second failure is still covered
+Typical use Smaller arrays of modest disks Large arrays of high -capacity disks
+Parity, RAID-5, and RAID-6 · 7

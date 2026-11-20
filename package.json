@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:ev": "node client/scripts/check-ev-deconstruction.mjs",
     "client": "cd client && npm run dev",
     "server": "cd server && npm run dev",
     "test:chargers": "node --test client/src/chargers-client.test.mjs client/src/google-maps.test.mjs server/src/charger-data.test.js server/src/chargers.test.js server/scripts/refresh-chargers.test.mjs",

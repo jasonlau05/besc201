@@ -1,0 +1,201 @@
+
+=== PDF PAGE 1 ===
+Topic 7
+Page Replacement Part A
+1
+
+=== PDF PAGE 2 ===
+What Happens if There is no Free Frame?
+• Used up by process pages
+• Also in demand from the kernel, I/O buffers, etc.
+• How much to allocate to each?
+• Page replacement – find some page in memory, but not really in use, page it 
+out
+• Algorithm – terminate? swap out? replace the page?
+• Performance – want an algorithm which will result in minimum number of 
+page faults
+• Same page may be brought into memory several times
+2
+
+=== PDF PAGE 3 ===
+Memory thrashing
+• Situation in we keep moving the same set of pages back and forth 
+from the swap area
+• Bad situation! Most of the time spent in memory management instead of 
+getting the program instructions executed!!
+• It happens if system is choosing to evict from memory pages that will be 
+needed very soon
+3
+
+=== PDF PAGE 4 ===
+Page Replacement
+• Prevent over-allocation of memory by modifying page-fault 
+service routine to include page replacement
+• Use modify (dirty) bit to reduce overhead of page transfers – only 
+modified pages are written to disk
+• (we already know this)
+Page replacement completes separation between logical memory 
+and physical memory – large virtual memory can be provided on a 
+smaller physical memory
+4
+
+=== PDF PAGE 5 ===
+Need For Page Replacement
+(PC denotes program counter. In this figure, it indicates that the 
+instruction being executed is assessing virtual address B)
+5
+
+=== PDF PAGE 6 ===
+Basic Page Replacement
+1. Find the location of the desired page on disk
+(if it has been swapped out before or its data is on disk.
+If it is just a brand new ”empty” page, the “swap in” is not 
+needed)
+2. Find a free frame:
+   -  If there is a free frame, use it
+   -  If there is no free frame, 
+             use a page replacement algorithm to select a victim frame;
+     write victim frame to disk if dirty
+3. Bring  the desired page into the (newly) free frame; update the page and frame tables
+4. Continue the process by restarting the instruction that caused the trap
+ 
+Note now potentially 2 page transfers for page fault 
+ increasing effective access time
+6
+
+=== PDF PAGE 7 ===
+Page Replacement - swap illustration
+7
+
+
+=== PDF PAGE 8 ===
+Page and Frame Replacement Algorithms
+• Frame-allocation algorithm determines 
+• How many frames to give each process, which ones
+• Which frames to replace
+• Page-replacement algorithm
+• Want lowest page-fault rate on both first access and re-access
+• Evaluate algorithm by running it on a particular string of memory references 
+(reference string) and computing the number of page faults on that string
+• Reference String is just page numbers, not full addresses
+• Repeated access to the same page does not cause a page fault
+• Results depend on number of frames available
+• In all our examples, the reference string of referenced page numbers is 
+                7,0,1,2,0,3,0,4,2,3,0,3,0,3,2,1,2,0,1,7,0,1
+8
+
+=== PDF PAGE 9 ===
+First-In-First-Out (FIFO) Algorithm
+• Reference string: 7,0,1,2,0,3,0,4,2,3,0,3,0,3,2,1,2,0,1,7,0,1
+• 3 frames (3 pages can be in memory at a time)
+Number of page faults: (compute yourself and see result on next page) 
+9
+
+=== PDF PAGE 10 ===
+First-In-First-Out (FIFO) Algorithm (cont)
+• Reference string: 7,0,1,2,0,3,0,4,2,3,0,3,0,3,2,1,2,0,1,7,0,1
+• 3 frames (3 pages can be in memory at a time per process)
+15 page faults
+10
+
+=== PDF PAGE 11 ===
+First-In-First-Out (FIFO) Algorithm – another 
+example
+• Number of page faults vary by reference string|
+For the same scenario of previous slides (3 page frames available):
+• For sequence 0, 1, 1, 1, 2, 2, 0, 1, 2, 1, 2, 0, 3, 0, 0, 0, 0
+How many? 
+• For sequence 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4
+How many? 
+11
+
+=== PDF PAGE 12 ===
+FIFO Algorithm – Belady’s anomaly
+• Adding more frames can cause more page faults!
+• For example, 
+for reference string 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5 
+• Number of page faults with 3 frames:
+• 9 page faults
+• Number of page faults with 3 frames:
+• 10 page faults
+• Belady’s Anomaly: increasing the number of page frames results in an 
+increase in the number of page faults
+12
+
+=== PDF PAGE 13 ===
+FIFO Algorithm - Implementation
+• How to track ages of pages? 
+• Just use a FIFO queue
+• What is the cost ? 
+13
+
+=== PDF PAGE 14 ===
+FIFO Algorithm – Implementation cost
+• How to track ages of pages? 
+• Just use a FIFO queue
+• What is the cost ? 
+Not too bad!
+• Page table entries keep a pointer/id to the next 
+one in the FIFO order
+• Updates on page fault or on eviction is O( 1)
+14
+
+=== PDF PAGE 15 ===
+Optimal Algorithm
+• Replace page that will not be used for longest period of time
+• 9 is optimal for the example
+• How do you know which one ?
+• Can’t know the future!! 
+• Used for measuring how well an algorithm performs
+Comparison with “oracle” that knows the future
+15
+
+=== PDF PAGE 16 ===
+Least Recently Used (LRU) Algorithm
+• Use past knowledge rather than future
+• Replace page that has not been used in the most 
+amount of time
+• It exploits temporal locality:
+programs tend to reuse data structures that have 
+just been used
+16
+
+=== PDF PAGE 17 ===
+LRU Algorithm example
+• 12 faults – better than FIFO but worse than OPT
+• Generally good algorithm 
+• But how to implement?
+17
+
+=== PDF PAGE 18 ===
+LRU Algorithm Implementation – an expensive one
+• Updating list of usage is very expensive
+• Approximations that capture some aspect of “recency” are used
+• Timestamp implementation
+• Every page entry has space for time info; every time page is referenced 
+through this entry, copy the clock into the counter
+• When a page needs to be evicted, look at the counters to find smallest 
+value
+• Search through table needed
+• Keep track of every page access is EXPENSIVE.
+Find smallest is expensive O(n)
+18
+
+=== PDF PAGE 19 ===
+LRU Algorithm – another expensive one
+Stack implementation
+• Keep a stack of page numbers in a doubly linked form
+• Page referenced:
+• move it to the top
+• requires 6 pointers to be changed
+• But each update more expensive
+• No search for replacement ☺
+19
+
+=== PDF PAGE 20 ===
+LRU in practice
+• Usual approach: 
+keep approximations of LRU
+• Not exact, but often enough to work well if there is temporal 
+locality of access
+20

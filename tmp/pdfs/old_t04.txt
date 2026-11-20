@@ -1,0 +1,647 @@
+
+=== PDF PAGE 1 ===
+CSCE 410 – Topic 4
+Processes scheduling
+D i l m a  D a  S i l v a
+
+
+=== PDF PAGE 2 ===
+Process Scheduling
+Determining
+ 
+         which processes 
+run
+         when 
+on
+         which core
+
+=== PDF PAGE 3 ===
+How many processes and 
+how many cores does it target?
+
+=== PDF PAGE 4 ===
+Even on small machines, there are many options.
+In my laptop, hardware numbers:
+• The standard Apple M5 has 10 CPU cores and 10 hardware 
+threads. 
+• Apple CPU cores do not use simultaneous multithreading 
+(SMT/Hyper-Threading), so each physical CPU core supports one 
+hardware thread.
+
+=== PDF PAGE 5 ===
+In my laptop, operating systems numbers:
+
+
+=== PDF PAGE 6 ===
+Shell (bash) numbers:
+
+
+=== PDF PAGE 7 ===
+Scheduling Algorithm Optimization Criteria
+• Max CPU utilization
+• Max throughput
+• Min turnaround time 
+• Min waiting time 
+• Min response time (latency or time to react to I/O, for example)
+
+=== PDF PAGE 8 ===
+Snapshot of ‘top’ output
+
+
+=== PDF PAGE 9 ===
+Gantt Charts
+• timeline diagram showing when activities execute and for how 
+long. Each activity is represented by a horizontal bar whose 
+position indicates its start time and whose length indicates its 
+duration.
+
+
+=== PDF PAGE 10 ===
+First- Come, First-Served (FCFS) Scheduling
+Process Burst Time 
+ P1 24
+ P2 3
+ P3  3 
+Suppose that the processes arrive in the order, all at time 0: 
+P1 , P2 , P3   
+What is the Gantt Chart for the FCFS schedule?
+
+=== PDF PAGE 11 ===
+FCFS Scheduling - cont
+Process  Burst Time 
+ P1 24
+ P2 3
+ P3  3 
+Suppose that the processes arrive in the order, all at time 0: 
+P1 , P2 , P3   
+What is the Gantt Chart for the FCFS schedule?
+
+
+=== PDF PAGE 12 ===
+First- Come, First-Served (FCFS) Scheduling (cont2)
+ Process Burst Time 
+   P1 24
+   P2 3
+   P3  3 
+Suppose that the processes arrive in the order, all at time 0: 
+P1 , P2 , P3   
+What is the Gantt Chart for the FCFS schedule?
+What is the average waiting time?
+ (0+24+27)/3 = 17
+
+=== PDF PAGE 13 ===
+FCFS Scheduling – example with different arrival order
+Process Burst Time Arrival Time
+    P1                                     24            0
+    P2                          3            0
+    P3                                       3        0
+ 
+Suppose that the processes arrive in the order:
+   P2 , P3 , P1 
+What is the chart for the schedule, waiting time, average time? 
+
+=== PDF PAGE 14 ===
+FCFS Scheduling – answer to previous slide
+• The answer:
+• Waiting time for P1 = 6; P2 = 0; P3 = 3
+• Average waiting time:   (6 + 0 + 3)/3 = 3
+• Much better than previous case
+Convoy effect - short process behind long process
+Consider one CPU-bound and many I/O-bound processes
+P1
+0 3 6 30
+P2 P3
+
+=== PDF PAGE 15 ===
+Now let’s look at other 
+scheduler policies
+
+=== PDF PAGE 16 ===
+Shortest-Job-First (SJF) Scheduling
+• Associate with each process the length of its next CPU burst
+•  Use these lengths to schedule the process with the shortest time
+• SJF is optimal – gives minimum average waiting time for a given set 
+of processes
+• The difficulty is knowing the duration of the next CPU request
+• Could ask the user or determine a good estimate
+• Preemptive version called shortest-remaining-time-first
+• Preemptive refers to a scheduler where OS takes the process out of the 
+CPU before it completes.
+We will look at preemptive schedulers soon.
+
+=== PDF PAGE 17 ===
+Example of SJF (not preemptive)
+Process Burst Time
+P1   6
+P2   8
+P3   7
+P4   3
+• SJF scheduling chart (assume all arrive at time 0)
+• Average waiting time 
+
+=== PDF PAGE 18 ===
+Example of SJF (not preemptive) - answer
+Process Burst Time
+P1   6
+P2   8
+P3   7
+P4   3
+SJF scheduling chart
+Average waiting time
+
+=== PDF PAGE 19 ===
+Example of SJF (not preemptive) - answer
+Process Burst Time
+P1   6
+P2   8
+P3   7
+P4   3
+SJF scheduling chart
+P3
+0 3 24
+P4 P1
+169
+P2
+Average waiting time (3 + 16 + 9 + 0) / 4 = 7
+
+=== PDF PAGE 20 ===
+Example of Shortest-remaining-time-first with 
+preemption
+• Now we add the concepts of varying arrival times and preemption 
+to the analysis 
+(in this form of preemption, when a new process arrives, it starts 
+to run)
+Process  Arrival Time Burst Time
+P1  0  8
+P2  1  4
+P3  2  9
+P4  3  5
+• Preemptive SJF Gantt Chart and average wait time
+
+=== PDF PAGE 21 ===
+Gantt Chart for previous slide
+Arrival times were 0, 1, 2, 3
+
+=== PDF PAGE 22 ===
+Average wait time for example from previous slides
+Arrival times were 0, 1, 2, 3
+[(10-1)+(1-1)+(17-2)+(5-3)]/4 = 26/4 = 6.5
+
+=== PDF PAGE 23 ===
+Determining Length of Next CPU Burst (old way)
+• Can only estimate the length (duration)
+hypothesis: should be similar to the previous one
+Then pick process with shortest predicted next CPU burst
+• Can be done by using the length of previous CPU bursts, using 
+exponential averaging
+Commonly, 
+α set to ½
+
+=== PDF PAGE 24 ===
+Preemption
+Preemption implies in context switch.
+Before we look at another scheduler, 
+do we remember why 
+context switches are expensive?
+
+=== PDF PAGE 25 ===
+In xv6, the key function is swtch()in kernel/swtch.S
+(called by scheduler() in kernel/proc.c)
+
+
+=== PDF PAGE 26 ===
+The corresponding data structure is in kernel/proc.h
+
+
+=== PDF PAGE 27 ===
+We are missing a big piece of the story
+The most expensive part of context switch is changing the ‘context’ 
+of the memory associated with the process.
+Changing to the address space associated with a different process 
+is very expensive as we will see in detail when we study page tables 
+
+=== PDF PAGE 28 ===
+Round Robin (RR)
+• Each process gets a small unit of CPU time (time quantum q), usually 
+10-100 milliseconds.  After this time has elapsed, the process is 
+preempted and added to the end of the ready queue.
+• If there are n processes in the ready queue and the time quantum is q, 
+then each process gets 1/n of the CPU time in chunks of at most q time 
+units at once.  No process waits more than (n-1)q time units.
+• Timer interrupts every quantum to schedule next process
+• Performance
+• q large  FIFO
+• q small  q must be large with respect to context switch, otherwise overhead is 
+too high
+• ‘time slice’ is a better term than ‘time quantum’
+
+=== PDF PAGE 29 ===
+Same scenario we saw for FCFS/SJF now with
+RR using Time Quantum = 4
+Process Burst Time
+  P1 24
+   P2  3
+   P3 3 
+• Assume all arrived together, in the P1, P2, P3 order
+• What does the Gantt  chart looks like
+
+=== PDF PAGE 30 ===
+Previous slide with the Gantt chart done
+ Process Burst Time
+  P1 24
+   P2  3
+   P3 3 
+• The Gantt chart is: 
+P P P1 1 1
+0 18 3026144 7 10 22
+P2 P3 P1 P1 P1
+
+=== PDF PAGE 31 ===
+Contrast with SJF
+• Typically, higher average turnaround than SJF , but better response
+• q should be large compared to context switch time
+• q usually 10 milliseconds  to 100 milliseconds, 
+• Context switch < 10 microseconds
+
+=== PDF PAGE 32 ===
+Time Quantum and Context Switch Time
+
+
+=== PDF PAGE 33 ===
+Turnaround Time Varies With The Time Quantum
+80% of CPU bursts 
+should be shorter 
+than q
+
+=== PDF PAGE 34 ===
+Priority Scheduling
+• A priority number (integer) is associated with each process
+• The CPU is allocated to the process with the highest priority
+(smallest integer  highest priority)
+• Preemptive
+• Nonpreemptive
+• SJF is priority scheduling where priority is the inverse of predicted next 
+CPU burst time
+• Problem: Starvation – low-priority processes may never execute
+• Solution: Aging – as time progresses increase the priority of the process
+
+=== PDF PAGE 35 ===
+Example of Priority Scheduling (no preemption)
+              Process Burst Time Priority
+  P1 10 3
+   P2 1 1
+   P3 2 4
+   P4 1 5
+  P5 5 2
+• Priority scheduling Gantt Chart (assuming that they arrive all at 
+the same time, in the order above and priorities stay the same).
+Assume smaller numbers mean higher priority.
+• Average waiting time
+
+=== PDF PAGE 36 ===
+Prior slide with Gantt chart and result of computing
+average waiting time
+              Process Burst Time Priority
+  P1 10 3
+   P2 1 1
+   P3 2 4
+   P4 1 5
+  P5 5 2
+Priority scheduling Gantt Chart
+Average waiting time = 8.2
+
+=== PDF PAGE 37 ===
+Priority Scheduling w/ Round-Robin
+   Process Burst Time Priority
+   P1 4  3
+   P2 5  2
+   P3 8  2
+   P4 7  1
+  P5 3  3
+• Run the process with the highest priority. Processes with the same priority 
+run round-robin
+• Gantt Chart with time quantum = 2
+
+=== PDF PAGE 38 ===
+Same slide with Gantt chart
+   Process Burst Time Priority
+   P1 4  3
+   P2 5  2
+   P3 8  2
+   P4 7  1
+  P5 3  3
+• Run the process with the highest priority. Processes with the same 
+priority run round-robin
+Gantt Chart with time quantum = 2
+
+
+=== PDF PAGE 39 ===
+Multilevel Queue
+• With priority scheduling, have 
+separate queues for each 
+priority.
+• Schedule the process in the 
+highest-priority queue!
+
+
+=== PDF PAGE 40 ===
+Multilevel Queue – abstract view
+• Prioritization based upon process type
+
+
+=== PDF PAGE 41 ===
+Multilevel Feedback Queue
+• A process can move between the various queues.
+• Multilevel-feedback-queue scheduler defined by the 
+following parameters:
+• Number of queues
+• Scheduling algorithms for each queue
+• Method used to determine when to upgrade a process
+• Method used to determine when to demote a process
+• Method used to determine which queue a process will enter when 
+that process needs service
+• Aging can be implemented using multilevel feedback queue
+
+=== PDF PAGE 42 ===
+Example of Multilevel Feedback Queue
+• Three queues: 
+• Q0 – RR with time quantum 8 milliseconds
+• Q1 – RR time quantum 16 milliseconds
+• Q2 – FCFS
+• Scheduling
+• A new process enters queue Q0 which is served in 
+RR
+• When it gains CPU, the process receives 8 
+milliseconds
+• If it does not finish in 8 milliseconds, the process  is 
+moved to queue Q1
+• At Q1 job is again served in RR and receives 16 
+additional milliseconds
+• If it still does not complete, it is preempted and 
+moved to queue Q2
+
+
+=== PDF PAGE 43 ===
+Quick recap of last class
+• Round robin
+• Handling priority
+• Multilevel queue
+• Multilevel feedback queue
+
+=== PDF PAGE 44 ===
+Multiple-Processor Scheduling
+• CPU scheduling more complex when multiple CPUs are 
+available
+• Multiprocess may be any one of the following architectures:
+• Multicore CPUs
+• Multithreaded cores
+• NUMA systems
+• Heterogeneous multiprocessing
+
+=== PDF PAGE 45 ===
+Multiple-Processor Scheduling (cont)
+• Symmetric multiprocessing (SMP) is where each processor is 
+self scheduling.
+• All threads may be in a common ready queue
+• Each processor may have its own private queue of threads 
+
+
+=== PDF PAGE 46 ===
+Multiple-Processor Scheduling – Load Balancing
+• If SMP , need to keep all CPUs loaded for efficiency
+• Load balancing attempts to keep workload evenly distributed
+• Push migration – periodic task checks load on each processor, and 
+if found pushes task from overloaded CPU to other CPUs
+• Pull migration – idle processors pulls waiting task from busy 
+processor
+
+=== PDF PAGE 47 ===
+Multiple-Processor Scheduling – Processor Affinity
+• When a thread has been running on one processor, the cache contents of 
+that processor stores the memory accesses by that thread.
+• We refer to this as a thread having affinity for a processor (i.e., “processor 
+affinity”)
+• Load balancing may affect processor affinity as a thread may be moved 
+from one processor to another to balance loads, yet that thread loses the 
+contents of what it had in the cache of the processor it was moved off of.
+• Soft affinity – the operating system attempts to keep a thread running on 
+the same processor, but no guarantees.
+• Hard affinity – allows a process to specify a set of processors it may run 
+on.
+
+=== PDF PAGE 48 ===
+NUMA and CPU Scheduling
+If the operating system is NUMA-aware, it will assign memory closes 
+to the CPU the thread is running on. 
+
+=== PDF PAGE 49 ===
+Real-Time CPU Scheduling
+• Can present obvious challenges
+• Soft real-time systems – Critical real-time tasks have 
+the highest priority, but no guarantee as to when 
+tasks will be scheduled
+• Hard real-time systems – task must be serviced by its 
+deadline
+ 
+
+=== PDF PAGE 50 ===
+Real-Time CPU Scheduling (cont)
+• Event latency – the amount of time 
+that elapses from when an event 
+occurs to when it is serviced.
+• Two types of latencies affect 
+performance
+1. Interrupt latency – time from arrival 
+of interrupt to start of routine that 
+services interrupt
+2. Dispatch latency – time for 
+schedule to take current process off 
+CPU and switch to another
+ 
+
+
+=== PDF PAGE 51 ===
+Interrupt Latency
+
+
+=== PDF PAGE 52 ===
+Dispatch Latency
+• Conflict phase of dispatch 
+latency:
+1.Preemption of any process 
+running in kernel mode
+2.Release by low-priority 
+process of resources 
+needed by high-priority 
+processes
+ 
+
+
+=== PDF PAGE 53 ===
+Priority-based Scheduling
+• For real-time scheduling, scheduler must support preemptive, priority -based 
+scheduling
+• But only guarantees soft real-time
+• For hard real-time must also provide ability to meet deadlines
+• Processes have new characteristics: periodic ones require CPU at constant 
+intervals
+• Has processing time t, deadline d, period p
+• 0 ≤ t ≤ d ≤ p
+• Rate of periodic task is 1/p
+
+
+=== PDF PAGE 54 ===
+Rate Monotonic Scheduling
+• A priority is assigned based on the inverse of its period
+• Shorter periods = higher priority;
+• Longer periods = lower priority
+• P1 is assigned a higher priority than P2.
+
+
+=== PDF PAGE 55 ===
+Missed Deadlines with Rate Monotonic Scheduling
+Process P2 misses finishing its deadline at time 80
+
+=== PDF PAGE 56 ===
+Earliest Deadline First Scheduling (EDF)
+• Priorities are assigned according to deadlines:
+the earlier the deadline, the higher the priority;
+ the later the deadline, the lower the priority
+
+
+=== PDF PAGE 57 ===
+Proportional Share Scheduling
+• T shares are allocated among all processes in the system
+• An application receives N shares where N < T
+• This ensures each application will receive N / T of the total 
+processor time
+
+=== PDF PAGE 58 ===
+POSIX Real-Time Scheduling
+• The POSIX.1b standard
+• API provides functions for managing real-time threads
+• Defines two scheduling classes for real-time threads:
+1. SCHED_FIFO - threads are scheduled using a FCFS strategy with a 
+FIFO queue. There is no time-slicing for threads of equal priority
+2. SCHED_RR - similar to SCHED_FIFO except time -slicing occurs for 
+threads of equal priority
+• Defines two functions for getting and setting scheduling policy:
+1.  pthread_attr_getsched_policy(pthread_attr_t 
+*attr, int *policy) 
+2.  pthread_attr_setsched_policy(pthread_attr_t 
+*attr, int policy) 
+
+=== PDF PAGE 59 ===
+Operating System Examples
+• Linux scheduling
+• Windows scheduling
+
+=== PDF PAGE 60 ===
+Linux Scheduling Through Version 2.5
+• Prior to kernel version 2.5, ran variation of standard UNIX 
+scheduling algorithm
+• Version 2.5 moved to constant order O(1) scheduling time
+• Preemptive, priority based
+• Two priority ranges: time-sharing and real-time
+• Real-time range from 0 to 99 and nice value from 100 to 140
+• Map into  global priority with numerically lower values indicating higher priority
+• Higher priority gets larger q
+• Task run-able as long as time left in time slice ( active)
+• If no time left (expired), not run-able until all other tasks use their slices
+• All run-able tasks tracked in per-CPU runqueue data structure
+• Two priority arrays (active, expired)
+• Tasks indexed by priority
+• When no more active, arrays are exchanged
+• Worked well, but poor response times for interactive processes
+
+=== PDF PAGE 61 ===
+Linux Scheduling in Version 2.6.23 +
+• Completely Fair Scheduler (CFS)
+• Scheduling classes
+• Each has specific priority
+• Scheduler picks highest priority task in highest scheduling class
+• Rather than quantum based on fixed time allotments, based on proportion of 
+CPU time
+• Two scheduling classes included, others can be added
+1. default
+2. real-time
+• achieves proportional sharing by making virtual runtime increase 
+more slowly for tasks with larger weights. It then favors the 
+runnable task with the smallest virtual runtime.
+
+=== PDF PAGE 62 ===
+Linux Scheduling in Version 2.6.23 + (Cont.)
+• Quantum calculated based on nice value from -20 to +19
+• Lower value is higher priority
+• Calculates target latency – interval of time during which task should run at 
+least once
+• Target latency can increase if say number of active tasks increases
+• CFS scheduler maintains per task virtual run time in variable 
+vruntime
+• Associated with decay factor based on priority of task – lower priority is 
+higher decay rate
+• Normal default priority yields virtual run time = actual run time
+• To decide next task to run, scheduler picks task with lowest virtual 
+run time
+
+=== PDF PAGE 63 ===
+Linux Scheduling (Cont.)
+• Real-time scheduling according to POSIX.1b
+• Real-time tasks have static priorities
+• Real-time plus normal map into global priority scheme
+• Nice value of -20 maps to global priority 100
+• Nice value of +19 maps to priority 139
+
+
+=== PDF PAGE 64 ===
+Linux Scheduling (Cont2)
+• Linux supports load balancing but is 
+also NUMA-aware.
+• Scheduling domain is a set of CPU 
+cores that can be balanced against one 
+another. 
+• Domains are organized by what they 
+share (i.e., cache memory.) Goal is to 
+keep threads from migrating between 
+domains.
+
+
+=== PDF PAGE 65 ===
+Improvements in Linux scheduling since 3.0
+• Linux 3.14: Deadline schedule 
+• Linux 6.6: CFS task selection with Earliest Eligible Virtual Deadline 
+First (EEVDF)
+• Linux 6.12: programmable scheduling
+• Schet_ext allows dynamic loading of custom scheduling policies 
+implemented with BPF
+• General focus areas:
+• More accurate load tracking
+• Improved NUMA locality
+• Capacity and energy aware
+
+=== PDF PAGE 66 ===
+Cgroups (regarding CPU usage)
+• Aims at bounding resources associated with a group of processes (e.g., 
+all processes in a given application)
+Concept Meaning
+Group scheduling cgroups organize processes into a hierarchy so CPU resources can be allocated to an entire application, service, or container .
+Weight: relative share
+cpu.weight determines a group’s share when groups compete. A weight ratio 
+of 2:1 means roughly twice the CPU allocation under sustained contention —
+not a fixed percentage or cap.
+Quota: upper limit cpu.max sets a CPU-time budget per period. Once the group exhausts its budget, it can be throttled until replenishment. 
+Placement: allowed CPUs cpuset.cpus restricts where tasks can run. 
+
+=== PDF PAGE 67 ===
+Scheduling in Windows
+• preemptive, priority-based thread scheduling, with round-robin 
+time slicing among ready threads at the same priority
+• 32 priority levels, numbered 0–31: 1–15 are the variable range, 16–
+31 are the real-time range, and 0 is reserved for the zero-page 
+system thread. A thread’s base priority comes from its process 
+priority class and its relative thread priority.
+• Priority boosts
+•  temporarily boost threads following events such as I/O completion, 
+improving responsiveness. 
+• These boosts decay toward the base priority as time slices are completed
+• threads in the real-time range do not receive these boosts.

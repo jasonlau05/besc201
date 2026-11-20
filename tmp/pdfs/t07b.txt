@@ -1,0 +1,276 @@
+
+=== PDF PAGE 1 ===
+Topic 7 Part B
+Page Replacement
+1
+
+=== PDF PAGE 2 ===
+LRU in practice
+• ‘real’ LRU, even with special hardware,  prohibitively slow
+• Usual approach: 
+keep approximations of LRU
+• Not exact, but often enough to work well if there is temporal 
+locality of access
+• Many approximations aim at identifying the pager recently used 
+without capturing order
+2
+
+=== PDF PAGE 3 ===
+LRU Approximation Algorithms
+Reference bit
+• With each page associate a bit, 
+initially = 0
+• When page is referenced bit set to 1
+• Replace any with reference bit = 0 (if one exists)
+• We do not know the order, but if we reset 
+periodically, we won’t replace one that was just 
+used
+3
+
+=== PDF PAGE 4 ===
+LRU Clock Algorithm
+• Each page has a reference bit
+• Set on use, reset periodically by the OS
+Algorithm:
+• FIFO + reference bit (keep pages in circular list)
+• Scan: if ref bit is 1, set to 0, and proceed. If ref bit is 
+0, stop and evict.
+Problem:
+• Low accuracy for large memory
+4
+
+=== PDF PAGE 5 ===
+LRU 2nd chance Algorithm BROKEN!!!!!
+Second-chance algorithm
+• Similar to clock
+BUT
+• If page to be replaced has 
+• Reference bit = 0 -> replace it
+• reference bit = 1 then:
+• set reference bit 0, leave page in memory
+• replace next page, subject to same rules
+5
+
+=== PDF PAGE 6 ===
+2nd chance replacement – illustration from text book
+6
+
+=== PDF PAGE 7 ===
+2nd chance – illustration from AI assistant 1
+7
+
+
+=== PDF PAGE 8 ===
+2nd chance – illustration from AI assistant 2
+8
+
+
+=== PDF PAGE 9 ===
+2nd chance – illustration from AI assistant 3
+9
+
+
+=== PDF PAGE 10 ===
+Enhanced Second-Chance Algorithm (taken from a classic textbook)
+• Improve algorithm by using reference bit and modify bit (if available) in 
+concert 
+• Take ordered pair (reference, modify):
+1. (0, 0) neither recently used not modified – best page to replace
+2. (0, 1) not recently used but modified – not quite as good, must write out before 
+replacement
+3. (1, 0) recently used but clean – probably will be used again soon
+4. (1, 1) recently used and modified – probably will be used again soon and need 
+to write out before replacement
+• When page replacement called for, use the clock scheme  but use the 
+four classes to replace page in lowest non-empty class
+• Might need to search circular queue several times
+You may find the next slide to be a better explanation
+10
+
+=== PDF PAGE 11 ===
+From the web … not perfect ☺
+11
+
+=== PDF PAGE 12 ===
+Illustration from AI Assistant 1
+12
+
+
+=== PDF PAGE 13 ===
+Illustration from AI Assistant 2
+13
+
+
+=== PDF PAGE 14 ===
+Illustration from AI Assistant 3
+14
+
+
+=== PDF PAGE 15 ===
+Counting Algorithms
+• Keep a counter of the number of references that have been made 
+to each page
+• Not common
+• Least Frequently Used (LFU) Algorithm:  replaces page with 
+smallest count
+• Most Frequently Used (MFU) Algorithm: based on the argument 
+that the page with the smallest count was probably just brought in 
+and has yet to be used, so let’s keep it around for longer
+• Are these approaches efficient?
+• Usually, no. They have a hard time identifying the working set.
+• Updating counts and finding smaller one also costly
+15
+
+=== PDF PAGE 16 ===
+Global vs. Local Allocation
+• Global replacement – process selects a replacement frame from 
+the set of all frames; one process can take a frame from another
+• But then process execution time can vary greatly
+• But greater throughput so more common
+• All examples we had so far considered global replacement
+• Local replacement – each process selects from only its own set 
+of allocated frames
+• More consistent per-process performance
+• But possibly underutilized memory
+16
+
+=== PDF PAGE 17 ===
+Reclaiming Pages
+• A strategy to implement global page-replacement policy 
+• All memory requests  are satisfied from the free-frame list AND 
+rather than waiting for the list to drop to zero before we begin 
+selecting pages for replacement, 
+Page replacement  is triggered when the list falls below a certain 
+threshold. 
+• This strategy attempts to ensure there is always sufficient free 
+memory to satisfy new requests.
+17
+
+=== PDF PAGE 18 ===
+Are all frames (physical pages)
+equal in terms of efficiency of 
+access?
+18
+
+=== PDF PAGE 19 ===
+Non-Uniform Memory Access
+• So far in the course,  all memory accessed 
+equally
+• No advantage of using frame 10,000 or 20,000
+• Many systems are NUMA – speed of access 
+to memory varies
+• Consider system boards containing CPUs and 
+memory, interconnected over a system bus
+• NUMA multiprocessing architecture
+19
+
+=== PDF PAGE 20 ===
+Non-Uniform Memory Access (Cont.)
+• Optimal performance comes from allocating memory “close to” the CPU on 
+which the thread is scheduled
+• And modifying the scheduler to schedule the thread on the same system board when 
+possible
+• First solved by Solaris by creating lgroups 
+• Linux supports NUMA since 2.4; default in multi-socket servers
+• Automatic NUMA balancing: Detects when threads frequently access remote memory 
+and can migrate pages to improve locality.
+• CPU affinity: Restricts threads to specific processors.
+• Memory policies: Allow applications to request local, preferred-node, or interleaved 
+allocation.
+• Explicit NUMA placement: Applications can use numactl or libnuma to control 
+placement.
+• Notice that there will be multiple frame pool managers, each one managing a 
+group of frames within the same memory bank
+20
+
+=== PDF PAGE 21 ===
+Thrashing (mentioning again)
+• If a process does not have “enough” pages, the page-fault rate is 
+very high
+• Page fault to get page
+• Replace existing frame
+• But quickly need replaced frame back
+• This leads to:
+• Low CPU utilization
+• Operating system thinking that it needs to increase the degree of multiprogramming
+• Another process added to the system
+21
+
+=== PDF PAGE 22 ===
+Demand Paging and Thrashing 
+• Why does demand paging work?
+Locality model
+• Process moves from one locality to another
+• Localities may overlap
+• Why does thrashing occur?
+        size of locality > total memory size
+• Limit effects by using local or priority page replacement
+22
+
+=== PDF PAGE 23 ===
+Locality in a Memory-Reference 
+Pattern
+23
+
+=== PDF PAGE 24 ===
+Locality in a Memory-Reference Pattern – example from  AI 
+assistant
+24
+
+
+=== PDF PAGE 25 ===
+Working-Set Model
+•  working-set window  a fixed number of page references 
+Example:  10,000 instructions
+• WSSi (working set of Process Pi) =  total number of pages 
+referenced in the most recent  (varies in time)
+• if  too small will not encompass entire locality
+• if  too large will encompass several localities
+• if  =   will encompass entire program
+• D =  WSSi  total demand frames 
+• Approximation of locality
+25
+
+=== PDF PAGE 26 ===
+Working-Set Model (Cont.)
+• if D > m  Thrashing
+• Policy if D > m, then suspend or swap out one of the processes 
+26
+
+=== PDF PAGE 27 ===
+Keeping Track of the Working Set
+• Approximate with interval timer + a reference bit
+• Example:  = 10,000
+• Timer interrupts after every 5000 time units
+• Keep in memory 2 bits for each page
+• Whenever a timer interrupts copy and sets the values of all reference bits 
+to 0
+• If one of the bits in memory = 1  page in working set
+• Why is this not completely accurate?
+• Improvement = 10 bits and interrupt every 1000 time units
+27
+
+=== PDF PAGE 28 ===
+Page-Fault Frequency
+• More direct approach than WSS
+• Establish “acceptable” page-fault frequency (PFF) rate and use local 
+replacement policy
+• If actual rate too low, process loses frame
+• If actual rate too high, process gains frame
+28
+
+=== PDF PAGE 29 ===
+Working Sets and Page Fault Rates
+• Direct relationship between working set of a process and its page-fault rate
+• Working set changes over time
+• Peaks and valleys over time
+29
+
+=== PDF PAGE 30 ===
+We are not done with memory management
+We will later on revisit memory management and take a quick look 
+at
+• Buddy Allocator
+• Slab Allocator
+But better do disks and file systems first ☺ 
+30
