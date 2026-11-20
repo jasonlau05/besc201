@@ -11,11 +11,11 @@ import Chargers from './Chargers'
 import { SiteHeader } from './SiteLayout'
 
 const pages = {
-  '/': { name: 'problem', heading: 'problem-title', title: 'Group9 — Electric vehicle comparison guide' },
-  '/learn': { name: 'learn', heading: 'learn-title', title: 'Learn about electric vehicles — Group9' },
-  '/info': { name: 'info', heading: 'guide-title', title: 'Compare electric vehicles — Group9' },
-  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Chargers near me — Group9' },
-  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Chat with Elon — Group9' },
+  '/': { name: 'problem', heading: 'problem-title', title: 'Group9' },
+  '/learn': { name: 'learn', heading: 'learn-title', title: 'Group9' },
+  '/info': { name: 'info', heading: 'guide-title', title: 'Group9' },
+  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Group9' },
+  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Group9' },
 }
 const readPath = () => window.location.pathname.replace(/\/$/, '') || '/'
 const mobileQuery = window.matchMedia('(max-width: 720px)')
@@ -46,11 +46,6 @@ export default function App() {
     window.history.pushState(null, '', url.pathname)
     setPath(next)
   }, [])
-
-  const openChat = useCallback(() => {
-    if (mobile) navigate('/chat')
-    else setChatOpen(true)
-  }, [mobile, navigate])
 
   useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
@@ -92,7 +87,7 @@ export default function App() {
 
   let page
   if (path === '/info') page = <Info />
-  else if (path === '/learn') page = <Learn onAsk={openChat} />
+  else if (path === '/learn') page = <Learn />
   else if (path === '/chargers') page = <Chargers />
   else if (path === '/chat') page = null
   else page = <Problem />

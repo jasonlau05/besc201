@@ -53,15 +53,20 @@ html:has(.reading-page) { scroll-behavior: smooth; }
 :is(a, button):hover > .reading-arrow { translate: 3px 0; }
 :is(a, button):hover > .reading-arrow-down { translate: 0 3px; }
 :is(a, button):hover > .reading-arrow-external { translate: 2px -2px; }
-.reading-contents { margin-top: 64px; padding: 22px 0 26px; border-block: 1px solid var(--reading-border); }
+.reading-contents { margin-top: 64px; padding: 22px 0 26px; }
 .reading-contents > span { display: block; margin-bottom: 10px; color: var(--reading-muted); font-size: 13px; }
 .reading-contents > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .reading-contents a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; color: var(--color-primary-dark); font-size: 14px; font-weight: 500; text-decoration: none; }
 .reading-contents a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .reading-page h1[id] { scroll-margin-top: 16px; }
 .reading-page section[id] { scroll-margin-top: calc(16px - var(--reading-space)); }
-.reading-page :is(.learn-source, .learn-footnote a, .guide-sources a) { color: var(--color-primary); text-decoration-thickness: 1px; text-underline-offset: 4px; }
-.reading-page :is(.learn-source, .learn-impact-copy > a) { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; }
+.reading-page .learn-impact-copy > a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; }
+.reading-page details.guide-sources { margin: 40px 0; padding: 8px 0; }
+.reading-page .guide-sources summary { min-height: 44px; padding: 12px 0; color: var(--color-primary-dark); font-size: 14px; font-weight: 500; line-height: 1.5; cursor: pointer; }
+.guide-sources a { color: var(--color-primary); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.guide-sources ol { max-width: 85ch; padding-left: 20px; font-size: 14px; }
+.guide-sources li { padding: 10px 0; color: var(--reading-muted); line-height: 1.8; }
+.guide-sources li span { display: block; margin-top: 8px; font-size: 13px; }
 .reading-page .guide-control { margin-bottom: 28px; }
 .reading-page .guide-control label { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; color: var(--color-text); font: 400 15px/1.5 'DM Sans', sans-serif; letter-spacing: 0; }
 .reading-page .guide-control output { font-size: 14px; font-weight: 600; color: var(--color-primary-dark); font-variant-numeric: tabular-nums; }
@@ -86,7 +91,7 @@ html:has(.reading-page) { scroll-behavior: smooth; }
   .reading-page .reading-hero .reading-contents { padding-bottom: 88px; }
 }
 @media (max-width: 720px) {
-  /* Keep tab-bar clearance outside the chapter dividers. */
+  /* Keep tab-bar clearance below the chapter navigation. */
   .reading-page .reading-hero { padding-bottom: var(--mobile-tabs-clearance); }
   .reading-page .reading-hero :is(.learn-hero-actions, .guide-primary) { margin-bottom: 40px; }
   .reading-page .reading-hero .reading-contents { padding-block: 24px; }

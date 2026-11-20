@@ -14,7 +14,7 @@ const sources = {
   managedCharging: 'https://www.energy.gov/cmei/femp/managed-ev-charging-federal-fleets',
 }
 
-export default function Learn({ onAsk }) {
+export default function Learn() {
   return <main className="app-shell learn-page reading-page">
     <header className="learn-hero hero page-intro reading-hero">
       <h1 id="learn-title" tabIndex={-1}>Electric vehicles,<br /><em>explained.</em></h1>
@@ -36,7 +36,6 @@ export default function Learn({ onAsk }) {
         <h2 id="learn-basics-title">Same destination.<br />A different way to drive.</h2>
         <p>A battery electric vehicle stores electricity in a rechargeable battery and uses an electric motor to turn the wheels. Plug it in to recharge instead of filling a gas tank.</p>
         <p>When you slow down, regenerative braking can recover some energy and send it back to the battery.</p>
-        <a className="learn-source" href={sources.types} target="_blank" rel="noreferrer">Explore the basics at the DOE <span aria-hidden="true">↗</span></a>
       </div>
       <div className="learn-energy" aria-label="Electricity is stored in the battery, then powers the motor and wheels. Braking recovers some energy.">
         <div className="learn-energy-flow" aria-hidden="true">
@@ -57,7 +56,6 @@ export default function Learn({ onAsk }) {
         <article className="learn-type"><div><span className="learn-tag">PHEV</span><h3>Plug-in hybrid</h3></div><p>Combines a rechargeable battery with a gasoline engine. Can drive on electricity, with gas available for longer trips.</p><div className="learn-type-note">Plug in<br />Gas backup</div></article>
         <article className="learn-type"><div><span className="learn-tag">HEV</span><h3>Conventional hybrid</h3></div><p>Uses gasoline with help from an electric motor. The engine and braking recharge its battery; you don’t plug it in.</p><div className="learn-type-note">Fill up<br />No charging plug</div></article>
       </div>
-      <a className="learn-source" href={sources.types} target="_blank" rel="noreferrer">Source: DOE vehicle types <span aria-hidden="true">↗</span></a>
     </section>
 
     <section className="learn-section" id="charging" aria-labelledby="learn-charging-title">
@@ -67,7 +65,7 @@ export default function Learn({ onAsk }) {
         <article className="learn-card"><h3>Level 2</h3><strong className="learn-charge-label">Dedicated 240 V equipment</strong><p>Faster charging for home, work, or public parking. Often used to recharge overnight.</p></article>
         <article className="learn-card"><h3>DC fast charging</h3><strong className="learn-charge-label">A quicker stop on the road</strong><p>Useful on longer trips. Check your vehicle’s charging capability and connector compatibility.</p></article>
       </div>
-      <p className="learn-footnote">Charging time varies with the car, charger, temperature, and battery level. Home equipment should be assessed by a qualified electrician. <a href={sources.charging} target="_blank" rel="noreferrer">EPA charging basics ↗</a></p>
+      <p className="learn-footnote">Charging time varies with the car, charger, temperature, and battery level. Home equipment should be assessed by a qualified electrician.</p>
     </section>
 
     <section className="learn-section learn-grid" id="electrical-grid" aria-labelledby="learn-grid-title">
@@ -91,29 +89,37 @@ export default function Learn({ onAsk }) {
         <p>Utilities can upgrade equipment and coordinate charging with available capacity. Managed charging shifts when cars charge or adjusts their charging power, while allowing time for the next trip. It can reduce peaks and the need for some upgrades.</p>
         <p>At home, check your utility’s off-peak hours or managed-charging program and use your car’s charging schedule when it fits your needs. Off-peak pricing and cleaner electricity don’t always line up; the best time varies by location.</p>
       </div>
-      <div className="learn-grid-sources" aria-label="Electrical grid sources">
-        <a className="learn-source" href={sources.grid} target="_blank" rel="noreferrer">EIA: How the grid works <ArrowIcon direction="external" /></a>
-        <a className="learn-source" href={sources.modernization} target="_blank" rel="noreferrer">DOE: Grid modernization <ArrowIcon direction="external" /></a>
-        <a className="learn-source" href={sources.managedCharging} target="_blank" rel="noreferrer">DOE: Managed charging <ArrowIcon direction="external" /></a>
-      </div>
     </section>
 
     <section className="learn-impact" aria-labelledby="learn-impact-title">
-      <div><h2 id="learn-impact-title">No tailpipe.<br />Still a footprint.</h2><a className="learn-source" href={sources.myths} target="_blank" rel="noreferrer">Read the EPA’s explanation <ArrowIcon direction="external" /></a></div>
+      <div><h2 id="learn-impact-title">No tailpipe.<br />Still a footprint.</h2></div>
       <div className="learn-impact-copy"><p>Making an EV, especially its battery, creates emissions. Generating its electricity can create emissions too.</p><p>Over their lifetime, EVs typically produce fewer greenhouse gas emissions than comparable gas cars. The result depends on battery size, vehicle efficiency, electricity sources, and miles driven.</p><a href="/info#fit">Explore the carbon break-even simulator <span aria-hidden="true">→</span></a></div>
     </section>
 
     <section className="learn-section learn-faq" id="questions" aria-labelledby="learn-faq-title">
       <div className="learn-section-heading"><h2 id="learn-faq-title">A few things you might be wondering.</h2></div>
       <div className="learn-faq-list">
-      <AnimatedDetails><summary>What affects an EV’s range?</summary><p>Speed, temperature, cabin heating or cooling, and driving conditions all affect how far you can go. Treat rated range as a comparison point and plan a buffer for your actual trip. <a href={sources.basics} target="_blank" rel="noreferrer">EPA range guidance ↗</a></p></AnimatedDetails>
-      <AnimatedDetails><summary>Will an EV always cost less to drive?</summary><p>Energy costs depend on electricity and gas prices and vehicle efficiency. Public fast charging can cost more than charging at home. Purchase price, insurance, repairs, and charger installation also affect total ownership cost. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE cost considerations ↗</a></p></AnimatedDetails>
-      <AnimatedDetails><summary>Do I need a charger at home?</summary><p>Home charging is convenient, but workplace or public charging may work for your routine. Check nearby locations, availability, compatibility, and pricing before relying on them. <a href={sources.charging} target="_blank" rel="noreferrer">EPA charging options ↗</a></p></AnimatedDetails>
-      <AnimatedDetails><summary>What should I know about the battery?</summary><p>Batteries age over time, and climate and charging habits matter. Several manufacturers offer an eight-year or 100,000-mile battery warranty, but coverage varies. Check the specific vehicle’s terms. <a href={sources.benefits} target="_blank" rel="noreferrer">DOE battery considerations ↗</a></p></AnimatedDetails>
+      <AnimatedDetails><summary>What affects an EV’s range?</summary><p>Speed, temperature, cabin heating or cooling, and driving conditions all affect how far you can go. Treat rated range as a comparison point and plan a buffer for your actual trip.</p></AnimatedDetails>
+      <AnimatedDetails><summary>Will an EV always cost less to drive?</summary><p>Energy costs depend on electricity and gas prices and vehicle efficiency. Public fast charging can cost more than charging at home. Purchase price, insurance, repairs, and charger installation also affect total ownership cost.</p></AnimatedDetails>
+      <AnimatedDetails><summary>Do I need a charger at home?</summary><p>Home charging is convenient, but workplace or public charging may work for your routine. Check nearby locations, availability, compatibility, and pricing before relying on them.</p></AnimatedDetails>
+      <AnimatedDetails><summary>What should I know about the battery?</summary><p>Batteries age over time, and climate and charging habits matter. Several manufacturers offer an eight-year or 100,000-mile battery warranty, but coverage varies. Check the specific vehicle’s terms.</p></AnimatedDetails>
       </div>
     </section>
 
-    <section className="learn-next"><div><h2>Put the basics into perspective.</h2><p>Try your own numbers in the EV guide, or keep the conversation going.</p></div><div className="learn-next-actions"><a className="problem-link" href="/info">Explore the EV guide <ArrowIcon /></a><button className="reading-text-link" type="button" onClick={onAsk}>Ask about EVs <ArrowIcon /></button></div></section>
+    <div className="learn-next"><a className="problem-link" href="/info">Explore the EV guide <ArrowIcon /></a></div>
+    <AnimatedDetails className="guide-sources">
+      <summary>Sources</summary>
+      <ol>
+        <li><a href={sources.types} target="_blank" rel="noreferrer">US DOE · Electric Vehicles <ArrowIcon direction="external" /></a><span>EV basics, regenerative braking, and vehicle types.</span></li>
+        <li><a href={sources.basics} target="_blank" rel="noreferrer">US EPA · Electric &amp; Plug-In Hybrid Electric Vehicles <ArrowIcon direction="external" /></a><span>How electric vehicles work and what affects range.</span></li>
+        <li><a href={sources.charging} target="_blank" rel="noreferrer">US EPA · Plug-In Electric Vehicle Charging Basics <ArrowIcon direction="external" /></a><span>Charging levels, home equipment, and public charging options.</span></li>
+        <li><a href={sources.grid} target="_blank" rel="noreferrer">EIA · Delivery of Electricity to Consumers <ArrowIcon direction="external" /></a><span>Generation, transmission, and distribution.</span></li>
+        <li><a href={sources.modernization} target="_blank" rel="noreferrer">US DOE · Grid Modernization and the Smart Grid <ArrowIcon direction="external" /></a><span>Grid infrastructure, reliability, and modernization.</span></li>
+        <li><a href={sources.managedCharging} target="_blank" rel="noreferrer">US DOE · Managed EV Charging for Federal Fleets <ArrowIcon direction="external" /></a><span>Coordinating charging with available capacity and reducing peak demand.</span></li>
+        <li><a href={sources.myths} target="_blank" rel="noreferrer">US EPA · Electric Vehicle Myths <ArrowIcon direction="external" /></a><span>Battery production, electricity generation, and lifetime emissions.</span></li>
+        <li><a href={sources.benefits} target="_blank" rel="noreferrer">US DOE · Electric Vehicle Benefits and Considerations <ArrowIcon direction="external" /></a><span>Ownership costs, charging access, and battery considerations.</span></li>
+      </ol>
+    </AnimatedDetails>
     <SiteFooter />
   </main>
 }
