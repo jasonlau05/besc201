@@ -27,9 +27,7 @@ export default function VehicleJourney() {
     <div className="ev-journey-sticky">
       <div className="ev-journey-layout">
         <div className="ev-journey-copy">
-          <h2 id="ev-journey-title">A closer 
-            <span> look</span>
-          </h2>
+          <h2 id="ev-journey-title"><span className="ev-journey-title">A closer look</span></h2>
           <p className="ev-journey-intro">Scroll to lift the body, open the pack, and look inside the battery.</p>
           <ol className="ev-journey-steps" aria-label="EV deconstruction sequence">
             {stages.map((stage, index) => <li key={stage.title} data-ev-step-item={index} aria-current={index === 0 ? 'step' : undefined}>

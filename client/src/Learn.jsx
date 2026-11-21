@@ -33,7 +33,7 @@ export default function Learn() {
 
     <section className="learn-intro" id="basics" aria-labelledby="learn-basics-title">
       <div>
-        <h2 id="learn-basics-title">Same destination.<br />A different way to drive.</h2>
+        <h2 id="learn-basics-title">The fundamentals</h2>
         <p>A battery electric vehicle stores electricity in a rechargeable battery and uses an electric motor to turn the wheels. Plug it in to recharge instead of filling a gas tank.</p>
         <p>When you slow down, regenerative braking can recover some energy and send it back to the battery.</p>
       </div>
@@ -50,7 +50,7 @@ export default function Learn() {
     </section>
 
     <section className="learn-section" id="vehicle-types" aria-labelledby="learn-types-title">
-      <div className="learn-section-heading"><h2 id="learn-types-title">Three types. Different tradeoffs.</h2><p>“Electric” can mean a few things. Here’s how to tell them apart.</p></div>
+      <div className="learn-section-heading"><h2 id="learn-types-title">Types of electric</h2><p>“Electric” can mean a few things. Here’s how to tell them apart.</p></div>
       <div className="learn-comparison">
         <article className="learn-type"><div><span className="learn-tag">BEV</span><h3>All electric</h3></div><p>Runs entirely on a battery and electric motor. Recharges from a plug and has no gasoline engine.</p><div className="learn-type-note">Plug in<br />No tailpipe emissions</div></article>
         <article className="learn-type"><div><span className="learn-tag">PHEV</span><h3>Plug-in hybrid</h3></div><p>Combines a rechargeable battery with a gasoline engine. Can drive on electricity, with gas available for longer trips.</p><div className="learn-type-note">Plug in<br />Gas backup</div></article>
@@ -59,18 +59,17 @@ export default function Learn() {
     </section>
 
     <section className="learn-section" id="charging" aria-labelledby="learn-charging-title">
-      <div className="learn-section-heading"><h2 id="learn-charging-title">Charging fits around your day.</h2><p>At home, at work, or on the road. The right option depends on where you park and how far you drive.</p></div>
+      <div className="learn-section-heading"><h2 id="learn-charging-title">Types of charging</h2><p>At home, at work, or on the road. The right option depends on where you park and how far you drive.</p></div>
       <div className="learn-card-grid learn-charging-grid">
         <article className="learn-card"><h3>Level 1</h3><strong className="learn-charge-label">A standard 120 V outlet</strong><p>The slowest option. Can suit short daily drives when you have plenty of time to recharge.</p></article>
         <article className="learn-card"><h3>Level 2</h3><strong className="learn-charge-label">Dedicated 240 V equipment</strong><p>Faster charging for home, work, or public parking. Often used to recharge overnight.</p></article>
         <article className="learn-card"><h3>DC fast charging</h3><strong className="learn-charge-label">A quicker stop on the road</strong><p>Useful on longer trips. Check your vehicle’s charging capability and connector compatibility.</p></article>
       </div>
-      <p className="learn-footnote">Charging time varies with the car, charger, temperature, and battery level. Home equipment should be assessed by a qualified electrician.</p>
     </section>
 
     <section className="learn-section learn-grid" id="electrical-grid" aria-labelledby="learn-grid-title">
       <div className="learn-section-heading">
-        <h2 id="learn-grid-title">The electrical grid, behind every plug.</h2>
+        <h2 id="learn-grid-title">Behind the plug</h2>
         <p>The grid connects electricity producers to homes, businesses, and chargers. Operators balance supply and demand continuously to keep the system stable.</p>
       </div>
       <ol className="learn-grid-flow" aria-label="How electricity reaches your car">

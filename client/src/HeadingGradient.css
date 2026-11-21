@@ -1,0 +1,14 @@
+.site-heading-gradient { display: inline-block; color: inherit; }
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .site-heading-gradient {
+    background: linear-gradient(115deg, var(--color-primary-dark) 8%, var(--color-primary) 48%, #367b73 82%, var(--color-primary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+@media (forced-colors: active), print {
+  .site-heading-gradient { background: none; color: CanvasText; }
+}

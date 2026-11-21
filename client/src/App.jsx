@@ -9,6 +9,7 @@ import Problem from './Problem'
 import RoadScrollbar from './RoadScrollbar'
 import Chargers from './Chargers'
 import { SiteHeader } from './SiteLayout'
+import './HeadingGradient.css'
 
 const pages = {
   '/': { name: 'problem', heading: 'problem-title', title: 'Group9' },
