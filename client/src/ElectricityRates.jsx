@@ -26,10 +26,9 @@ function RatesSkeleton({ showHistory }) {
 
 export default function ElectricityRates({ efficiency, appliedRate, onAppliedRateChange, onUseRate }) {
   const [state, setState] = useState('TX')
-  const [resource, setResource] = useState(() => {
-    const dataset = ratesClient.peekDataset(true)
-    return { dataset, loading: !dataset, error: '' }
-  })
+  // Hydrate the same initial HTML even when the browser already has cached rates.
+  // loadDataset reads that cache after hydration.
+  const [resource, setResource] = useState({ dataset: null, loading: true, error: '' })
   const [retry, setRetry] = useState(0)
   const [revealedKey, setRevealedKey] = useState(null)
   const revealKey = `${state}:${retry}`

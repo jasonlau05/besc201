@@ -13,7 +13,7 @@ export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency
   const y = tonnes => 215 - tonnes / maxY * 185
   const crossing = model.breakEvenMiles !== null && model.breakEvenMiles <= horizon
   const result = model.breakEvenMiles === null ? 'No break-even' : model.breakEvenMiles === 0 ? 'Lower from the start' : `${Math.round(model.breakEvenMiles).toLocaleString()} miles`
-  return <section className="guide-section" id="fit" aria-labelledby="carbon-title"><div className="guide-section-heading"><h2 id="carbon-title">When does electric break even?</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
+  return <section className="guide-section" id="fit" aria-labelledby="carbon-title"><div className="guide-section-heading"><h2 id="carbon-title">EV carbon break-even calculator</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
     <Control id="ev-production" label="EV manufacturing" value={evProduction} onChange={setEvProduction} min={4} max={25} step={0.5} unit="t CO₂e" />
     <Control id="carbon-efficiency" label="EV energy use" value={efficiency} onChange={setEfficiency} min={20} max={50} unit="kWh/100 mi" />
     <Control id="carbon-mpg" label="Gas car efficiency" value={mpg} onChange={setMpg} min={15} max={60} unit="mpg" />

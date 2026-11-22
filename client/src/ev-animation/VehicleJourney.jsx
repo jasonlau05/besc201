@@ -20,7 +20,7 @@ const stages = [
 
 export default function VehicleJourney() {
   const sectionRef = useRef(null)
-  const reduced = useSyncExternalStore(subscribeMotion, readMotion)
+  const reduced = useSyncExternalStore(subscribeMotion, readMotion, () => false)
   useEffect(() => createVehicleMotion(sectionRef.current, { reduced }), [reduced])
 
   return <section ref={sectionRef} className="ev-journey" id="full-picture" data-ev-journey data-ev-step="0" data-motion={reduced ? 'paused' : 'running'} aria-labelledby="ev-journey-title">

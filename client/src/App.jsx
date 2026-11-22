@@ -10,31 +10,30 @@ import RoadScrollbar from './RoadScrollbar'
 import Chargers from './Chargers'
 import { SiteHeader } from './SiteLayout'
 import './HeadingGradient.css'
+import { applyPageMetadata, getPage, normalizePath, pages } from './seo.mjs'
 
-const pages = {
-  '/': { name: 'problem', heading: 'problem-title', title: 'Group9' },
-  '/learn': { name: 'learn', heading: 'learn-title', title: 'Group9' },
-  '/info': { name: 'info', heading: 'guide-title', title: 'Group9' },
-  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Group9' },
-  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Group9' },
-}
-const readPath = () => window.location.pathname.replace(/\/$/, '') || '/'
-const mobileQuery = window.matchMedia('(max-width: 720px)')
+const readPath = () => normalizePath(window.location.pathname)
+const mobileQuery = typeof window === 'undefined' ? null : window.matchMedia('(max-width: 720px)')
 const subscribeMobile = listener => {
   mobileQuery.addEventListener('change', listener)
   return () => mobileQuery.removeEventListener('change', listener)
 }
 const readMobile = () => mobileQuery.matches
+const readServerMobile = () => false
+const subscribeHydration = () => () => {}
+const readHydrated = () => true
+const readServerHydrated = () => false
 
-export default function App() {
+export default function App({ initialPath = '/' }) {
   const [chatOpen, setChatOpen] = useState(false)
-  const [path, setPath] = useState(readPath)
-  const mobile = useSyncExternalStore(subscribeMobile, readMobile)
+  const [path, setPath] = useState(() => normalizePath(initialPath))
+  const mobile = useSyncExternalStore(subscribeMobile, readMobile, readServerMobile)
+  const hydrated = useSyncExternalStore(subscribeHydration, readHydrated, readServerHydrated)
   const routeRef = useRef(path)
   const scrollPositions = useRef(new Map())
   const pendingScroll = useRef(null)
   const focusContent = useRef(false)
-  const current = pages[path] || pages['/']
+  const current = getPage(path)
 
   const navigate = useCallback((href, options = {}) => {
     const url = new URL(href, window.location.href)
@@ -76,7 +75,7 @@ export default function App() {
     }
   }, [path, current.heading])
   useLayoutEffect(() => startPageEntrance(), [path])
-  useEffect(() => { document.title = current.title }, [current.title])
+  useEffect(() => { applyPageMetadata(path) }, [path])
 
   useEffect(() => {
     const motion = document.createElement('script')
@@ -91,13 +90,14 @@ export default function App() {
   else if (path === '/learn') page = <Learn />
   else if (path === '/chargers') page = <Chargers />
   else if (path === '/chat') page = null
-  else page = <Problem />
+  else if (path === '/') page = <Problem />
+  else page = <main className="app-shell reading-page"><header className="guide-hero page-intro"><h1 id="not-found-title" tabIndex={-1}>Page not found</h1><p>Explore our electric vehicle guide instead.</p><a href="/">Return to Group9</a></header></main>
   return <>
     <a className="site-skip" href={`#${current.heading}`}>Skip to content</a>
     <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />
     {page}
     <span className="site-route-status" role="status">{current.title}</span>
-    <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />
+    {hydrated && <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />}
     <RoadScrollbar />
   </>
 }

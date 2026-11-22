@@ -6,8 +6,20 @@
       "framework": "vite",
       "rewrites": [
         {
-          "source": "/(.*)",
-          "destination": "/index.html"
+          "source": "/learn",
+          "destination": "/learn.html"
+        },
+        {
+          "source": "/info",
+          "destination": "/info.html"
+        },
+        {
+          "source": "/chargers",
+          "destination": "/chargers.html"
+        },
+        {
+          "source": "/chat",
+          "destination": "/chat.html"
         }
       ]
     },

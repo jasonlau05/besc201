@@ -11,7 +11,7 @@ export default function Problem() {
       <main className="minimal-content" aria-labelledby="problem-title">
         <div className="minimal-copy hero page-intro">
           <h1 id="problem-title" tabIndex={-1}><span className="site-heading-gradient">Our Mission</span></h1>
-          <p className="minimal-description">Choosing an electric car involves many factors, including weighing manufacturing emissions, vehicle efficiency, and energy costs.<br /><br />This guide helps you understand and compare those tradeoffs.</p>
+          <p className="minimal-description">Choosing an electric car involves many factors, including weighing manufacturing emissions, vehicle efficiency, and energy costs.<br /><br />This BESC 201 project by Group 9 helps you understand and compare those tradeoffs.</p>
           <div className="minimal-actions">
             <a className="minimal-primary" href="/learn">Learn about EVs <Arrow /></a>
             <a className="minimal-secondary" href="/info">Compare EVs <Arrow /></a>
