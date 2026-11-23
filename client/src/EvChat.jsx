@@ -44,12 +44,20 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
   }, [open, onOpenChange, fullPage])
 
   useEffect(() => {
-    if (!fullPage || !window.visualViewport) return
+    if (!mobilePage || !window.visualViewport) return
     const viewport = window.visualViewport
+    const root = document.documentElement
     const update = () => {
-      const root = document.documentElement
-      root.style.setProperty('--chat-viewport-height', `${viewport.height + viewport.offsetTop}px`)
-      root.toggleAttribute('data-chat-keyboard-open', mobile && viewport.scale === 1 && document.activeElement === inputRef.current && window.innerHeight - viewport.height > 120)
+      const keyboardOpen = viewport.scale === 1 && document.activeElement === inputRef.current && window.innerHeight - viewport.height > 120
+      root.toggleAttribute('data-chat-keyboard-open', keyboardOpen)
+
+      // Keep scroll offsets out of the layout unless the keyboard is panning the viewport.
+      if (keyboardOpen) {
+        const viewportBottom = Math.min(window.innerHeight, viewport.height + Math.max(0, viewport.offsetTop))
+        root.style.setProperty('--chat-viewport-height', `${viewportBottom}px`)
+      } else {
+        root.style.removeProperty('--chat-viewport-height')
+      }
     }
     update()
     viewport.addEventListener('resize', update)
@@ -61,10 +69,10 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
       viewport.removeEventListener('scroll', update)
       document.removeEventListener('focusin', update)
       document.removeEventListener('focusout', update)
-      document.documentElement.style.removeProperty('--chat-viewport-height')
-      document.documentElement.removeAttribute('data-chat-keyboard-open')
+      root.style.removeProperty('--chat-viewport-height')
+      root.removeAttribute('data-chat-keyboard-open')
     }
-  }, [fullPage, mobile])
+  }, [mobilePage])
 
   useEffect(() => {
     if (!mobilePage || !inputRef.current) return
