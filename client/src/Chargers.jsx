@@ -152,7 +152,7 @@ export default function Chargers() {
           <form className="charger-search" action="/api/charging-locations" method="get" onSubmit={submit} noValidate role="search" aria-label="Find nearby EV chargers" aria-describedby="charger-search-status">
             <div className="charger-address-field">
               <label htmlFor="charger-address">Street address or city</label>
-              <div className="charger-address-input"><SearchIcon /><input ref={addressInput} id="charger-address" name="q" type="search" autoComplete="street-address" placeholder="Enter an address or city" value={address} maxLength={200} onChange={event => editAddress(event.target.value)} aria-invalid={fieldError ? true : undefined} aria-describedby={fieldError ? 'charger-address-error charger-privacy' : 'charger-privacy'} /></div>
+              <div className="charger-address-input"><SearchIcon /><input ref={addressInput} id="charger-address" name="q" type="search" autoComplete="street-address" enterKeyHint="search" autoCorrect="off" autoCapitalize="words" spellCheck={false} placeholder="Enter an address or city" value={address} maxLength={200} onChange={event => editAddress(event.target.value)} aria-invalid={fieldError ? true : undefined} aria-describedby={fieldError ? 'charger-address-error charger-privacy' : 'charger-privacy'} /></div>
             </div>
             <div className="charger-radius-field"><label htmlFor="charger-radius">Search within</label><select id="charger-radius" value={radius} disabled={busy} onChange={event => {
               const value = Number(event.target.value)

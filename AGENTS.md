@@ -41,7 +41,7 @@ Run from the repository root with existing workspace dependencies. Use a clean c
 | Start separately | `npm run dev:client` and `npm run dev:server` |
 | Client lint and build | `npm run lint -w client` and `npm run build -w client` |
 | Full Node suite | `npm test` |
-| Connected browser journeys | `npm exec -w client -- playwright install chromium --only-shell`, then `npm run test:browser -w client` |
+| Connected browser journeys | `npm exec -w client -- playwright install chromium webkit --only-shell`, then `npm run test:browser -w client` |
 | Cutaway browser regression with dev server running | `node client/scripts/check-ev-deconstruction.mjs --url http://127.0.0.1:5173` (requires a Chrome/Edge executable at a path listed in the script and writes ignored .taste-skill artifacts) |
 
 Add or update a regression test for changed behavior. Exercise affected UI controls, responsive layout and keyboard navigation. For API changes test successful, invalid, unavailable and applicable unauthorized requests with fixtures. Run the relevant checks and report failures or unexecuted checks explicitly.

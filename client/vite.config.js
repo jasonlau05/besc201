@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: { chunkSizeWarningLimit: 1000 },
   plugins: [react(), {
     name: 'prerendered-preview-routes',
     // Match Vercel's clean page URLs when checking the production build locally.

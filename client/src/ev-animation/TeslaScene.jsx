@@ -17,14 +17,17 @@ export default function TeslaScene({ interactive = false, className = '' }) {
     const journey = interactive ? host.closest('[data-ev-journey]') : null
     host.dataset.renderer = 'loading'
     delete host.dataset.fallbackReason
-    let renderer, environment, pmrem, resizeObserver, poseObserver
+    let renderer, environment, pmrem, resizeObserver, poseObserver, intersectionObserver
     let frame = 0, disposed = false, lost = false, forceRender = true
     let renderCount = 0, previousPose = ''
     let bufferWidth = 0, bufferHeight = 0, bufferRatio = 0
+    let isIntersecting = true
     const scene = new THREE.Scene()
     const camera = new THREE.OrthographicCamera(-3, 3, 2, -2, .1, 70)
     const model = createTeslaModel()
     scene.add(model.group)
+
+    const isVisible = () => isIntersecting && (typeof document === 'undefined' || !document.hidden)
 
     const setFallback = () => {
       host.dataset.renderer = 'fallback'
@@ -49,7 +52,7 @@ export default function TeslaScene({ interactive = false, className = '' }) {
     }
     const render = () => {
       frame = 0
-      if (disposed || lost || !renderer) return
+      if (disposed || lost || !renderer || !isVisible()) return
       const bounds = host.getBoundingClientRect()
       const width = Math.max(1, Math.round(bounds.width)), height = Math.max(1, Math.round(bounds.height))
       const values = read()
@@ -62,7 +65,8 @@ export default function TeslaScene({ interactive = false, className = '' }) {
       const aspect = width / height
       const batteryFocus = window.matchMedia('(min-width: 761px)').matches ? 1 - Math.min(1, Math.max(0, (values.bodyFade - .08) / .92)) : 0
       const framing = fitTeslaCamera(camera, model, aspect, batteryFocus)
-      const ratio = Math.min(window.devicePixelRatio || 1, width < 600 ? 1.25 : 1.5, Math.sqrt(1800000 / (width * height)))
+      const maxDpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2)
+      const ratio = Math.min(maxDpr, width < 600 ? 1.25 : 1.5, Math.sqrt(1800000 / (width * height)))
       if (width !== bufferWidth || height !== bufferHeight || ratio !== bufferRatio) {
         renderer.setDrawingBufferSize(width, height, ratio)
         bufferWidth = width; bufferHeight = height; bufferRatio = ratio
@@ -71,6 +75,10 @@ export default function TeslaScene({ interactive = false, className = '' }) {
         renderer.render(scene, camera)
       } catch {
         lost = true
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
         setFallback()
         return
       }
@@ -90,21 +98,56 @@ export default function TeslaScene({ interactive = false, className = '' }) {
       host.dataset.pose = JSON.stringify({ body: model.body.position.toArray(), battery: model.pack.position.toArray(), cover: model.cover.position.toArray(), modules: model.modules.map(part => part.position.toArray()), cells: model.cells.map(part => part.position.toArray()) })
     }
     const schedule = () => {
-      if (!frame && !disposed && !lost) frame = requestAnimationFrame(render)
+      if (!frame && !disposed && !lost && isVisible()) frame = requestAnimationFrame(render)
     }
     const onResize = () => { forceRender = true; schedule() }
     const onContextLost = event => {
       event.preventDefault()
       lost = true
-      cancelAnimationFrame(frame)
-      frame = 0
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
       setFallback()
     }
+    const onVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+      } else if (isIntersecting) {
+        forceRender = true
+        schedule()
+      }
+    }
     canvas.addEventListener('webglcontextlost', onContextLost, false)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange)
+    }
+    if (typeof IntersectionObserver !== 'undefined') {
+      intersectionObserver = new IntersectionObserver(([entry]) => {
+        const inView = entry ? entry.isIntersecting : true
+        if (inView === isIntersecting) return
+        isIntersecting = inView
+        if (!isIntersecting) {
+          if (frame) {
+            cancelAnimationFrame(frame)
+            frame = 0
+          }
+        } else if (typeof document === 'undefined' || !document.hidden) {
+          forceRender = true
+          schedule()
+        }
+      })
+      intersectionObserver.observe(host)
+    }
     try {
       const context = canvas.getContext('webgl2', { alpha: true, antialias: true, powerPreference: 'low-power', preserveDrawingBuffer: false })
-      if (context) {
+      if (context && !context.isContextLost?.()) {
         renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true, antialias: true, powerPreference: 'low-power' })
+        const maxDpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2)
+        renderer.setPixelRatio(maxDpr)
         renderer.setClearColor(0x000000, 0)
         renderer.outputColorSpace = THREE.SRGBColorSpace
         renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -133,9 +176,16 @@ export default function TeslaScene({ interactive = false, className = '' }) {
 
     return () => {
       disposed = true
-      cancelAnimationFrame(frame)
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
       resizeObserver?.disconnect()
       poseObserver?.disconnect()
+      intersectionObserver?.disconnect()
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+      }
       canvas.removeEventListener('webglcontextlost', onContextLost, false)
       const geometries = new Set(), materials = new Set(), textures = new Set()
       scene.traverse(object => {

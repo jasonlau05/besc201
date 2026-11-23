@@ -84,18 +84,34 @@ try {
   const untilReady = (fn, ...values) => waitFor(30000, fn, ...values)
   await s('Page.enable'); await s('Runtime.enable'); await s('Page.bringToFront')
   const screenshot = async name => { const { data } = await s('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync(path.join(output, `${name}.png`), Buffer.from(data, 'base64')) }
+  const showCutaway = async () => {
+    await untilReady(() => location.pathname === '/' && Boolean(document.querySelector('.ev-journey-stage')))
+    await ev(() => document.querySelector('.ev-journey-stage').scrollIntoView({ block: 'center', behavior: 'instant' }))
+  }
   const open = async (width = 1440, reduced = false, height = width < 600 ? 844 : 900) => {
     await s('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false })
     await s('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: reduced ? 'reduce' : 'no-preference' }] })
     await s('Page.navigate', { url: baseUrl + '/' })
+    await showCutaway()
     if (!await untilReady(() => document.readyState === 'complete' && !document.documentElement.dataset.pagePhase && document.querySelector('.minimal-landing #problem-title') && document.querySelector('.site-header')?.dataset.page === 'problem' && document.querySelector('[data-ev-journey] .tesla-scene')?.dataset.renderer === 'webgl')) {
       console.error('Readiness diagnostic', JSON.stringify(await ev(() => ({ url: location.href, state: document.readyState, heading: document.querySelector('h1')?.textContent, phase: document.documentElement.dataset.pagePhase, scenes: [...document.querySelectorAll('.tesla-scene')].map(el => ({ ...el.dataset })) }))), JSON.stringify(browserErrors))
       await screenshot('cutaway-readiness-failure'); throw new Error('Tesla cutaway did not become ready')
     }
-    await ev(() => { document.documentElement.style.scrollBehavior = 'auto' })
+    await ev(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, 0) })
   }
   const scroll = async fraction => {
-    const target = await ev(progress => { const section = document.querySelector('[data-ev-journey]'), sticky = section.querySelector('.ev-journey-sticky'), inset = Number.parseFloat(getComputedStyle(sticky).top) || 0, top = section.getBoundingClientRect().top + scrollY - inset + Math.max(1, section.offsetHeight - sticky.getBoundingClientRect().height) * progress; const running = section.dataset.motion === 'running' && !matchMedia('(prefers-reduced-motion: reduce)').matches; window.scrollTo({ top, behavior: 'instant' }); return { top, progress, running, renderer: section.querySelector('.tesla-scene').dataset.renderer } }, fraction)
+    const target = await ev(progress => {
+      const section = document.querySelector('[data-ev-journey]')
+      const sticky = section.querySelector('.ev-journey-sticky')
+      const bounds = section.getBoundingClientRect()
+      const start = bounds.top + scrollY - (Number.parseFloat(getComputedStyle(sticky).top) || 0)
+      const travel = Math.max(1, bounds.height - sticky.getBoundingClientRect().height)
+      // Scroll positions can round to physical pixels on a fractional section boundary.
+      const top = progress === 0 ? Math.floor(start) : progress === 1 ? Math.ceil(start + travel) : start + travel * progress
+      const running = section.dataset.motion === 'running' && !matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.scrollTo({ top, behavior: 'instant' })
+      return { top, progress, running }
+    }, fraction)
     const reached = await until(expected => {
       const section = document.querySelector('[data-ev-journey]'), scene = section.querySelector('.tesla-scene'), progress = Number.parseFloat(section.style.getPropertyValue('--ev-progress'))
       return Math.abs(scrollY - expected.top) < 2 && (!expected.running || (Math.abs(progress - expected.progress) < .002 && (scene.dataset.renderer === 'fallback' ? Math.abs(Number(scene.querySelector('.ev-assembly-fit')?.dataset.fittedProgress) - expected.progress) < .002 : Math.abs(Number(scene.dataset.progress) - expected.progress) < .002)))
@@ -152,6 +168,7 @@ try {
     await s('Fetch.enable', { patterns: [{ urlPattern: '*TeslaScene*', resourceType: 'Script', requestStage: 'Request' }] })
     await s('Emulation.setDeviceMetricsOverride', { width, height: width < 600 ? 844 : 900, deviceScaleFactor: 1, mobile: false })
     await s('Page.navigate', { url: baseUrl + '/#full-picture' })
+    await showCutaway()
     check(await until(() => document.querySelector('.tesla-loading') && !document.querySelector('.tesla-scene') && !document.documentElement.dataset.pagePhase), 'delayed Tesla download shows a loading state with no older car')
     check(pausedSources.length > 0, 'Tesla module download is deliberately held for regression verification')
     check(await ev(() => !document.querySelector('.ev-fallback-car') && document.querySelector('.tesla-loading').textContent.includes('Loading Tesla')), 'loading the renderer never mounts the green placeholder vehicle')
@@ -187,7 +204,7 @@ try {
   for (const width of [1440, 1024, 768, 390, 320]) {
     currentCase = `cutaway/${width}`
     await open(width)
-    check(await ev(() => document.querySelectorAll('.tesla-scene').length === 1 && !document.querySelector('.landing-page, .lp-header, [data-design], #lp-electricity, .ev-journey-footer, .ev-motion-toggle') && document.querySelector('.minimal-copy h1').textContent === 'ProblemStatement' && ['/', '/learn', '/info', '/chargers'].every(href => document.querySelector(`.site-header a[href="${href}"]`))), 'original homepage and navigation restored with only one Tesla scene')
+    check(await ev(() => document.querySelectorAll('.tesla-scene').length === 1 && !document.querySelector('.landing-page, .lp-header, [data-design], #lp-electricity, .ev-journey-footer, .ev-motion-toggle') && document.querySelector('.minimal-copy h1').textContent === 'Our Mission' && ['/', '/learn', '/info', '/chargers'].every(href => document.querySelector(`.site-header a[href="${href}"]`))), 'original homepage and navigation restored with only one Tesla scene')
     if ([1440, 390].includes(width)) await screenshot(`restored-home-${width}`)
     const frames = []
     for (const fraction of [0, .35, .7, .96]) {
@@ -243,6 +260,7 @@ try {
     await ev(target => document.querySelector(`.site-header a[href="${target}"]`).click(), href)
     check(await until((target, id) => location.pathname === target && document.getElementById(id) && !document.querySelector('[data-ev-journey]') && !document.documentElement.dataset.pagePhase, href, heading), `original navigation opens ${href} and unmounts the animation`)
     await ev(() => document.querySelector('.site-header .group9-logo').click())
+    await showCutaway()
     check(await untilReady(() => location.pathname === '/' && document.querySelectorAll('.tesla-scene').length === 1 && document.querySelector('.tesla-scene')?.dataset.renderer === 'webgl' && !document.documentElement.dataset.pagePhase), 'returning home mounts one working Tesla animation')
   }
   currentCase = 'cutaway/reduced-motion'

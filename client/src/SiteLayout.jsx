@@ -31,24 +31,23 @@ export function Group9Logo() {
   return <a className="brand group9-logo" href="/" aria-label="Group9 home">Group<span>9</span></a>
 }
 
-export function SiteHeader({ page, onNavigate, mobile }) {
+export function SiteHeader({ page, onNavigate }) {
   const navRef = useRef(null)
   const motionRef = useRef(null)
-  const items = navigation.filter(item => mobile || !item.mobileOnly)
-  const selected = Math.max(0, items.findIndex(item => item.page === page))
+  const selected = Math.max(0, navigation.findIndex(item => item.page === page))
   useLayoutEffect(() => {
     const controller = createTabNavigation(navRef.current)
     motionRef.current = controller
     return () => controller.destroy()
-  }, [mobile])
-  useLayoutEffect(() => { motionRef.current.update(selected, onNavigate) }, [selected, onNavigate, mobile])
+  }, [])
+  useLayoutEffect(() => { motionRef.current?.update(selected, onNavigate) }, [selected, onNavigate])
 
   return <header className="topbar site-header" data-page={page}>
     <div className="site-header-inner">
     <Group9Logo />
     <nav ref={navRef} className="nav-links" aria-label="Main navigation">
-      <span className="nav-tab-indicator" aria-hidden="true" style={items.some(item => item.page === page) ? undefined : { visibility: 'hidden' }} />
-      {items.map(item => <a key={item.page} href={item.href} draggable="false" className={page === item.page ? 'active' : undefined} aria-current={page === item.page ? 'page' : undefined} aria-label={item.label}>
+      <span className="nav-tab-indicator" aria-hidden="true" style={navigation.some(item => item.page === page) ? undefined : { visibility: 'hidden' }} />
+      {navigation.map(item => <a key={item.page} data-mobile-only={item.mobileOnly || undefined} href={item.href} draggable="false" className={page === item.page ? 'active' : undefined} aria-current={page === item.page ? 'page' : undefined} aria-label={item.label}>
         <svg className="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
           {item.icon}
         </svg>

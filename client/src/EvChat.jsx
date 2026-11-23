@@ -190,7 +190,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
               event.preventDefault()
               sendMessage(draft)
             }
-          }} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" enterKeyHint="send" aria-describedby="ev-chat-disclosure" /> : <input ref={inputRef} id="ev-chat-input" value={draft} onChange={event => setDraft(event.target.value)} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" aria-describedby="ev-chat-disclosure" />}
+          }} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" enterKeyHint="send" autoCorrect="on" autoCapitalize="sentences" spellCheck={true} aria-describedby="ev-chat-disclosure" /> : <input ref={inputRef} id="ev-chat-input" value={draft} onChange={event => setDraft(event.target.value)} maxLength={MAX_QUESTION_LENGTH} placeholder="Ask about electric vehicles…" autoComplete="off" enterKeyHint="send" autoCorrect="on" autoCapitalize="sentences" spellCheck={true} aria-describedby="ev-chat-disclosure" />}
           <button type="submit" className="ev-chat-send" disabled={loading || !draft.trim()} aria-label="Send message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19 0-14m-6 6 6-6 6 6" /></svg></button>
         </div>
         {!mobilePage && <p id="ev-chat-disclosure">AI can make mistakes. Powered by OpenRouter.</p>}
