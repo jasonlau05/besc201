@@ -18,7 +18,7 @@ export default function Learn() {
   return <main className="app-shell learn-page reading-page">
     <header className="learn-hero hero page-intro reading-hero">
       <h1 id="learn-title" tabIndex={-1}>Electric vehicles,<br /><em>explained.</em></h1>
-      <p>Get to know the battery, the plug, and the bigger picture.<br className="desktop-break" /> A little understanding goes a long way.</p>
+      <p>You plug the car in at night. What happens between the outlet and the wheels?</p>
       <div className="learn-hero-actions">
         <a className="problem-link" href="#basics">Start with the basics <ArrowIcon direction="down" /></a>
       </div>
@@ -33,7 +33,7 @@ export default function Learn() {
 
     <section className="learn-intro" id="basics" aria-labelledby="learn-basics-title">
       <div>
-        <h2 id="learn-basics-title">The fundamentals</h2>
+        <h2 id="learn-basics-title">What turns the wheels?</h2>
         <p>A battery electric vehicle stores electricity in a rechargeable battery and uses an electric motor to turn the wheels. Plug it in to recharge instead of filling a gas tank.</p>
         <p>When you slow down, regenerative braking can recover some energy and send it back to the battery.</p>
       </div>
@@ -50,7 +50,7 @@ export default function Learn() {
     </section>
 
     <section className="learn-section" id="vehicle-types" aria-labelledby="learn-types-title">
-      <div className="learn-section-heading"><h2 id="learn-types-title">Types of electric</h2><p>“Electric” can mean a few things. Here’s how to tell them apart.</p></div>
+      <div className="learn-section-heading"><h2 id="learn-types-title">Types of electric</h2><p>Two quick questions help here. Does it have a gas tank? Does it have a plug?</p></div>
       <div className="learn-comparison">
         <article className="learn-type"><div><span className="learn-tag">BEV</span><h3>All electric</h3></div><p>Runs entirely on a battery and electric motor. Recharges from a plug and has no gasoline engine.</p><div className="learn-type-note">Plug in<br />No tailpipe emissions</div></article>
         <article className="learn-type"><div><span className="learn-tag">PHEV</span><h3>Plug-in hybrid</h3></div><p>Combines a rechargeable battery with a gasoline engine. Can drive on electricity, with gas available for longer trips.</p><div className="learn-type-note">Plug in<br />Gas backup</div></article>
@@ -79,12 +79,12 @@ export default function Learn() {
         <li><strong>Charging</strong><p>Your vehicle draws electricity to recharge its battery.</p></li>
       </ol>
       <div className="learn-card-grid">
-        <article className="learn-card"><h3>Demand at the same time</h3><p>EV charging adds demand. Many cars charging together can strain local transformers and lines, especially when buildings also need power. Having enough electricity overall doesn’t guarantee enough capacity on every street.</p></article>
+        <article className="learn-card"><h3>When everyone plugs in after work</h3><p>EV charging adds demand. Many cars charging together can strain local transformers and lines, especially when buildings also need power. Having enough electricity overall doesn’t guarantee enough capacity on every street.</p></article>
         <article className="learn-card"><h3>Aging equipment and outages</h3><p>Older lines and equipment need replacement. Storms can interrupt service, including charging. Stronger infrastructure, sensors, and controls can help utilities detect problems and restore power faster.</p></article>
         <article className="learn-card"><h3>Connecting cleaner power</h3><p>New wind and solar projects may need transmission lines to reach customers. Approving routes and deciding who pays can slow construction. Storage and a more flexible grid help make better use of available electricity.</p></article>
       </div>
       <div className="learn-grid-response">
-        <h3>Better infrastructure. More flexible charging.</h3>
+        <h3>Can the car wait until midnight?</h3>
         <p>Utilities can upgrade equipment and coordinate charging with available capacity. Managed charging shifts when cars charge or adjusts their charging power, while allowing time for the next trip. It can reduce peaks and the need for some upgrades.</p>
         <p>At home, check your utility’s off-peak hours or managed-charging program and use your car’s charging schedule when it fits your needs. Off-peak pricing and cleaner electricity don’t always line up; the best time varies by location.</p>
       </div>

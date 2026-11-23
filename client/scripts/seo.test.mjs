@@ -36,10 +36,11 @@ test('public pages ship readable HTML and distinct metadata before JavaScript', 
     for (const [, asset] of assetLinks) await read(asset.slice(1))
   }
   assert.equal(descriptions.size, expected.length)
-  assert.match(await read('index.html'), /This BESC 201 project by Group 9/)
+  assert.match(await read('index.html'), /We’re Group 9\. We built this guide for BESC 201/)
   const compare = await read('info.html')
   assert.match(compare, /EV vs gas energy cost calculator/)
   assert.match(compare, /<h2 id="carbon-title">When does electric break even\?<\/h2>/)
+  assert.match(compare, /href="https:\/\/www\.tesla\.com\/modely\/design\?#overview">Help Elon buy his 5th superyacht<\/a>/)
   assert.match(compare, /13,662/)
   assert.match(compare, /excludes purchase price/)
 })

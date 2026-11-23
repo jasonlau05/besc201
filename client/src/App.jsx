@@ -94,7 +94,7 @@ export default function App({ initialPath = '/' }) {
   else if (path === '/') page = <Problem />
   else page = <main className="app-shell reading-page"><header className="reading-hero">
     <h1 id={current.heading} tabIndex={-1}>Page not found</h1>
-    <p>This address does not match a page in the EV guide.</p>
+    <p>Looks like we took a wrong turn. Want to head back to the EV basics or compare a couple of cars?</p>
     <a className="guide-primary" href="/learn">Learn about EVs</a> <a href="/info">Compare vehicles</a>
   </header></main>
   return <>
