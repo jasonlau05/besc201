@@ -52,7 +52,8 @@ export default function TeslaScene({ interactive = false, className = '' }) {
     }
     const render = () => {
       frame = 0
-      if (disposed || lost || !renderer || !isVisible()) return
+      if (disposed || lost || !renderer) return
+      if (renderCount > 0 && !isVisible()) return
       const bounds = host.getBoundingClientRect()
       const width = Math.max(1, Math.round(bounds.width)), height = Math.max(1, Math.round(bounds.height))
       const values = read()
@@ -139,7 +140,7 @@ export default function TeslaScene({ interactive = false, className = '' }) {
           forceRender = true
           schedule()
         }
-      })
+      }, { rootMargin: '150px' })
       intersectionObserver.observe(host)
     }
     try {
@@ -168,9 +169,15 @@ export default function TeslaScene({ interactive = false, className = '' }) {
           poseObserver = new MutationObserver(schedule)
           poseObserver.observe(journey, { attributes: true, attributeFilter: ['style'] })
         }
-        schedule()
-      } else setFallback()
+        render()
+      } else {
+        if (context?.isContextLost?.()) lost = true
+        setFallback()
+      }
     } catch {
+      setFallback()
+    }
+    if (host.dataset.renderer === 'loading') {
       setFallback()
     }
 

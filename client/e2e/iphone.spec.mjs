@@ -18,7 +18,7 @@ test('rotate from the cutaway, switch tabs and type a question', async ({ page }
   await page.goto('/')
   const stage = page.locator('.ev-journey-stage')
   await expect(page.locator('.tesla-scene')).toHaveCount(0)
-  await page.locator('#full-picture').scrollIntoViewIfNeeded()
+  await stage.scrollIntoViewIfNeeded()
   await expect(stage.locator('.tesla-scene')).toHaveAttribute('data-renderer', /webgl|fallback/)
   await page.setViewportSize({ width: 844, height: 390 })
   const nav = page.getByRole('navigation')
@@ -138,4 +138,62 @@ test('ev-journey cutaway: reduced motion mode stays responsive and stable', asyn
   await expect(journey.locator('[data-ev-detail="0"]')).toBeVisible()
   await expect(journey.locator('[data-ev-detail="3"]')).toBeVisible()
 })
+
+test('rapid scrolling down to the cutaway stage reliably activates the 3D cutaway without getting stuck on loading', async ({ page }) => {
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/')
+
+  const stage = page.locator('.ev-journey-stage')
+  // Initially before scrolling, cutaway is not loaded
+  await expect(stage.locator('.tesla-scene')).toHaveCount(0)
+
+  // Rapidly scroll down directly to the cutaway section
+  await page.evaluate(() => {
+    const journey = document.querySelector('#full-picture')
+    if (journey) {
+      window.scrollTo({ top: journey.offsetTop + 100, behavior: 'instant' })
+    }
+  })
+
+  // Ensure cutaway element appears
+  const scene = stage.locator('.tesla-scene')
+  await expect(scene).toBeAttached({ timeout: 5000 })
+
+  // Verify it reliably transitions to a valid renderer (webgl or fallback) and never gets stuck on 'loading'
+  await expect(scene).toHaveAttribute('data-renderer', /^(webgl|fallback)$/, { timeout: 10000 })
+  expect(await scene.getAttribute('data-renderer')).not.toBe('loading')
+
+  expect(errors).toEqual([])
+})
+
+test('switching orientation maintains valid data-renderer and does not reset to loading', async ({ page }) => {
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/')
+
+  // Start in iPhone portrait (390 x 844)
+  await page.setViewportSize({ width: 390, height: 844 })
+  const stage = page.locator('.ev-journey-stage')
+  await page.locator('#full-picture').scrollIntoViewIfNeeded()
+
+  const scene = stage.locator('.tesla-scene')
+  await expect(scene).toBeAttached({ timeout: 5000 })
+  await expect(scene).toHaveAttribute('data-renderer', /^(webgl|fallback)$/, { timeout: 10000 })
+  const activeRenderer = await scene.getAttribute('data-renderer')
+  expect(['webgl', 'fallback']).toContain(activeRenderer)
+
+  // Switch to landscape (844 x 390)
+  await page.setViewportSize({ width: 844, height: 390 })
+  await expect(scene).toHaveAttribute('data-renderer', activeRenderer)
+  expect(await scene.getAttribute('data-renderer')).not.toBe('loading')
+
+  // Switch back to portrait (390 x 844)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(scene).toHaveAttribute('data-renderer', activeRenderer)
+  expect(await scene.getAttribute('data-renderer')).not.toBe('loading')
+
+  expect(errors).toEqual([])
+})
+
 
