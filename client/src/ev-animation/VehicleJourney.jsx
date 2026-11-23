@@ -1,4 +1,5 @@
-import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import TeslaLoading from './TeslaLoading'
 import TeslaVisual from './TeslaVisual'
 import { createVehicleMotion } from './vehicle-scroll.mjs'
 import './VehicleJourney.css'
@@ -20,6 +21,26 @@ const stages = [
 
 export default function VehicleJourney() {
   const sectionRef = useRef(null)
+  const stageRef = useRef(null)
+  const [loadModel, setLoadModel] = useState(false)
+  useEffect(() => {
+    const section = sectionRef.current
+    const stage = stageRef.current
+    if (!section && !stage) return
+    if (typeof IntersectionObserver === 'undefined') {
+      const timer = setTimeout(() => setLoadModel(true), 0)
+      return () => clearTimeout(timer)
+    }
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        setLoadModel(true)
+        observer.disconnect()
+      }
+    }, { rootMargin: '150px' })
+    if (section) observer.observe(section)
+    if (stage) observer.observe(stage)
+    return () => observer.disconnect()
+  }, [])
   const reduced = useSyncExternalStore(subscribeMotion, readMotion, () => false)
   useEffect(() => createVehicleMotion(sectionRef.current, { reduced }), [reduced])
 
@@ -38,7 +59,7 @@ export default function VehicleJourney() {
             {stages.map((stage, index) => <p key={stage.title} data-ev-detail={index}>{stage.text}</p>)}
           </div>
         </div>
-        <div className="ev-journey-stage"><TeslaVisual interactive /></div>
+        <div ref={stageRef} className="ev-journey-stage">{loadModel ? <TeslaVisual interactive /> : <TeslaLoading />}</div>
       </div>
     </div>
   </section>

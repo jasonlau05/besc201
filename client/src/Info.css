@@ -43,13 +43,16 @@
 .info-page summary { min-height: 44px; padding: 12px 0; color: var(--color-primary-dark); font-size: 14px; font-weight: 500; line-height: 1.5; cursor: pointer; }
 .info-page details p { margin: 8px 0 16px; color: var(--reading-muted); font-size: 13px; line-height: 1.8; }
 .guide-field { display: block; margin: 0 0 24px; color: var(--color-text); font: 500 15px/1.5 'DM Sans', sans-serif; letter-spacing: 0; }
-.guide-field select { display: block; width: 100%; min-height: 48px; margin-top: 12px; padding: 12px; border: 1px solid var(--reading-border); border-radius: 6px; background: var(--color-surface); color: var(--color-primary-dark); font: 400 16px 'DM Sans', sans-serif; cursor: pointer; }
+.guide-field select { display: block; width: 100%; min-height: 48px; margin-top: 12px; padding: 12px 38px 12px 14px; border: 1px solid var(--reading-border); border-radius: 6px; background: var(--color-surface); color: var(--color-primary-dark); font: 400 16px 'DM Sans', sans-serif; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2336594a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px 16px; }
 .location-result { position: relative; display: grid; align-content: start; }
 .rate-content, .rate-skeleton { grid-area: 1 / 1; min-width: 0; }
 .rate-content[aria-hidden='true'] { visibility: hidden; pointer-events: none; }
 .rate-content > p { color: var(--reading-muted); font-size: 14px; line-height: 1.8; }
 .rate-content > p button { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; padding: 8px 12px; border: 1px solid var(--reading-border); border-radius: 6px; background: var(--color-surface); color: var(--color-primary-dark); font: 500 13px/1.5 'DM Sans', sans-serif; cursor: pointer; }
-.rate-content > p button:hover { background: var(--color-background); }
+.rate-content > p button:active { opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) {
+  .rate-content > p button:hover { background: var(--color-background); }
+}
 .location-result .rate-apply-button { display: inline-grid; max-width: 100%; margin-top: 16px; }
 .rate-apply-button > span { grid-area: 1 / 1; transition: opacity 240ms ease, transform 240ms ease; }
 .rate-apply-confirmation { opacity: 0; transform: translateY(4px); }

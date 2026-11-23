@@ -1,1 +1,47 @@
-:root { font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Eliminate 300ms double-tap delay on interactive controls in iOS Safari */
+a,
+button,
+input,
+select,
+textarea,
+summary,
+[role="button"],
+[role="tab"] {
+  touch-action: manipulation;
+}
+
+/* Prevent iOS Safari auto-zoom on form controls when focused across iPhone & iPad */
+@supports (-webkit-touch-callout: none) {
+  input:where([type="text"], [type="search"], [type="email"], [type="number"], [type="tel"], [type="url"], [type="password"], :not([type])),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 720px), (pointer: coarse), (any-pointer: coarse) {
+  input:where([type="text"], [type="search"], [type="email"], [type="number"], [type="tel"], [type="url"], [type="password"], :not([type])),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+summary:active {
+  opacity: 0.75;
+}
+

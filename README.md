@@ -111,7 +111,7 @@ npm ci
 npm test
 npm run lint -w client
 npm run build -w client
-npm exec -w client -- playwright install chromium --only-shell
+npm exec -w client -- playwright install chromium webkit --only-shell
 npm run test:browser -w client
 ```
 

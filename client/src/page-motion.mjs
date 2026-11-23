@@ -4,7 +4,10 @@ export function startPageEntrance() {
   const html = document.documentElement
   const root = document.getElementById('root')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-  if (!root) return
+  if (!root || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    delete html.dataset.pagePhase
+    return
+  }
 
   // Reset the entrance on every route, including navigation during a fade.
   html.dataset.pagePhase = 'pending'
@@ -15,17 +18,28 @@ export function startPageEntrance() {
   let fontTimeout = 0
   let finishTimeout = 0
 
-  const finish = () => {
+  let finish
+  const onAnimationEnd = event => {
+    if (event.target === root && event.animationName === 'page-phase-in') finish()
+  }
+  const onMotionChange = () => { if (reducedMotion.matches) finish() }
+
+  const cleanListeners = () => {
+    root.removeEventListener('animationend', onAnimationEnd)
+    document.removeEventListener('focusin', finish)
+    document.removeEventListener('pointerdown', finish)
+    window.removeEventListener('beforeprint', finish)
+    reducedMotion.removeEventListener('change', onMotionChange)
+  }
+
+  finish = () => {
     cancelled = true
     cancelAnimationFrame(frame)
     clearTimeout(fontTimeout)
     clearTimeout(finishTimeout)
     delete html.dataset.pagePhase
+    cleanListeners()
   }
-  const onAnimationEnd = event => {
-    if (event.target === root && event.animationName === 'page-phase-in') finish()
-  }
-  const onMotionChange = () => { if (reducedMotion.matches) finish() }
 
   root.addEventListener('animationend', onAnimationEnd)
   // Keyboard/pointer users can interact immediately, even while fonts load.
@@ -54,11 +68,7 @@ export function startPageEntrance() {
     cancelAnimationFrame(frame)
     clearTimeout(fontTimeout)
     clearTimeout(finishTimeout)
-    root.removeEventListener('animationend', onAnimationEnd)
-    document.removeEventListener('focusin', finish)
-    document.removeEventListener('pointerdown', finish)
-    window.removeEventListener('beforeprint', finish)
-    reducedMotion.removeEventListener('change', onMotionChange)
+    cleanListeners()
     // Keep the initial hold through React Strict Mode's setup/cleanup cycle.
     if (html.dataset.pagePhase === 'entering') delete html.dataset.pagePhase
   }

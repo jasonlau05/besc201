@@ -12,14 +12,15 @@
   --ev-muted: var(--color-text);
   --ev-accent: var(--color-primary);
   position: relative;
-  height: 320svh;
+  height: 320vh;
+  height: 320dvh;
   color: var(--ev-ink);
   background: var(--color-background);
 }
 .ev-journey::before { content: ''; position: absolute; top: 0; left: 50%; width: min(1092px, calc(100% - 88px)); height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--color-border) 20%, var(--color-border) 80%, transparent); }
-.ev-journey-sticky { position: sticky; top: var(--site-header-height); height: calc(100svh - var(--site-header-height)); overflow: clip; }
+.ev-journey-sticky { position: sticky; top: var(--site-header-height); height: calc(100vh - var(--site-header-height)); height: calc(100dvh - var(--site-header-height)); overflow: clip; }
 .ev-journey-layout { position: relative; max-width: 1092px; width: calc(100% - 88px); height: 100%; margin-inline: auto; }
-.ev-journey-copy { position: absolute; top: clamp(36px, 6svh, 64px); left: 0; z-index: 3; width: 26%; max-width: 300px; }
+.ev-journey-copy { position: absolute; top: clamp(36px, 6vh, 64px); top: clamp(36px, 6dvh, 64px); left: 0; z-index: 3; width: 26%; max-width: 300px; }
 .ev-journey h2 { margin: 0; font: 500 clamp(38px, 3.4vw, 50px)/1.04 'DM Sans', sans-serif; letter-spacing: -.035em; color: var(--ev-ink); }
 .ev-journey-title { display: inline-block; padding-bottom: .08em; white-space: nowrap; }
 .ev-journey-intro { margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: var(--ev-muted); max-width: 30ch; }
@@ -74,7 +75,7 @@
   .ev-journey-details { margin-top: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ev-journey { height: auto; min-height: 100svh; }
+  .ev-journey { height: auto; min-height: 100vh; min-height: 100dvh; }
   .ev-journey-sticky { position: relative; top: 0; min-height: 940px; height: auto; }
   .ev-journey-layout { min-height: 940px; }
   .ev-journey-details p[data-ev-detail] { display: block; margin-bottom: 12px; }
@@ -86,4 +87,54 @@
   .ev-journey-copy { position: static; }
   .ev-journey-details { min-height: 0; }
   .ev-journey-stage { position: relative; width: 100%; right: auto; top: auto; height: 340px; margin-top: 24px; }
+}
+
+/* Short touch viewports have room for the description beside the model. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse),
+       (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .ev-journey-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    padding: 8px max(16px, env(safe-area-inset-right, 0px)) var(--mobile-tabs-clearance, 82px) max(16px, env(safe-area-inset-left, 0px));
+    box-sizing: border-box;
+  }
+  .ev-journey-copy {
+    position: static;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .ev-journey h2 { font-size: clamp(20px, 3.6vw, 26px); line-height: 1.1; }
+  .ev-journey-intro, .ev-journey-steps::before { display: none; }
+  .ev-journey-steps { display: block; margin-top: 10px; }
+  .ev-journey-steps > li { display: none; }
+  .ev-journey-steps > li[aria-current='step'] { display: flex; flex-direction: row; align-items: center; gap: 8px; min-height: 0; }
+  .ev-journey-steps h3 { font-size: 14px; line-height: 1.3; }
+  .ev-journey-details { margin-top: 8px; min-height: 0; }
+  .ev-journey-details p { font-size: 13px; line-height: 1.45; }
+  .ev-journey-stage {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ev-journey-sticky, .ev-journey-layout { min-height: 0; }
+    .ev-journey-stage { height: 220px; }
+    .ev-journey-steps > li { display: flex; flex-direction: row; align-items: center; min-height: 24px; }
+  }
 }

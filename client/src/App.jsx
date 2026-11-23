@@ -8,12 +8,13 @@ import EvChat from './EvChat'
 import Problem from './Problem'
 import RoadScrollbar from './RoadScrollbar'
 import Chargers from './Chargers'
+import { mobileNavigationQuery } from './tab-navigation.mjs'
 import { SiteHeader } from './SiteLayout'
 import './HeadingGradient.css'
 import { applyPageMetadata, getPage, normalizePath, pages } from './seo.mjs'
 
 const readPath = () => normalizePath(window.location.pathname)
-const mobileQuery = typeof window === 'undefined' ? null : window.matchMedia('(max-width: 720px)')
+const mobileQuery = typeof window === 'undefined' ? null : window.matchMedia(mobileNavigationQuery)
 const subscribeMobile = listener => {
   mobileQuery.addEventListener('change', listener)
   return () => mobileQuery.removeEventListener('change', listener)
@@ -99,7 +100,7 @@ export default function App({ initialPath = '/' }) {
   </header></main>
   return <>
     <a className="site-skip" href={`#${current.heading}`}>Skip to content</a>
-    <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />
+    <SiteHeader page={current.name} onNavigate={navigate} />
     {page}
     <span className="site-route-status" role="status">{current.title}</span>
     {hydrated && <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />}

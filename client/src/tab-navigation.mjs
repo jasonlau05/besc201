@@ -1,10 +1,12 @@
 import { createTabMotion, tabProgress } from './tab-motion.mjs'
 import { createTabScroll } from './tab-scroll.mjs'
 
+export const mobileNavigationQuery = '(max-width: 720px), (orientation: landscape) and (max-height: 500px) and (pointer: coarse)'
+
 export function createTabNavigation(nav) {
   const links = [...nav.querySelectorAll('a[href]')]
   const indicator = nav.querySelector('.nav-tab-indicator')
-  const mobile = matchMedia('(max-width: 720px)')
+  const mobile = matchMedia(mobileNavigationQuery)
   const reduced = matchMedia('(prefers-reduced-motion: reduce)')
   let selected = Math.max(0, links.findIndex(link => link.hasAttribute('aria-current')))
   let navigate = href => window.location.assign(href)
@@ -33,6 +35,7 @@ export function createTabNavigation(nav) {
     indicator.style.width = `${width}px`
     indicator.style.left = `${4 + (step - width) / 2}px`
     draw()
+    nav.dataset.measured = ''
   }
 
   function finishChromeAnimation() {
@@ -123,23 +126,28 @@ export function createTabNavigation(nav) {
     if (gesture) scroll.reset(scrollTarget.scrollTop, scrollTarget.scrollHeight - scrollTarget.clientHeight)
     gesture = null
     delete nav.dataset.dragging
-    if (pointerId !== undefined && nav.hasPointerCapture(pointerId)) nav.releasePointerCapture(pointerId)
+    if (pointerId !== undefined) {
+      try {
+        if (nav.hasPointerCapture?.(pointerId)) nav.releasePointerCapture(pointerId)
+      } catch {}
+    }
   }
 
-  function cancel() {
+  function cancel(event) {
     if (!gesture) return
-    ignoreClickUntil = performance.now() + 600
+    if (event && event.pointerId !== undefined && gesture.id !== event.pointerId) return
+    const wasDragging = gesture.dragging
     release()
+    if (wasDragging) ignoreClickUntil = performance.now() + 400
     moveTo(selected)
   }
 
   function pointerDown(event) {
     if (!mobile.matches || !event.isPrimary || event.button !== 0 || modified(event) || gesture) return
+    ignoreClickUntil = 0
     measure()
     const index = Math.round(progressAt(event.clientX))
-    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, index, dragging: false }
-    nav.setPointerCapture(event.pointerId)
-    expand()
+    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false }
     moveTo(index)
   }
 
@@ -147,8 +155,12 @@ export function createTabNavigation(nav) {
     if (!gesture || gesture.id !== event.pointerId) return
     const dx = Math.abs(event.clientX - gesture.x)
     const dy = Math.abs(event.clientY - gesture.y)
-    if (!gesture.dragging && dy > 8 && dy > dx) { cancel(); return }
-    if (dx > 6) gesture.dragging = true
+    if (!gesture.dragging && dy > 8 && dy > dx) { cancel(event); return }
+    if (!gesture.dragging && dx > 6 && dx > dy) {
+      gesture.dragging = true
+      try { nav.setPointerCapture(event.pointerId) } catch {}
+      expand()
+    }
     if (gesture.dragging) {
       nav.dataset.dragging = ''
       if (event.cancelable) event.preventDefault()
@@ -166,13 +178,32 @@ export function createTabNavigation(nav) {
   function pointerUp(event) {
     if (!gesture || gesture.id !== event.pointerId) return
     measure()
-    if (!gesture.dragging && (event.clientY < bounds.top - 20 || event.clientY > bounds.bottom + 20)) { cancel(); return }
-    // A held tap keeps its original tab even as expansion moves the icons.
-    const index = gesture.dragging ? Math.round(progressAt(event.clientX)) : gesture.index
-    ignoreClickUntil = performance.now() + 600
+    if (!gesture.dragging && (event.clientY < bounds.top - 20 || event.clientY > bounds.bottom + 20 ||
+        event.clientX < bounds.left - 20 || event.clientX > bounds.right + 20)) {
+      cancel(event)
+      return
+    }
+    // Let Safari deliver a normal link click after touch focus has settled.
+    if (!gesture.dragging) {
+      release()
+      return
+    }
+    const index = Math.round(progressAt(event.clientX))
+    ignoreClickUntil = performance.now() + 400
     release()
     moveTo(index)
     navigate(links[index].getAttribute('href'))
+  }
+
+  function pointerLeave(event) {
+    if (!gesture || gesture.id !== event.pointerId) return
+    if (!gesture.dragging) cancel(event)
+  }
+
+  function lostCapture(event) {
+    if (event.target === nav && gesture && (!event.pointerId || gesture.id === event.pointerId)) {
+      cancel(event)
+    }
   }
 
   function click(event) {
@@ -207,9 +238,10 @@ export function createTabNavigation(nav) {
   nav.addEventListener('pointerdown', pointerDown)
   nav.addEventListener('pointermove', pointerMove, { passive: false })
   nav.addEventListener('touchmove', dragTouchMove, { passive: false })
+  nav.addEventListener('pointerleave', pointerLeave)
   nav.addEventListener('pointerup', pointerUp)
   nav.addEventListener('pointercancel', cancel)
-  nav.addEventListener('lostpointercapture', cancel)
+  nav.addEventListener('lostpointercapture', lostCapture)
   nav.addEventListener('click', click)
   nav.addEventListener('dragstart', preventNativeDrag)
   nav.addEventListener('focusin', focusIn)
@@ -221,6 +253,7 @@ export function createTabNavigation(nav) {
   document.addEventListener('wheel', wheel, { passive: true })
   window.addEventListener('keydown', keyDown)
   window.addEventListener('blur', cancel)
+  window.addEventListener('pointercancel', cancel)
   mobile.addEventListener('change', preferencesChanged)
   reduced.addEventListener('change', preferencesChanged)
 
@@ -242,9 +275,11 @@ export function createTabNavigation(nav) {
       nav.removeEventListener('pointerdown', pointerDown)
       nav.removeEventListener('pointermove', pointerMove)
       nav.removeEventListener('touchmove', dragTouchMove)
+      delete nav.dataset.measured
+      nav.removeEventListener('pointerleave', pointerLeave)
       nav.removeEventListener('pointerup', pointerUp)
       nav.removeEventListener('pointercancel', cancel)
-      nav.removeEventListener('lostpointercapture', cancel)
+      nav.removeEventListener('lostpointercapture', lostCapture)
       nav.removeEventListener('click', click)
       nav.removeEventListener('dragstart', preventNativeDrag)
       nav.removeEventListener('focusin', focusIn)
@@ -256,6 +291,7 @@ export function createTabNavigation(nav) {
       document.removeEventListener('wheel', wheel)
       window.removeEventListener('keydown', keyDown)
       window.removeEventListener('blur', cancel)
+      window.removeEventListener('pointercancel', cancel)
       mobile.removeEventListener('change', preferencesChanged)
       reduced.removeEventListener('change', preferencesChanged)
     },

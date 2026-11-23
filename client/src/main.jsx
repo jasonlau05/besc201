@@ -4,6 +4,11 @@ import './palette.css'
 import './index.css'
 import App from './App.jsx'
 
+// Enable iOS Safari :active pseudo-class activation across the document
+if (typeof document !== 'undefined') {
+  document.addEventListener('touchstart', () => {}, { passive: true })
+}
+
 const root = document.getElementById('root')
 const app = (
   <StrictMode>

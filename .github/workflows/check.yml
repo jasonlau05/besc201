@@ -15,5 +15,5 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run lint -w client
-      - run: npm exec -w client -- playwright install --with-deps chromium --only-shell
+      - run: npm exec -w client -- playwright install --with-deps chromium webkit --only-shell
       - run: npm run test:browser -w client
