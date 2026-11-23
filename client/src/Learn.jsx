@@ -1,6 +1,6 @@
 import AnimatedDetails from './AnimatedDetails'
 import { SiteFooter } from './SiteLayout'
-import { ArrowIcon, PageContents } from './GuideUI'
+import { ArrowIcon } from './GuideUI'
 import './Learn.css'
 
 const sources = {
@@ -22,13 +22,6 @@ export default function Learn() {
       <div className="learn-hero-actions">
         <a className="problem-link" href="#basics">Start with the basics <ArrowIcon direction="down" /></a>
       </div>
-      <PageContents links={[
-        { href: '#basics', label: 'EV basics' },
-        { href: '#vehicle-types', label: 'Vehicle types' },
-        { href: '#charging', label: 'Charging' },
-        { href: '#electrical-grid', label: 'Electrical grid' },
-        { href: '#questions', label: 'Common questions' },
-      ]} />
     </header>
 
     <section className="learn-intro" id="basics" aria-labelledby="learn-basics-title">

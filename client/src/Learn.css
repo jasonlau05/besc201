@@ -37,7 +37,6 @@
 .learn-grid-flow .reading-arrow { position: absolute; top: 3px; right: -16px; color: var(--color-primary); }
 .learn-grid-response { max-width: 75ch; margin-top: 40px; }
 .learn-grid-response p { margin: 0 0 16px; }
-.learn-page .reading-contents > div { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .learn-page p a { color: var(--color-primary); text-underline-offset: 4px; }
 .learn-impact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; padding: 48px; margin: 0; background: var(--color-surface-warm); border-radius: 12px; }
 .learn-impact-copy p { margin: 0 0 20px; }
@@ -61,7 +60,6 @@
   .learn-faq { grid-template-columns: 1fr 1.4fr; gap: 32px; }
 }
 @media (max-width: 720px) {
-  .learn-page .reading-contents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .learn-grid-flow { grid-template-columns: 1fr; gap: 32px; }
   .learn-grid-flow li { padding: 0; }
   .learn-grid-flow .reading-arrow { top: auto; right: auto; bottom: -25px; left: 0; rotate: 90deg; }

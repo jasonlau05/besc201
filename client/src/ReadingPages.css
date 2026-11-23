@@ -17,7 +17,6 @@ html:has(.reading-page) { scroll-behavior: smooth; }
   padding: var(--site-intro-offset) 0 0;
   text-align: left;
 }
-.reading-page .reading-hero .reading-contents { width: 100%; margin-top: auto; }
 .reading-page .site-footer .brand span { color: #a84f31; }
 .reading-page .reading-hero > h1 {
   max-width: 900px;
@@ -53,11 +52,6 @@ html:has(.reading-page) { scroll-behavior: smooth; }
 :is(a, button):hover > .reading-arrow { translate: 3px 0; }
 :is(a, button):hover > .reading-arrow-down { translate: 0 3px; }
 :is(a, button):hover > .reading-arrow-external { translate: 2px -2px; }
-.reading-contents { margin-top: 64px; padding: 22px 0 26px; }
-.reading-contents > span { display: block; margin-bottom: 10px; color: var(--reading-muted); font-size: 13px; }
-.reading-contents > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-.reading-contents a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; color: var(--color-primary-dark); font-size: 14px; font-weight: 500; text-decoration: none; }
-.reading-contents a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .reading-page h1[id] { scroll-margin-top: 16px; }
 .reading-page section[id] { scroll-margin-top: calc(16px - var(--reading-space)); }
 .reading-page .learn-impact-copy > a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; }
@@ -86,18 +80,11 @@ html:has(.reading-page) { scroll-behavior: smooth; }
 .reading-page .guide-control input::-moz-range-progress { height: 4px; background: var(--color-primary); }
 .reading-page .guide-control input::-moz-range-thumb { width: 14px; height: 14px; border: 3px solid var(--color-surface); border-radius: 50%; background: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 .reading-page .guide-control input:hover::-webkit-slider-thumb { background: var(--color-primary-dark); }
-@media (max-width: 1180px) {
-  /* Keep the bottom row of chapter links above the existing chat launcher. */
-  .reading-page .reading-hero .reading-contents { padding-bottom: 88px; }
-}
 @media (max-width: 720px) {
-  /* Keep tab-bar clearance below the chapter navigation. */
+  /* Keep tab-bar clearance below the hero content. */
   .reading-page .reading-hero { padding-bottom: var(--mobile-tabs-clearance); }
   .reading-page .reading-hero :is(.learn-hero-actions, .guide-primary) { margin-bottom: 40px; }
-  .reading-page .reading-hero .reading-contents { padding-block: 24px; }
   .reading-page .reading-hero > p { margin-top: 24px; font-size: 16px; }
-  .reading-contents > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
-  .reading-contents a { font-size: 13px; }
   .reading-page :is(.problem-link, .guide-primary) { max-width: 100%; white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) {

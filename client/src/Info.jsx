@@ -5,7 +5,7 @@ import CarbonSimulator from './CarbonSimulator'
 import ElectricityRates from './ElectricityRates'
 import { ANNUAL_MILES } from './carbon-model.mjs'
 import { SiteFooter } from './SiteLayout'
-import { ArrowIcon, PageContents, RangeControl as Slider } from './GuideUI'
+import { ArrowIcon, RangeControl as Slider } from './GuideUI'
 
 const sources = {
   epa: 'https://www.epa.gov/greenvehicles/electric-vehicle-myths',
@@ -38,12 +38,6 @@ export default function Info() {
       <h1 id="guide-title" tabIndex={-1}>Is an EV right for me?</h1>
       <p>Explore how electric vehicles compare to gas-powered cars in<br className="desktop-break" />cost, energy use, and environmental impact.</p>
       <a className="guide-primary" href="#fit">Let’s find out <ArrowIcon direction="down" /></a>
-      <PageContents links={[
-        { href: '#fit', label: 'Carbon break-even' },
-        { href: '#cost', label: 'Energy costs' },
-        { href: '#location', label: 'Your state’s rates' },
-        { href: '#footprint', label: 'The full footprint' },
-      ]} />
     </header>
     <div className="guide-facts" aria-label="EV facts"><div><strong>283<span> mi</span></strong><p>median rated EV range</p><small>US model year 2024. Real-world range varies.</small></div><div><strong>~40<span>%</span></strong><p>lower scheduled maintenance costs</p><small>DOE’s 2021 estimate versus gas cars; not all repair costs.</small></div><div><strong>8<span> years</span></strong><p>battery warranty from many makers</p><small>Often 100,000 miles. Check model-specific terms.</small></div></div>
 
