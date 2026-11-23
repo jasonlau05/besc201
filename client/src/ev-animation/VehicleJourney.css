@@ -16,11 +16,12 @@
   color: var(--ev-ink);
   background: var(--color-background);
 }
+.ev-journey::before { content: ''; position: absolute; top: 0; left: 50%; width: min(1092px, calc(100% - 88px)); height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--color-border) 20%, var(--color-border) 80%, transparent); }
 .ev-journey-sticky { position: sticky; top: var(--site-header-height); height: calc(100svh - var(--site-header-height)); overflow: clip; }
-.ev-journey-layout { position: relative; max-width: 1180px; width: calc(100% - 88px); height: 100%; margin-inline: auto; }
+.ev-journey-layout { position: relative; max-width: 1092px; width: calc(100% - 88px); height: 100%; margin-inline: auto; }
 .ev-journey-copy { position: absolute; top: clamp(36px, 6svh, 64px); left: 0; z-index: 3; width: 26%; max-width: 300px; }
-.ev-journey h2 { margin: 0; font: 500 clamp(38px, 3.5vw, 50px)/1.08 'DM Sans', sans-serif; letter-spacing: -.035em; color: var(--ev-ink); }
-.ev-journey h2 span { color: var(--ev-accent); }
+.ev-journey h2 { margin: 0; font: 500 clamp(38px, 3.4vw, 50px)/1.04 'DM Sans', sans-serif; letter-spacing: -.035em; color: var(--ev-ink); }
+.ev-journey-title { display: inline-block; padding-bottom: .08em; white-space: nowrap; }
 .ev-journey-intro { margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: var(--ev-muted); max-width: 30ch; }
 .ev-journey-steps { list-style: none; padding: 0; margin: 36px 0 0; position: relative; }
 .ev-journey-steps::before { content: ''; position: absolute; width: 1px; background: var(--color-border); left: 4px; top: 18px; bottom: 18px; }
@@ -36,14 +37,14 @@
 .ev-journey-stage > :is(.tesla-scene, .ev-assembly) { width: 100%; height: 100%; }
 @media (min-width: 761px) and (max-width: 1150px) {
   .ev-journey-copy { width: 33%; }
-  .ev-journey h2 { font-size: 44px; }
+  .ev-journey h2 { font-size: clamp(38px, 4.4vw, 50px); }
   .ev-journey-stage { width: 67%; }
 }
 @media (max-width: 760px) {
+  .ev-journey::before { width: calc(100% - 32px); }
   .ev-journey-layout { width: calc(100% - 32px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; padding-block: 24px calc(var(--mobile-tabs-clearance, 82px) + 12px); }
   .ev-journey-copy { position: static; width: 100%; max-width: none; }
   .ev-journey h2 { font-size: clamp(32px, 8.5vw, 48px); }
-  .ev-journey h2 br { display: none; }
   .ev-journey-intro { font-size: 14px; margin-top: 14px; max-width: 35ch; }
   .ev-journey-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
   .ev-journey-steps::before { width: auto; height: 1px; left: 4px; right: 4px; top: 4px; bottom: auto; }

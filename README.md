@@ -1,5 +1,7 @@
 # Group 9 — EV comparison guide
 
+[Visit the BESC 201 Group 9 electric vehicle guide](https://besc201.vercel.app/).
+
 A BESC 201 web project that helps users explore electric-vehicle carbon emissions, energy costs, and electricity prices. The app has a React/Vite frontend and a small Express backend that serves one shared, saved dataset of residential electricity rates from the US Energy Information Administration (EIA).
 
 The home page introduces the project’s problem statement with a minimal text layout and links to Learn and the EV guide. Learn explains EV basics, and the EV guide compares carbon and energy costs with saved EIA state electricity-rate data. A floating EV assistant uses OpenRouter through the backend. A daily GitHub Action updates the electricity dataset; visitor requests never call EIA.
@@ -335,14 +337,29 @@ The repository-root `vercel.json` uses Vercel Services to build and route two se
 
 Import the repository as a Vercel project using the **repository root**, rather than only `client`, so the top-level services configuration is included. No EIA key is required in Vercel. Deploy both services and keep the saved JSON file included in the server service.
 
-For chat, add `OPENROUTER_API_KEY` to the **server service’s runtime environment** in Vercel, then redeploy. The server fixes the primary and backup models in code; no model environment variable is needed. The backup `nvidia/nemotron-3.5-super-vl:free` can incur charges. Local `.env` files are ignored by Git and do not configure production. `/api/chat` uses the existing API routing; `/learn` uses the existing SPA fallback.
+For chat, add `OPENROUTER_API_KEY` to the **server service’s runtime environment** in Vercel, then redeploy. The server fixes the primary and backup models in code; no model environment variable is needed. The backup `nvidia/nemotron-3.5-super-vl:free` can incur charges. Local `.env` files are ignored by Git and do not configure production. `/api/chat` uses the existing API routing; public pages use their prerendered HTML.
 
 Routing works in two stages:
 
 1. Top-level `/api/(.*)` requests go to the server service.
-2. Other requests go to the client service, which has an SPA rewrite to `/index.html`.
+2. Other requests go to the client service. `/learn`, `/info`, `/chargers`, and `/chat` rewrite to their corresponding `.html` files; `/` serves `index.html`. Unknown paths receive the static `404.html` error page with a 404 status.
 
-The client fallback lets a direct visit or refresh at `/info` load React. It does not replace the API route. The Express app exports its application instance for deployment and listens on a port when started directly.
+Each known route contains readable content and page-specific metadata before JavaScript runs. React hydrates that content and handles later navigation and interactive controls. The Express app exports its application instance for deployment and listens on a port when started directly.
+
+### Search metadata and indexing
+
+Edit `client/src/seo.mjs` to update the production origin (`https://besc201.vercel.app`), per-page titles, and descriptions. `npm run build -w client` builds the browser assets and uses Vite's SSR loader with React's server renderer to generate static HTML. It also generates `sitemap.xml` and adds its URL to the built `robots.txt`. The homepage includes the project identity, and every generated page includes Group9 `WebSite` structured data and absolute social preview URLs. The assistant route is marked `noindex` and excluded from the sitemap; 404 pages are also `noindex`.
+
+Run `npm run test:seo -w client` after building to verify readable content, unique metadata, canonical URLs, structured data, sitemap contents, static asset references, and deployment routing.
+
+After deploying:
+
+1. In Google Search Console, verify the URL-prefix property `https://besc201.vercel.app/` using the existing HTML verification file.
+2. Submit `https://besc201.vercel.app/sitemap.xml` under **Sitemaps**.
+3. Inspect the homepage and each public route. Check the live test's rendered content and canonical URL, then request indexing for changed pages.
+4. Use **Performance → Search results** to compare impressions and clicks for course searches (such as “BESC 201 Group 9”) and feature searches (such as “EV vs gas cost calculator”).
+
+The public README links to the deployed project. For additional discovery, add that same URL to any public course showcase or project portfolio you control. Search Console submission and third-party links are separate from the application build; rankings, selected snippets, and favicon display remain Google's decisions.
 
 After deployment, check:
 
@@ -375,11 +392,11 @@ The current API never calls EIA and does not require an EIA key. Seeing an old c
 
 ### /info returns Vercel 404
 
-Confirm that the latest root `vercel.json` is deployed and includes the rewrite inside `services.client`. The frontend service must serve `/index.html` for SPA paths. Confirm Vercel is deploying from the repository root.
+Confirm that the latest root `vercel.json` is deployed and includes the rewrite inside `services.client`. `/info` must serve `/info.html`, generated by `node scripts/build.mjs` in the client workspace. Confirm Vercel is deploying from the repository root and running the client's package build script.
 
 ### API request returns HTML or fails to connect
 
-Make sure the backend is running and the Vite proxy targets its port. On deployment, confirm `/api` routes to Express rather than to the frontend SPA fallback.
+Make sure the backend is running and the Vite proxy targets its port. On deployment, confirm `/api` routes to Express rather than to the frontend service.
 
 ### npm cannot find npm-cli.js on Windows
 
@@ -387,7 +404,7 @@ This indicates a local npm installation or path problem. Repair the Node/npm ins
 
 ```powershell
 cd client
-& .\node_modules\.bin\vite.cmd build
+node scripts/build.mjs
 ```
 
 This bypasses npm for the build only; it does not install dependencies.

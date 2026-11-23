@@ -9,6 +9,8 @@ import Problem from './Problem'
 import RoadScrollbar from './RoadScrollbar'
 import Chargers from './Chargers'
 import { SiteHeader } from './SiteLayout'
+import './HeadingGradient.css'
+import { applyPageMetadata, getPage, normalizePath, pages } from './seo.mjs'
 
 const pages = {
   '/': { name: 'problem', heading: 'problem-title', title: 'Our mission | Group9' },
@@ -25,11 +27,16 @@ const subscribeMobile = listener => {
   return () => mobileQuery.removeEventListener('change', listener)
 }
 const readMobile = () => mobileQuery.matches
+const readServerMobile = () => false
+const subscribeHydration = () => () => {}
+const readHydrated = () => true
+const readServerHydrated = () => false
 
-export default function App() {
+export default function App({ initialPath = '/' }) {
   const [chatOpen, setChatOpen] = useState(false)
-  const [path, setPath] = useState(readPath)
-  const mobile = useSyncExternalStore(subscribeMobile, readMobile)
+  const [path, setPath] = useState(() => normalizePath(initialPath))
+  const mobile = useSyncExternalStore(subscribeMobile, readMobile, readServerMobile)
+  const hydrated = useSyncExternalStore(subscribeHydration, readHydrated, readServerHydrated)
   const routeRef = useRef(path)
   const scrollPositions = useRef(new Map())
   const pendingScroll = useRef(null)
@@ -77,7 +84,7 @@ export default function App() {
     }
   }, [path, current.heading])
   useLayoutEffect(() => startPageEntrance(), [path])
-  useEffect(() => { document.title = current.title }, [current.title])
+  useEffect(() => { applyPageMetadata(path) }, [path])
 
   useEffect(() => {
     const motion = document.createElement('script')
@@ -103,7 +110,7 @@ export default function App() {
     <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />
     {page}
     <span className="site-route-status" role="status">{current.title}</span>
-    <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />
+    {hydrated && <EvChat open={path === '/chat' || (!mobile && chatOpen)} onOpenChange={setChatOpen} fullPage={path === '/chat'} mobile={mobile} />}
     <RoadScrollbar />
   </>
 }
