@@ -15,7 +15,8 @@ export function carbonModel({ evProduction, gasProduction, gridIntensity, effici
   const evPerMile = gridIntensity * efficiency / 100;
   const advantage = gasIntensity - evPerMile;
   const debt = (evProduction - gasProduction) * 1e6;
-  const breakEvenMiles = debt <= 0 ? 0 : advantage > 0 ? debt / advantage : null;
+  const distance = advantage === 0 ? null : debt / advantage;
+  const breakEvenMiles = distance !== null && distance >= 0 ? Math.abs(distance) : null;
   return { evPerMile, breakEvenMiles, years: breakEvenMiles === null ? null : breakEvenMiles / annualMiles,
     evAt: (miles) => evProduction + miles * evPerMile / 1e6,
     gasAt: (miles) => gasProduction + miles * gasIntensity / 1e6 };

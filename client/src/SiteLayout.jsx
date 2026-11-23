@@ -47,7 +47,7 @@ export function SiteHeader({ page, onNavigate, mobile }) {
     <div className="site-header-inner">
     <Group9Logo />
     <nav ref={navRef} className="nav-links" aria-label="Main navigation">
-      <span className="nav-tab-indicator" aria-hidden="true" />
+      <span className="nav-tab-indicator" aria-hidden="true" style={items.some(item => item.page === page) ? undefined : { visibility: 'hidden' }} />
       {items.map(item => <a key={item.page} href={item.href} draggable="false" className={page === item.page ? 'active' : undefined} aria-current={page === item.page ? 'page' : undefined} aria-label={item.label}>
         <svg className="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
           {item.icon}

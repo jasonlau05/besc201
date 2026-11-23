@@ -17,9 +17,9 @@ For an intentional refresh, add `AFDC_API_KEY=your_key` to this directory's igno
 
 The daily `../.github/workflows/refresh-chargers.yml` uses the repository Actions secret `AFDC_API_KEY`; the local `.env` is not uploaded. It runs at 11:47 UTC and commits only the generated station file. Configure Vercel to deploy the bot's commits, or optionally set the Actions secret `VERCEL_DEPLOY_HOOK_URL` to publish after successful refreshes. Until the workflow is pushed and the secret configured, daily refreshes are not active.
 
-Address search still uses Nominatim with explicit submissions, a per-process rate limit, bounded cache, and timeout. Use `NOMINATIM_URL` to configure another compatible geocoder. Overpass and its former environment variables are no longer used. Current-location searches bypass geocoding entirely.
+Address search still uses Nominatim with explicit submissions, a per-process rate limit, bounded cache, and timeout. For a multi-instance deployment using public Nominatim, configure a shared Redis REST endpoint (Upstash protocol). Set server-only `GEOCODER_REDIS_REST_URL` and `GEOCODER_REDIS_REST_TOKEN` in every deployment sharing the upstream budget. Grant the token SET access to `group9:geocoder:dispatch`. Each uncached dispatch requires an atomic SET NX PX reservation. A busy reservation yields 429, and an unavailable or partially configured limiter yields 503. The gate sends no addresses to Redis. Without either variable the existing local throttle still applies independently per process. Check the upstream quota and OpenRouter account limits before scaling. Use `NOMINATIM_URL` to configure another compatible geocoder. Overpass and its former environment variables are no longer used. Current-location searches bypass geocoding entirely.
 
-Run all charger tests from the repository root with `npm run test:chargers`. Tests use local fixtures and do not contact AFDC or Nominatim. The root README documents setup, update validation, and deployment details.
+Run the full suite from the repository root with `npm test`. Tests use local fixtures and do not contact AFDC or Nominatim. The root README documents setup, update validation, and deployment details.
 
 ## OpenRouter chat configuration
 

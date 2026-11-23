@@ -12,8 +12,19 @@ export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency
   const x = miles => 50 + miles / horizon * 360
   const y = tonnes => 215 - tonnes / maxY * 185
   const crossing = model.breakEvenMiles !== null && model.breakEvenMiles <= horizon
-  const result = model.breakEvenMiles === null ? 'No break-even' : model.breakEvenMiles === 0 ? 'Lower from the start' : `${Math.round(model.breakEvenMiles).toLocaleString()} miles`
-  return <section className="guide-section" id="fit" aria-labelledby="carbon-title"><div className="guide-section-heading"><h2 id="carbon-title">EV carbon break-even calculator</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
+  const identical = evProduction === CARBON_BASELINE.gasProduction && model.evPerMile === gasIntensity
+  let result = 'Equal at every mileage'
+  let explanation = 'Both manufacturing and driving emissions are equal.'
+  if (model.breakEvenMiles !== null) {
+    result = `${Math.round(model.breakEvenMiles).toLocaleString()} miles`
+    const cleaner = model.evPerMile < gasIntensity ? 'EV' : 'gas car'
+    explanation = `After this point, the ${cleaner} has the lower total footprint. About ${model.years.toFixed(1)} years at your annual mileage.`
+  } else if (!identical) {
+    const cleaner = evProduction < CARBON_BASELINE.gasProduction ? 'EV' : 'gas car'
+    result = 'No crossing'
+    explanation = `The ${cleaner} has the lower footprint throughout this comparison.`
+  }
+  return <section className="guide-section" id="fit" aria-labelledby="carbon-title"><div className="guide-section-heading"><h2 id="carbon-title">When does electric break even?</h2><p>Compare your EV with a gas car. We use average US electricity emissions and fixed annual driving.</p></div><div className="guide-split"><div className="guide-panel">
     <Control id="ev-production" label="EV manufacturing" value={evProduction} onChange={setEvProduction} min={4} max={25} step={0.5} unit="t CO₂e" />
     <Control id="carbon-efficiency" label="EV energy use" value={efficiency} onChange={setEfficiency} min={20} max={50} unit="kWh/100 mi" />
     <Control id="carbon-mpg" label="Gas car efficiency" value={mpg} onChange={setMpg} min={15} max={60} unit="mpg" />
@@ -21,16 +32,16 @@ export default function CarbonSimulator({ annualMiles, efficiency, setEfficiency
     <AnimatedDetails className="carbon-assumptions"><summary>Our fixed comparison & sources</summary>
       <p>Gas driving: <strong>{gasIntensity.toFixed(1)} g CO₂/mile</strong> at {mpg} mpg. Calculated as 8,887 g CO₂ per gallon ÷ MPG, using <a href="https://www.epa.gov/greenvehicles/comparison-your-car-vs-electric-vehicle">EPA’s gasoline emissions factor</a>.</p>
       <p>Electricity: <strong>367 g CO₂/kWh</strong> — <a href="https://www.eia.gov/tools/faqs/faq.php?id=74&t=11">EIA’s 2023 US utility-scale average</a> of 0.81 lb/kWh, converted to grams. This is a dated national average, not your local grid.</p>
-      <p>Gas manufacturing: <strong>8 t CO₂e</strong> — <a href="https://theicct.org/why-evs-are-already-much-greener-than-combustion-engine-vehicles-jul25/">ICCT’s 2024 gasoline SUV benchmark</a>, used as a representative example rather than an all-car average.</p>
+      <p>Gas manufacturing: <strong>8 t CO₂e</strong> — <a href="https://theicct.org/why-evs-are-already-much-greener-than-combustion-engine-vehicles-jul25/">ICCT’s July 2025 comparison</a> estimates about 8 tonnes to build its example 2024 gasoline SUV. The estimate describes that vehicle class.</p>
       <p>This simplified estimate combines manufacturing CO₂e with driving CO₂. It excludes upstream fuel emissions, grid delivery losses, battery replacements, and end-of-life impacts. It compares two new cars, not replacing an existing car.</p>
     </AnimatedDetails>
-  </div><div className="carbon-result"><span className="section-title">ESTIMATED CARBON BREAK-EVEN</span><div className="carbon-big" aria-live="polite">{result}<small>{model.years === null ? 'The EV starts with a larger footprint and does not emit less per mile. It never catches up under these assumptions.' : model.years === 0 ? 'EV production starts at or below the gas car.' : `About ${model.years.toFixed(1)} years at your annual mileage`}</small></div>
+  </div><div className="carbon-result"><span className="section-title">ESTIMATED CARBON BREAK-EVEN</span><div className="carbon-big" aria-live="polite">{result}<small>{explanation}</small></div>
     <svg className="carbon-chart" viewBox="0 0 450 255" role="img" aria-label={`Estimated cumulative carbon footprint through 150,000 miles. ${result}. EV driving emissions: ${model.evPerMile.toFixed(0)} grams CO2 per mile.`}>
       {[0, 0.5, 1].map(f => <g key={f}><line x1="50" x2="410" y1={y(maxY * f)} y2={y(maxY * f)} stroke="var(--color-chart-grid)" /><text x="42" y={y(maxY * f) + 4} textAnchor="end">{Math.round(maxY * f)} t</text></g>)}
       <path d={`M 50 ${y(model.gasAt(0))} L 410 ${y(model.gasAt(horizon))}`} fill="none" stroke="var(--color-accent)" strokeWidth="3" />
       <path d={`M 50 ${y(model.evAt(0))} L 410 ${y(model.evAt(horizon))}`} fill="none" stroke="var(--color-primary)" strokeWidth="3" />
       {crossing && <g><line x1={x(model.breakEvenMiles)} x2={x(model.breakEvenMiles)} y1={y(model.evAt(model.breakEvenMiles))} y2="215" stroke="var(--color-carbon-crossing)" strokeDasharray="4 4" /><circle cx={x(model.breakEvenMiles)} cy={y(model.evAt(model.breakEvenMiles))} r="5" fill="var(--color-primary)" /></g>}
       {[0, 75000, 150000].map(mi => <text key={mi} x={x(mi)} y="236" textAnchor="middle">{mi / 1000}k mi</text>)}
-    </svg><div className="carbon-legend"><span><i aria-hidden="true" />Electric</span><span><i aria-hidden="true" />Gasoline</span></div><p className="guide-note">Estimated footprint in tonnes: manufacturing + driving. {model.breakEvenMiles === null ? 'The lines never meet under these assumptions.' : model.breakEvenMiles > horizon ? 'Break-even occurs beyond the 150,000-mile chart.' : 'The dot marks where the two lines meet.'} {model.breakEvenMiles === 0 && model.evPerMile > gasIntensity ? 'The EV starts lower, but its higher driving emissions eventually reverse that advantage.' : ''} This is a simplified comparison, not a full lifecycle assessment.</p>
+    </svg><div className="carbon-legend"><span><i aria-hidden="true" />Electric</span><span><i aria-hidden="true" />Gasoline</span></div><p className="guide-note">Estimated footprint in tonnes: manufacturing + driving. {identical ? 'The lines overlap at every mileage.' : model.breakEvenMiles === null ? 'The lines never meet under these assumptions.' : model.breakEvenMiles > horizon ? 'Break-even occurs beyond the 150,000-mile chart.' : 'The dot marks where the two lines meet.'} This is a simplified comparison, not a full lifecycle assessment.</p>
   </div></div></section>
 }

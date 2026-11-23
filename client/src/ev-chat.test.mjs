@@ -35,5 +35,5 @@ test('a deployed API that returns HTML yields a recoverable error', async t => {
   const previous = globalThis.fetch
   t.after(() => { globalThis.fetch = previous })
   globalThis.fetch = async () => ({ ok: false, json: async () => { throw new SyntaxError('HTML response') } })
-  await assert.rejects(askEvAssistant([{ role: 'user', content: 'Hello' }]), /unavailable/)
+  await assert.rejects(askEvAssistant([{ role: 'user', content: 'Hello' }]), /Elon is busy with shareholders.*try again/i)
 })

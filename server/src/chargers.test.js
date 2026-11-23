@@ -124,3 +124,46 @@ test('geocoding deadlines cover both requests and response bodies', async () => 
     });
   }
 });
+
+test('independent handlers share the dispatch limit before contacting the geocoder', async () => {
+  const { createGeocoderLimit } = require('./geocoder-limit');
+  let expiresAt = 0;
+  let time = 60000;
+  let geocodes = 0;
+  const settings = {
+    url: 'https://redis.invalid',
+    token: 'fixture',
+    fetchImpl: async (_url, request) => {
+      assert.deepEqual(JSON.parse(request.body), ['SET', 'group9:geocoder:dispatch', '1', 'NX', 'PX', 1100]);
+      if (expiresAt > time) return Response.json({ result: null });
+      expiresAt = time + 1100;
+      return Response.json({ result: 'OK' });
+    },
+  };
+  const instance = () => ({
+    now: () => time,
+    reserveGeocode: createGeocoderLimit(settings),
+    fetchImpl: async () => { geocodes++; return Response.json([]); },
+  });
+  await withApi(instance(), async (first, fetchFirst) => {
+    await withApi(instance(), async (second, fetchSecond) => {
+      const call = () => fetchSecond(second + '/locations?q=Dallas');
+      const responses = await Promise.all([fetchFirst(first + '/locations?q=Austin'), call()]);
+      assert.deepEqual(responses.map(r => r.status).sort(), [200, 429]);
+      assert.equal(geocodes, 1);
+      time += 1100;
+      assert.equal((await call()).status, 200);
+    });
+  });
+});
+
+test('shared limiter outage keeps address data away from the provider', async () => {
+  await withApi({
+    reserveGeocode: async () => { throw new Error('fixture outage'); },
+    fetchImpl: () => assert.fail('Cannot dispatch without a reservation'),
+  }, async (base, fetch) => {
+    const response = await fetch(base + '/locations?q=Chicago');
+    assert.equal(response.status, 503);
+    assert.match((await response.json()).error, /use your location/);
+  });
+});

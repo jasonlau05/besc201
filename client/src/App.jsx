@@ -35,14 +35,14 @@ export default function App({ initialPath = '/' }) {
   const focusContent = useRef(false)
   const current = getPage(path)
 
-  const navigate = useCallback((href, options = {}) => {
+  const navigate = useCallback((href) => {
     const url = new URL(href, window.location.href)
-    const next = url.pathname.replace(/\/$/, '') || '/'
+    const next = normalizePath(url.pathname)
     if (url.origin !== window.location.origin || !pages[next]) { window.location.assign(url.href); return }
     if (next === readPath()) return
     scrollPositions.current.set(readPath(), window.scrollY)
     pendingScroll.current = 0
-    focusContent.current = Boolean(options.focusContent)
+    focusContent.current = true
     window.history.pushState(null, '', url.pathname)
     setPath(next)
   }, [])
@@ -54,6 +54,7 @@ export default function App({ initialPath = '/' }) {
       scrollPositions.current.set(routeRef.current, window.scrollY)
       const next = readPath()
       pendingScroll.current = scrollPositions.current.get(next) || 0
+      focusContent.current = true
       setPath(next)
     }
     window.addEventListener('popstate', restore)
@@ -91,7 +92,11 @@ export default function App({ initialPath = '/' }) {
   else if (path === '/chargers') page = <Chargers />
   else if (path === '/chat') page = null
   else if (path === '/') page = <Problem />
-  else page = <main className="app-shell reading-page"><header className="guide-hero page-intro"><h1 id="not-found-title" tabIndex={-1}>Page not found</h1><p>Explore our electric vehicle guide instead.</p><a href="/">Return to Group9</a></header></main>
+  else page = <main className="app-shell reading-page"><header className="reading-hero">
+    <h1 id={current.heading} tabIndex={-1}>Page not found</h1>
+    <p>Looks like we took a wrong turn. Want to head back to the EV basics or compare a couple of cars?</p>
+    <a className="guide-primary" href="/learn">Learn about EVs</a> <a href="/info">Compare vehicles</a>
+  </header></main>
   return <>
     <a className="site-skip" href={`#${current.heading}`}>Skip to content</a>
     <SiteHeader page={current.name} onNavigate={navigate} mobile={mobile} />

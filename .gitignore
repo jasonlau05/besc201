@@ -31,3 +31,6 @@ dist-ssr
 # Installed skills and local design check artifacts
 .agents/skills/
 .taste-skill/
+/client/test-results/
+.vercel
+.env*

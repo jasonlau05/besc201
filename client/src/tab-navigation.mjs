@@ -186,7 +186,7 @@ export function createTabNavigation(nav) {
     event.preventDefault()
     expand()
     moveTo(links.indexOf(link))
-    navigate(link.getAttribute('href'), { focusContent: event.detail === 0 })
+    navigate(link.getAttribute('href'))
   }
 
   function keyDown(event) {

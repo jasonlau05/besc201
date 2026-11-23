@@ -28,7 +28,7 @@ test('missing configuration fails clearly without making a provider request', as
   const handler = createEvChatHandler({ env: {}, fetchImpl: () => assert.fail('No request without a key') });
   const res = await call(handler);
   assert.equal(res.statusCode, 503);
-  assert.match(res.body.error, /not connected/);
+  assert.match(res.body.error, /Elon is on Mars.*try again/i);
   assert.equal(res.headers['Cache-Control'], 'no-store');
 });
 

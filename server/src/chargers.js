@@ -8,6 +8,7 @@ class SearchError extends Error {
 function createChargerHandlers({
   fetchImpl = (...args) => fetch(...args), now = Date.now,
   nominatimUrl = process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org/search',
+  reserveGeocode = null,
   getSavedSearch = loadSavedChargerSearch, requestTimeoutMs = 8000,
 } = {}) {
   const locations = new Map();
@@ -72,6 +73,12 @@ function createChargerHandlers({
         // Explicit submissions only; public Nominatim allows one request per second.
         if (now() < nextGeocodeAt) throw new SearchError(429, 'Address search is busy. Wait a moment and try again.');
         nextGeocodeAt = now() + 1100;
+        if (reserveGeocode) {
+          let granted;
+          try { granted = await reserveGeocode(); }
+          catch { throw new SearchError(503, 'Address search is unavailable. Try again or use your location.'); }
+          if (!granted) throw new SearchError(429, 'Address search is busy. Wait a moment and try again.');
+        }
         const url = new URL(nominatimUrl);
         url.search = new URLSearchParams({ q: address, format: 'jsonv2', limit: '5', 'accept-language': 'en', countrycodes: 'us' }).toString();
         const data = await requestLocations(url);
