@@ -33,3 +33,4 @@ dist-ssr
 .taste-skill/
 /client/test-results/
 .vercel
+.env*
