@@ -38,6 +38,49 @@ test('unknown links lead back to the lesson', async ({ page }) => {
   await expect(page).toHaveTitle('Electric Vehicle Basics — Group9')
 })
 
+test('mobile chat keeps the input above the tabs during overscroll', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'Mobile chat layout')
+  await page.goto('/chat')
+
+  const input = page.getByRole('textbox', { name: 'Your question about electric vehicles' })
+  const tabs = page.getByRole('navigation', { name: 'Main navigation' })
+  await expect(input).toBeVisible()
+  const inputBottom = () => input.evaluate(element => element.getBoundingClientRect().bottom)
+  const restingBottom = await inputBottom()
+  expect(restingBottom).toBeLessThan(await tabs.evaluate(element => element.getBoundingClientRect().top))
+
+  for (const offset of [-36, 36]) {
+    await page.evaluate(offsetTop => {
+      Object.defineProperty(visualViewport, 'offsetTop', { configurable: true, value: offsetTop })
+      visualViewport.dispatchEvent(new Event('scroll'))
+    }, offset)
+    expect(await inputBottom()).toBeCloseTo(restingBottom)
+  }
+
+  await input.focus()
+  await page.evaluate(() => {
+    Object.defineProperty(visualViewport, 'offsetTop', { configurable: true, value: 0 })
+    Object.defineProperty(visualViewport, 'height', { value: innerHeight - 240 })
+    visualViewport.dispatchEvent(new Event('resize'))
+  })
+  await expect(tabs).toBeHidden()
+  await expect(input).toBeFocused()
+  expect(await inputBottom()).toBeLessThan(await page.evaluate(() => visualViewport.height))
+})
+
+test('a short mobile conversation has its own scroll range for bounce', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'Mobile chat layout')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/chat')
+
+  const log = page.getByRole('log', { name: 'Conversation with Elon' })
+  await expect(log).toBeVisible()
+  await expect(log).toHaveCSS('overscroll-behavior-y', 'contain')
+  const scrollRange = await log.evaluate(element => element.scrollHeight - element.clientHeight)
+  expect(scrollRange).toBeGreaterThan(0)
+  expect(scrollRange).toBeLessThan(5)
+})
+
 test('carbon chart marks the reversal when the EV starts cleaner', async ({ page }) => {
   await page.goto('/info')
   await page.locator('#ev-production').press('Home')
