@@ -24,19 +24,21 @@ export default function VehicleJourney() {
   const stageRef = useRef(null)
   const [loadModel, setLoadModel] = useState(false)
   useEffect(() => {
-    const target = sectionRef.current || stageRef.current
-    if (!target) return
+    const section = sectionRef.current
+    const stage = stageRef.current
+    if (!section && !stage) return
     if (typeof IntersectionObserver === 'undefined') {
       const timer = setTimeout(() => setLoadModel(true), 0)
       return () => clearTimeout(timer)
     }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
         setLoadModel(true)
         observer.disconnect()
       }
     }, { rootMargin: '150px' })
-    observer.observe(target)
+    if (section) observer.observe(section)
+    if (stage) observer.observe(stage)
     return () => observer.disconnect()
   }, [])
   const reduced = useSyncExternalStore(subscribeMotion, readMotion, () => false)
