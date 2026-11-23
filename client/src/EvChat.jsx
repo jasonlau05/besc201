@@ -1,14 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { askEvAssistant, MAX_QUESTION_LENGTH, readConversation, requestMessages, saveConversation } from './ev-chat.mjs'
 import './EvChat.css'
 
 const suggestions = ['How does an EV work?', 'Are EVs better for the environment?', 'Why are Cybertrucks ugly?']
-
-function scrollToLatest(log) {
-  if (log && log.scrollTop >= 0 && log.scrollHeight - log.clientHeight - log.scrollTop > 1) {
-    log.scrollTop = log.scrollHeight
-  }
-}
 
 function ChatIcon() {
   return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v8a3.5 3.5 0 0 1-3.5 3.5H9l-5.5 2V7A3.5 3.5 0 0 1 7 3.5Z" /><circle cx="8" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none" /><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none" /></svg>
@@ -24,32 +18,19 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
   const logRef = useRef(null)
   const launcherRef = useRef(null)
   const requestRef = useRef(null)
-  const followLatest = useRef(true)
   const mobilePage = mobile && fullPage
 
   useEffect(() => { saveConversation(messages) }, [messages])
   useEffect(() => () => requestRef.current?.abort(), [])
   useEffect(() => {
-    if (open && !fullPage) inputRef.current?.focus({ preventScroll: true })
+    if (open) {
+      if (!fullPage) inputRef.current?.focus({ preventScroll: true })
+      if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
+    }
   }, [open, fullPage])
-  useLayoutEffect(() => {
-    followLatest.current = true
-    if (open) scrollToLatest(logRef.current)
-  }, [open, fullPage])
-  useLayoutEffect(() => {
-    if (!mobilePage || followLatest.current) scrollToLatest(logRef.current)
-  }, [messages, pendingQuestion, loading, error, mobilePage])
   useEffect(() => {
-    const log = logRef.current
-    if (!mobilePage || !log) return
-
-    // Resizing for the keyboard or a longer draft should keep the latest message in view.
-    const observer = new ResizeObserver(() => {
-      if (followLatest.current) scrollToLatest(log)
-    })
-    observer.observe(log)
-    return () => observer.disconnect()
-  }, [mobilePage])
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
+  }, [messages, pendingQuestion, loading, error])
   useEffect(() => {
     if (!open || fullPage) return
     function onKeyDown(event) {
@@ -62,65 +43,35 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [open, onOpenChange, fullPage])
 
-  useLayoutEffect(() => {
-    if (!mobilePage || !window.visualViewport) return
+  useEffect(() => {
+    if (!fullPage || !window.visualViewport) return
     const viewport = window.visualViewport
-    const root = document.documentElement
-    let frame = 0
-    let keyboardOpen = false
-
-    function update() {
-      frame = 0
-      const { height, offsetTop, scale } = viewport
-      const coveredHeight = window.innerHeight - height
-      const inputFocused = document.activeElement === inputRef.current
-      // Keep fitting the visible area while the keyboard dismisses, including after input blur.
-      const keyboardThreshold = keyboardOpen ? 64 : 120
-      keyboardOpen = scale === 1 && (inputFocused || keyboardOpen) && coveredHeight > keyboardThreshold
-      root.toggleAttribute('data-chat-keyboard-open', keyboardOpen)
-
-      if (keyboardOpen) {
-        const visibleTop = Math.min(coveredHeight, Math.max(0, offsetTop))
-        root.style.setProperty('--chat-visible-top', `${Math.round(visibleTop)}px`)
-        root.style.setProperty('--chat-visible-height', `${Math.floor(height)}px`)
-      } else {
-        root.style.removeProperty('--chat-visible-top')
-        root.style.removeProperty('--chat-visible-height')
-      }
+    const update = () => {
+      const root = document.documentElement
+      root.style.setProperty('--chat-viewport-height', `${viewport.height + viewport.offsetTop}px`)
+      root.toggleAttribute('data-chat-keyboard-open', mobile && viewport.scale === 1 && document.activeElement === inputRef.current && window.innerHeight - viewport.height > 120)
     }
-
-    function scheduleUpdate() {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-
     update()
-    viewport.addEventListener('resize', scheduleUpdate)
-    viewport.addEventListener('scroll', scheduleUpdate)
-    window.addEventListener('resize', scheduleUpdate)
-    document.addEventListener('focusin', scheduleUpdate)
+    viewport.addEventListener('resize', update)
+    viewport.addEventListener('scroll', update)
+    document.addEventListener('focusin', update)
+    document.addEventListener('focusout', update)
     return () => {
-      cancelAnimationFrame(frame)
-      viewport.removeEventListener('resize', scheduleUpdate)
-      viewport.removeEventListener('scroll', scheduleUpdate)
-      window.removeEventListener('resize', scheduleUpdate)
-      document.removeEventListener('focusin', scheduleUpdate)
-      root.style.removeProperty('--chat-visible-top')
-      root.style.removeProperty('--chat-visible-height')
-      root.removeAttribute('data-chat-keyboard-open')
+      viewport.removeEventListener('resize', update)
+      viewport.removeEventListener('scroll', update)
+      document.removeEventListener('focusin', update)
+      document.removeEventListener('focusout', update)
+      document.documentElement.style.removeProperty('--chat-viewport-height')
+      document.documentElement.removeAttribute('data-chat-keyboard-open')
     }
-  }, [mobilePage])
+  }, [fullPage, mobile])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!mobilePage || !inputRef.current) return
     const input = inputRef.current
     input.style.height = 'auto'
     input.style.height = `${Math.min(input.scrollHeight, 140)}px`
   }, [draft, mobilePage])
-
-  function trackLogScroll(event) {
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
-    followLatest.current = scrollHeight - clientHeight - Math.max(0, scrollTop) <= 24
-  }
 
   function closeChat() {
     onOpenChange(false)
@@ -132,7 +83,6 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     if (!content || content.length > MAX_QUESTION_LENGTH || requestRef.current) return
     const controller = new AbortController()
     requestRef.current = controller
-    followLatest.current = true
     setPendingQuestion(content)
     setLoading(true)
     setError('')
@@ -153,7 +103,6 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
   }
 
   function resetChat() {
-    followLatest.current = true
     setMessages([])
     setPendingQuestion('')
     setError('')
@@ -173,7 +122,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
         </div>
       </header>
 
-      <div className="ev-chat-log" ref={logRef} onScroll={mobilePage ? trackLogScroll : undefined} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
+      <div className="ev-chat-log" ref={logRef} role="log" aria-label="Conversation with Elon" aria-live="polite" aria-relevant="additions text">
         <div className="ev-chat-message ev-chat-assistant"><span className="ev-chat-sender">Elon</span><p>Welcome! Ask me about charging, batteries, costs, or environmental impact. I love electric vehicles and creating shareholder value.</p></div>
         {!messages.length && !pendingQuestion && <div className="ev-chat-suggestions" aria-label="Suggested questions">{suggestions.map(question => <button key={question} onClick={() => sendMessage(question)}>{question}<span aria-hidden="true">↗</span></button>)}</div>}
         {messages.map((message, index) => <div className={`ev-chat-message ev-chat-${message.role}`} key={index}><span className="ev-chat-sender">{message.role === 'user' ? 'You' : 'Elon'}</span><p>{message.content}</p></div>)}

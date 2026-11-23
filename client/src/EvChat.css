@@ -66,10 +66,8 @@
 .ev-chat-page .ev-chat-suggestions button { min-height: 44px; font-size: 14px; }
 .ev-chat-page .ev-chat-input-row input { font-size: 16px; }
 @media (max-width: 720px) {
-  /* Keep the native bounce inside the message list. The outer page has no scroll range. */
-  html:has(.ev-chat-page), html:has(.ev-chat-page) body { overflow: hidden; }
-  .ev-chat.ev-chat-page { padding-bottom: var(--mobile-tabs-clearance); pointer-events: auto; }
-  .ev-chat-page .ev-chat-panel { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: 100%; overflow: clip; }
+  .ev-chat.ev-chat-page { bottom: auto; height: calc(var(--chat-viewport-height, 100dvh) - var(--site-header-height)); padding-bottom: var(--mobile-tabs-clearance); pointer-events: auto; }
+  .ev-chat-page .ev-chat-panel { width: 100%; max-height: none; }
   .ev-chat-page .ev-chat-header { grid-template-columns: minmax(0, 1fr) 44px; gap: 12px; padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); color: var(--color-chat-text); background: var(--color-chat-background); }
   .ev-chat-page .ev-chat-avatar { display: none; }
   .ev-chat-page .ev-chat-heading { text-align: left; }
@@ -78,9 +76,7 @@
   .ev-chat-page .ev-chat-icon-button { color: var(--color-primary-dark); border-radius: 50%; }
   .ev-chat-page .ev-chat-icon-button:hover:not(:disabled) { background: var(--color-chat-assistant-background); }
   .ev-chat-page .ev-chat-header button:focus-visible { outline-color: var(--color-primary); }
-  .ev-chat-page .ev-chat-log { position: relative; padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); }
-  /* Safari needs a scroll range for the conversation to bounce even when it fits. */
-  .ev-chat-page .ev-chat-log::after { content: ''; position: absolute; inset: 100% auto auto 0; width: 1px; height: 1px; pointer-events: none; }
+  .ev-chat-page .ev-chat-log { padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); }
   .ev-chat-page .ev-chat-message p { font-size: 16px; line-height: 1.65; }
   .ev-chat-page .ev-chat-assistant .ev-chat-sender { color: var(--color-chat-suggestion-text); }
   .ev-chat-page .ev-chat-sender { font-family: inherit; font-size: 12px; letter-spacing: 0; }
@@ -99,14 +95,7 @@
   .ev-chat-page .ev-chat-send:active:not(:disabled) { transform: scale(.96); }
   .ev-chat-page .ev-chat-error button { min-height: 44px; }
   .ev-chat-page ::selection { background: var(--color-surface-green); color: var(--color-primary-dark); }
-  html[data-chat-keyboard-open] .ev-chat.ev-chat-page {
-    top: calc(var(--chat-visible-top) + var(--site-header-height));
-    bottom: auto;
-    height: max(0px, calc(var(--chat-visible-height) - var(--site-header-height)));
-    padding-bottom: 12px;
-  }
-  html[data-chat-keyboard-open] .site-header[data-page="chat"] { top: var(--chat-visible-top); }
-  html[data-chat-keyboard-open] :is(.site-header[data-page="chat"], .ev-chat-page .ev-chat-header) { touch-action: pinch-zoom; }
+  html[data-chat-keyboard-open] .ev-chat-page { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   html[data-chat-keyboard-open] .site-header[data-page="chat"] .nav-links { display: none; }
 }
 @media (max-width: 720px) and (prefers-reduced-motion: reduce) {
