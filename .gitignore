@@ -32,3 +32,4 @@ dist-ssr
 .agents/skills/
 .taste-skill/
 /client/test-results/
+.vercel

@@ -12,16 +12,8 @@ import { SiteHeader } from './SiteLayout'
 import './HeadingGradient.css'
 import { applyPageMetadata, getPage, normalizePath, pages } from './seo.mjs'
 
-const pages = {
-  '/': { name: 'problem', heading: 'problem-title', title: 'Our mission | Group9' },
-  '/learn': { name: 'learn', heading: 'learn-title', title: 'Learn about EVs | Group9' },
-  '/info': { name: 'info', heading: 'guide-title', title: 'Compare emissions and costs | Group9' },
-  '/chargers': { name: 'chargers', heading: 'charger-title', title: 'Find EV chargers | Group9' },
-  '/chat': { name: 'chat', heading: 'ev-chat-title', title: 'Ask the EV guide | Group9' },
-}
-const missing = { name: 'missing', heading: 'missing-title', title: 'Page not found | Group9' }
-const readPath = () => window.location.pathname.replace(/\/$/, '') || '/'
-const mobileQuery = window.matchMedia('(max-width: 720px)')
+const readPath = () => normalizePath(window.location.pathname)
+const mobileQuery = typeof window === 'undefined' ? null : window.matchMedia('(max-width: 720px)')
 const subscribeMobile = listener => {
   mobileQuery.addEventListener('change', listener)
   return () => mobileQuery.removeEventListener('change', listener)
@@ -41,11 +33,11 @@ export default function App({ initialPath = '/' }) {
   const scrollPositions = useRef(new Map())
   const pendingScroll = useRef(null)
   const focusContent = useRef(false)
-  const current = pages[path] || missing
+  const current = getPage(path)
 
   const navigate = useCallback((href) => {
     const url = new URL(href, window.location.href)
-    const next = url.pathname.replace(/\/$/, '') || '/'
+    const next = normalizePath(url.pathname)
     if (url.origin !== window.location.origin || !pages[next]) { window.location.assign(url.href); return }
     if (next === readPath()) return
     scrollPositions.current.set(readPath(), window.scrollY)
@@ -101,7 +93,7 @@ export default function App({ initialPath = '/' }) {
   else if (path === '/chat') page = null
   else if (path === '/') page = <Problem />
   else page = <main className="app-shell reading-page"><header className="reading-hero">
-    <h1 id="missing-title" tabIndex={-1}>Page not found</h1>
+    <h1 id={current.heading} tabIndex={-1}>Page not found</h1>
     <p>This address does not match a page in the EV guide.</p>
     <a className="guide-primary" href="/learn">Learn about EVs</a> <a href="/info">Compare vehicles</a>
   </header></main>

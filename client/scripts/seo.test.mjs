@@ -39,7 +39,7 @@ test('public pages ship readable HTML and distinct metadata before JavaScript', 
   assert.match(await read('index.html'), /This BESC 201 project by Group 9/)
   const compare = await read('info.html')
   assert.match(compare, /EV vs gas energy cost calculator/)
-  assert.match(compare, /EV carbon break-even calculator/)
+  assert.match(compare, /<h2 id="carbon-title">When does electric break even\?<\/h2>/)
   assert.match(compare, /13,662/)
   assert.match(compare, /excludes purchase price/)
 })
@@ -52,7 +52,10 @@ test('sitemap contains only the four public canonical pages; robots advertises i
   for (const file of ['chat.html', '404.html']) {
     assert.match(await read(file), /name="robots" content="noindex, follow"/)
   }
-  assert.doesNotMatch(await read('404.html'), /rel="canonical"/)
+  const missing = await read('404.html')
+  assert.doesNotMatch(missing, /rel="canonical"/)
+  const target = missing.match(/class="site-skip" href="#([^"]+)"/)[1]
+  assert.ok(missing.includes(`<h1 id="${target}"`))
 })
 
 test('Vercel routes each direct page request to its own prerendered HTML', async () => {

@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 test('follow Compare by keyboard and apply a saved state rate', async ({ page }) => {
   await page.goto('/learn')
   await page.getByRole('link', { name: 'Compare', exact: true }).press('Enter')
-  await expect(page).toHaveTitle('Compare emissions and costs | Group9')
+  await expect(page).toHaveTitle('EV vs Gas Cost & Carbon Calculator — Group9')
   await expect(page.locator('#guide-title')).toBeFocused()
   await page.locator('#rate-state').selectOption('CA')
   await page.getByRole('button', { name: 'Use this rate in the calculator' }).click()
@@ -35,7 +35,7 @@ test('unknown links lead back to the lesson', async ({ page }) => {
   await page.goto('/missing-lesson')
   await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
   await page.getByRole('link', { name: 'Learn about EVs', exact: true }).click()
-  await expect(page).toHaveTitle('Learn about EVs | Group9')
+  await expect(page).toHaveTitle('Electric Vehicle Basics — Group9')
 })
 
 test('carbon chart marks the reversal when the EV starts cleaner', async ({ page }) => {
