@@ -48,15 +48,16 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
     const viewport = window.visualViewport
     const root = document.documentElement
     const update = () => {
-      const keyboardOpen = viewport.scale === 1 && document.activeElement === inputRef.current && window.innerHeight - viewport.height > 120
+      const obscuredHeight = window.innerHeight - viewport.height
+      const keyboardOpen = viewport.scale === 1 && document.activeElement === inputRef.current && obscuredHeight > 120
       root.toggleAttribute('data-chat-keyboard-open', keyboardOpen)
 
-      // Keep scroll offsets out of the layout unless the keyboard is panning the viewport.
+      // The fixed frame stays at the bottom unless the keyboard covers it.
       if (keyboardOpen) {
-        const viewportBottom = Math.min(window.innerHeight, viewport.height + Math.max(0, viewport.offsetTop))
-        root.style.setProperty('--chat-viewport-height', `${viewportBottom}px`)
+        const keyboardInset = Math.max(0, obscuredHeight - Math.max(0, viewport.offsetTop))
+        root.style.setProperty('--chat-keyboard-inset', `${keyboardInset}px`)
       } else {
-        root.style.removeProperty('--chat-viewport-height')
+        root.style.removeProperty('--chat-keyboard-inset')
       }
     }
     update()
@@ -69,7 +70,7 @@ export default function EvChat({ open, onOpenChange, fullPage = false, mobile = 
       viewport.removeEventListener('scroll', update)
       document.removeEventListener('focusin', update)
       document.removeEventListener('focusout', update)
-      root.style.removeProperty('--chat-viewport-height')
+      root.style.removeProperty('--chat-keyboard-inset')
       root.removeAttribute('data-chat-keyboard-open')
     }
   }, [mobilePage])

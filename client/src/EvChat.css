@@ -66,8 +66,7 @@
 .ev-chat-page .ev-chat-suggestions button { min-height: 44px; font-size: 14px; }
 .ev-chat-page .ev-chat-input-row input { font-size: 16px; }
 @media (max-width: 720px) {
-  html:has(.ev-chat-page) { overscroll-behavior-y: none; }
-  .ev-chat.ev-chat-page { bottom: auto; height: calc(var(--chat-viewport-height, 100dvh) - var(--site-header-height)); padding-bottom: var(--mobile-tabs-clearance); pointer-events: auto; }
+  .ev-chat.ev-chat-page { bottom: var(--chat-keyboard-inset, 0px); padding-bottom: var(--mobile-tabs-clearance); pointer-events: auto; }
   .ev-chat-page .ev-chat-panel { width: 100%; max-height: none; }
   .ev-chat-page .ev-chat-header { grid-template-columns: minmax(0, 1fr) 44px; gap: 12px; padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); color: var(--color-chat-text); background: var(--color-chat-background); }
   .ev-chat-page .ev-chat-avatar { display: none; }
@@ -77,7 +76,9 @@
   .ev-chat-page .ev-chat-icon-button { color: var(--color-primary-dark); border-radius: 50%; }
   .ev-chat-page .ev-chat-icon-button:hover:not(:disabled) { background: var(--color-chat-assistant-background); }
   .ev-chat-page .ev-chat-header button:focus-visible { outline-color: var(--color-primary); }
-  .ev-chat-page .ev-chat-log { padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); overscroll-behavior-y: none; }
+  .ev-chat-page .ev-chat-log { position: relative; padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); }
+  /* Safari needs a scroll range for the conversation to bounce even when it fits. */
+  .ev-chat-page .ev-chat-log::after { content: ''; position: absolute; inset: 100% auto auto 0; width: 1px; height: 1px; pointer-events: none; }
   .ev-chat-page .ev-chat-message p { font-size: 16px; line-height: 1.65; }
   .ev-chat-page .ev-chat-assistant .ev-chat-sender { color: var(--color-chat-suggestion-text); }
   .ev-chat-page .ev-chat-sender { font-family: inherit; font-size: 12px; letter-spacing: 0; }
