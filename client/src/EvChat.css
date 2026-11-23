@@ -76,7 +76,19 @@
   .ev-chat-page .ev-chat-icon-button { color: var(--color-primary-dark); border-radius: 50%; }
   .ev-chat-page .ev-chat-icon-button:hover:not(:disabled) { background: var(--color-chat-assistant-background); }
   .ev-chat-page .ev-chat-header button:focus-visible { outline-color: var(--color-primary); }
-  .ev-chat-page .ev-chat-log { padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); }
+  .ev-chat-page .ev-chat-log {
+    position: relative;
+    padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+  }
+  /* Give short conversations a scroll range so Safari can bounce the message list. */
+  .ev-chat-page .ev-chat-log::after {
+    content: '';
+    position: absolute;
+    inset: 100% auto auto 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
   .ev-chat-page .ev-chat-message p { font-size: 16px; line-height: 1.65; }
   .ev-chat-page .ev-chat-assistant .ev-chat-sender { color: var(--color-chat-suggestion-text); }
   .ev-chat-page .ev-chat-sender { font-family: inherit; font-size: 12px; letter-spacing: 0; }

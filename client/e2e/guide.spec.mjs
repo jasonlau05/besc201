@@ -68,6 +68,19 @@ test('mobile chat keeps the input above the tabs during overscroll', async ({ pa
   expect(await inputBottom()).toBeLessThan(await page.evaluate(() => visualViewport.height))
 })
 
+test('a short mobile conversation has its own scroll range for bounce', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'Mobile chat layout')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/chat')
+
+  const log = page.getByRole('log', { name: 'Conversation with Elon' })
+  await expect(log).toBeVisible()
+  await expect(log).toHaveCSS('overscroll-behavior-y', 'contain')
+  const scrollRange = await log.evaluate(element => element.scrollHeight - element.clientHeight)
+  expect(scrollRange).toBeGreaterThan(0)
+  expect(scrollRange).toBeLessThan(5)
+})
+
 test('carbon chart marks the reversal when the EV starts cleaner', async ({ page }) => {
   await page.goto('/info')
   await page.locator('#ev-production').press('Home')
